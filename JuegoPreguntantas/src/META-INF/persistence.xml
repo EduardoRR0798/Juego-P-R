@@ -3,6 +3,7 @@
   <persistence-unit name="JuegoPreguntantasPU" transaction-type="RESOURCE_LOCAL">
     <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
     <class>entity.Cuentausuario</class>
+    <class>entity.Cuentainvitado</class>
     <properties>
       <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/juegopr?zeroDateTimeBehavior=convertToNull"/>
       <property name="javax.persistence.jdbc.user" value="pregunton"/>

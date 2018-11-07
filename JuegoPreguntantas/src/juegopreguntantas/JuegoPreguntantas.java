@@ -27,7 +27,7 @@ public class JuegoPreguntantas extends Application {
         Parent root = FXMLLoader.load(getClass().getResource("VentanaLogIn.fxml"), resourceBundle);
         
         Scene scene = new Scene(root);
-        
+        VentanaLogInController vlc = new VentanaLogInController();
         stage.setScene(scene);
         stage.show();
     }
@@ -38,5 +38,6 @@ public class JuegoPreguntantas extends Application {
     public static void main(String[] args) {
         launch(args);
     }
+    
     
 }
