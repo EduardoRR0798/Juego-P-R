@@ -1,7 +1,7 @@
-	README para la instalación de librerías
+	README para la instalaciÃ³n de librerÃ­as
 	==============================================
 
-Este demo ilustra como instalar librerías de Oracle en el proyecto a traves de NetBeans IDE 8.2.
+Este demo ilustra como instalar librerÃ­as de Oracle en el proyecto a traves de NetBeans IDE 8.2.
 
 Contenido
 ------------
@@ -15,7 +15,7 @@ Contenido
 -pop3.jar
 -smtp.jar
 
-Instalación
+InstalaciÃ³n
 ------------
 
 1. Click derecho en Libraries
