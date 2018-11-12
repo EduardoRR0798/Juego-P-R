@@ -5,9 +5,12 @@
  */
 package juegopreguntantas;
 
+import entity.Cuentainvitado;
 import entity.Cuentausuario;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,6 +24,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
+import persistencia.PersistenciaCuentaInvitado;
 
 /**
  * FXML Controller class
@@ -43,16 +47,21 @@ public class MenuPrincipalController implements Initializable {
     private Button btnInvitar;
     
     private Cuentausuario usuario;
+    private Cuentainvitado invitado;
+    private Locale locale;
     
-    /*public MenuPrincipalController(Object object) {
-        this.usuario = usuario;
-    }*/
     /**
      * Initializes the controller class.
      */
+    
+    public MenuPrincipalController() {
+        //cuenta = (Cuentausuario) usuario;
+        //System.out.println(usuario.getNombreusuario());
+    }
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        
+        //lUser.setText(usuario.getNombreusuario());
     }    
 
     @FXML
@@ -73,6 +82,11 @@ public class MenuPrincipalController implements Initializable {
     private void invitar(ActionEvent event) {
     }
     
+    /**
+     * Metodo que cierra la sesion del usuario, si se trata de un usuario 
+     * invitado invoca borrarCuentaInvitado para elimianr su cuenta de la BD.
+     * @param event Clic en el boton Cerrar Sesion.
+     */
     @FXML
     private void cerrarSesion(ActionEvent event) {
         ResourceBundle resourceBundle = ResourceBundle.getBundle("juegopreguntantas.lang/lang");
@@ -87,5 +101,25 @@ public class MenuPrincipalController implements Initializable {
             } catch (IOException ex) {
                 Logger.getLogger(MenuPrincipalController.class.getName()).log(Level.SEVERE, null, ex);
             }
+    }
+    
+    /**
+     * Metodo que recibe el objeto de cuenta de usuario o invitado del
+     * Controlador de la pantalla de Login.
+     * @param cuenta Cuenta de invitado o usuario registrado.
+     * @param idioma idioma del properties.
+     */
+    public void recibirParametros(Object cuenta, String idioma) {
+        Locale.setDefault(new Locale(idioma));
+        usuario = (Cuentausuario) cuenta;
+        lUser.setText(usuario.getNombreusuario());
+    }
+    
+    /**
+     * Metodo que elimina la cuenta de un usuario invitado una vez que cerro sesion.
+     */
+    public void borrarcuentainvitado() {
+        PersistenciaCuentaInvitado persistenciainvitado = new PersistenciaCuentaInvitado();
+        
     }
 }

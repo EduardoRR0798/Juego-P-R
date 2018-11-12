@@ -61,9 +61,9 @@ public class VentanaLogInController implements Initializable {
     @FXML
     private Label lMensaje;
     
-    private ResourceBundle bundle;
-    private Locale locale;
+    private Object cuenta; 
     private ObservableList idiomas = FXCollections.observableArrayList("Español", "English");
+    private String idioma;
     
     /**
      * Initializes the controller class.
@@ -73,31 +73,44 @@ public class VentanaLogInController implements Initializable {
         cbCambiarIdioma.setItems(idiomas);
     }    
     
-    public VentanaLogInController() {}
-    
     @FXML
-    private void ingresar(ActionEvent event) {
-        if(validarAcceso() == true && validarCampos() == true) {
-            ResourceBundle resourceBundle = ResourceBundle.getBundle("juegopreguntantas.lang/lang");
-            try {
-                Parent root = FXMLLoader.load(getClass().getResource("MenuPrincipal.fxml"), resourceBundle);
-                Scene scene = new Scene(root);
-                Stage stage = new Stage();
-                stage.setTitle("Menu principal");
-                stage.setScene(scene);
-                stage.show();
-                ((Node) (event.getSource())).getScene().getWindow().hide();
-            } catch (IOException ex) {
-                Logger.getLogger(VentanaLogInController.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        } 
-    }
+    private void ingresar(ActionEvent event) throws IOException {
+        if (validarAcceso() == true && validarCampos() == true) {
+            Locale.setDefault(new Locale(idioma));
+            ResourceBundle resourceBundle = ResourceBundle.getBundle("juegopreguntantas.lang/lang");          
+            
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource("MenuPrincipal.fxml"));
+            loader.setResources(resourceBundle);
+            Parent menu = loader.load();
+            
+            MenuPrincipalController controller = loader.getController();
+            controller.recibirParametros(cuenta, idioma);
+            
+            Scene scene = new Scene(menu);
+            Stage stage = new Stage();
+            
+            stage.setScene(scene);
+            stage.show();
 
+            ((Node) (event.getSource())).getScene().getWindow().hide();
+        }
+    }
+    
+    
+    /**
+     * Metodo que invoca la pantalla de registro.
+     * @param event Clic en el boton Registrar.
+     */
     @FXML
     private void registrar(ActionEvent event) {
         
     }
-
+    
+    /**
+     * Metodo que cierra el programa.
+     * @param event Clic en cerrar.
+     */
     @FXML
     private void cerrar(ActionEvent event) {
         System.exit(0);
@@ -126,10 +139,11 @@ public class VentanaLogInController implements Initializable {
     private boolean validarIngresoUsuario() {
         boolean ingresoExitoso = false;
         Persistencia persistencia = new Persistencia();
-        Cuentausuario cuenta = persistencia.getCuentaUsuarioNombre(tfUser.getText());
-        if (cuenta != null) {
-            if (pfPassword.getText().equals(cuenta.getContrasenia())
-                    && tfUser.getText().equals(cuenta.getNombreusuario())) {
+        Cuentausuario usuario = persistencia.getCuentaUsuarioNombre(tfUser.getText().replaceAll("\\s", ""));
+        if (usuario != null) {
+            if (pfPassword.getText().replaceAll("\\s", "").equals(usuario.getContrasenia())
+                    && tfUser.getText().replaceAll("\\s", "").equals(usuario.getNombreusuario())) {
+                cuenta = usuario;
                 ingresoExitoso = true;
                 lMensaje.setText("Iniciando Sesion...");
             } else {
@@ -138,7 +152,6 @@ public class VentanaLogInController implements Initializable {
         } else {
             lMensaje.setText("Usuario no encontrado");
         }
-        
         return ingresoExitoso;   
     }
     
@@ -150,11 +163,12 @@ public class VentanaLogInController implements Initializable {
     private boolean validarIngresoInvitado() {
         boolean ingresoExitoso = false;
         Persistencia persistencia = new Persistencia();
-        Cuentainvitado invitado = persistencia.getCuentaInvitado(tfUser.getText());
+        Cuentainvitado invitado = persistencia.getCuentaInvitado(tfUser.getText().replaceAll("\\s", ""));
         if(invitado != null) {
-            if (pfPassword.getText().equals(invitado.getCodigo())
-                    && tfUser.getText().equals(invitado.getNombre())) {
+            if (pfPassword.getText().replaceAll("\\s", "").equals(invitado.getCodigo())
+                    && tfUser.getText().replaceAll("\\s", "").equals(invitado.getNombre())) {
                 ingresoExitoso = true;
+                cuenta = invitado;
                 lMensaje.setText("Iniciando Sesion...");
             } else {
                 lMensaje.setText("Usuario o Contraseña incorrectos.");
@@ -182,5 +196,58 @@ public class VentanaLogInController implements Initializable {
             }
         }
         return ingresoExitoso;
+    }
+    
+    @FXML
+    private void cambiarIdioma(ActionEvent event) {
+        String idioma;
+        if(cbCambiarIdioma.getSelectionModel().getSelectedItem().equals("English")) {
+            idioma = "en";
+        } else {
+            idioma = "es";
+        }
+        abrirLogin(idioma, event);
+    }
+    
+    private void abrirLogin(String idioma, ActionEvent event) {
+        Locale.setDefault(new Locale(idioma));
+        ResourceBundle resourceBundle = ResourceBundle.getBundle("juegopreguntantas.lang/lang");
+        
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("VentanaLogIn.fxml"));
+        loader.setResources(resourceBundle);
+        try {
+            Parent logIn = loader.load();
+            VentanaLogInController controller = loader.getController();
+            controller.setIdioma(idioma);
+            
+            Scene scene = new Scene(logIn);
+            Stage stage = new Stage();
+            
+            stage.setScene(scene);
+            stage.show();
+            
+            ((Node) event.getSource()).getScene().getWindow().hide();
+        } catch (IOException ex) {
+            Logger.getLogger(VentanaLogInController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    private String identificarIdioma() {
+        String idioma = "";
+        if(cbCambiarIdioma.getSelectionModel().isEmpty()) {
+            idioma = "es";
+        }else {
+            if (cbCambiarIdioma.getSelectionModel().getSelectedItem().equals("Español")) {
+                idioma = "es";
+            } else {
+                idioma = "en";
+            }
+        }
+        return idioma;
+    }
+    
+    private void setIdioma(String idioma) {
+        this.idioma = idioma;
     }
 }

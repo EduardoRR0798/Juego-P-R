@@ -32,6 +32,6 @@
       <CheckBox fx:id="chbInvitado" layoutX="301.0" layoutY="244.0" mnemonicParsing="false" text="%chb.invitado" textFill="WHITE" AnchorPane.leftAnchor="301.0" />
       <Label fx:id="lMensaje" layoutX="300.0" layoutY="85.0" prefHeight="17.0" prefWidth="260.0" textFill="WHITE" AnchorPane.leftAnchor="300.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="85.0" />
       <PasswordField fx:id="pfPassword" layoutX="302.0" layoutY="203.0" prefHeight="25.0" prefWidth="260.0" AnchorPane.leftAnchor="302.0" AnchorPane.rightAnchor="38.0" />
-      <ComboBox fx:id="cbCambiarIdioma" layoutX="412.0" layoutY="361.0" prefWidth="150.0" promptText="%cb.cambiar_idioma" style="-fx-background-color: #FFFFFF;" />
+      <ComboBox fx:id="cbCambiarIdioma" layoutX="412.0" layoutY="361.0" onAction="#cambiarIdioma" prefWidth="150.0" promptText="%cb.cambiar_idioma" style="-fx-background-color: #FFFFFF;" />
    </children>
 </AnchorPane>
