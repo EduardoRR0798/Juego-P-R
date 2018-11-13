@@ -1,14 +1,15 @@
 package persistencia;
-
+  
+import java.util.ArrayList;
 import entity.Cuentainvitado;
 import entity.Cuentausuario;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
+import javax.persistence.NoResultException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.persistence.EntityManager;
@@ -17,7 +18,7 @@ import javax.persistence.Query;
 
 /******************************************************************/ 
 /* @version 1.0                                                   */ 
-/* @author Puxka Acosta Domínguez                                 */ 
+/* @author Puxka Acosta Domínguez Eduardo Rosas Rivera            */ 
 /* @since 07/11/2018                                              */
 /* Nombre de la clase EnviarInvitacionController                  */
 /******************************************************************/
@@ -64,7 +65,7 @@ public class PersistenciaCuentaInvitado {
         }
     }
     
-    /**
+
      * Este metodo es para crear el nombre al invitado
      * @return El nombre de la cuenta de invitado
      */
@@ -174,6 +175,75 @@ public class PersistenciaCuentaInvitado {
             em.close();
         }
     }
+  
+      /**
+     * Constructor de la clase.
+     */
+    public PersistenciaCuentaInvitado() {}
+    
+    /**
+     * Metodo que registra una Cuentainvitado en la base de datos.
+     * @param cu Entidad de cuentainvitado a guardar;
+     */
+    public void registrarCuentaInvitado(Cuentainvitado ci) {
+        PersistenciaCuentaInvitado persistencia = new PersistenciaCuentaInvitado();
+        persistencia.persist(ci);
+    }
+    
+    /**
+     * Metodo que guarda objetos en la base de datos.
+     * @param object objeto a guadar en la base de datos.
+     */
+    public void persist(Object object) {
+        EntityManagerFactory emf = javax.persistence.Persistence.createEntityManagerFactory("JuegoPreguntantasPU");
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
+        try {
+            em.persist(object);
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            em.getTransaction().rollback();
+        } finally {
+            em.close();
+        }
+    }
+          /**
+     * Metodo usado para eliminar una cuenta de un usuario registrado en la base de datos.
+     * @param id identificador de la cuenta a eliminar.
+     */
+    public void destroyCuentaInvitado(long id) {
+        EntityManagerFactory emf = javax.persistence.Persistence.createEntityManagerFactory("JuegoPreguntantasPU");
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
+        try {
+            Cuentainvitado cu= em.find(Cuentainvitado.class, id);
+            em.remove(cu);
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            em.getTransaction().rollback();
+        } finally {
+            em.close();
+        }
+    }
+    
+    /**
+     * Metodo que busca el nombre ingresado por el usuario en la base de datos de la tabla de invitados.
+     * @param nombreinvitado nombre ingresado por el usuario en la pantalla de login.
+     * @return true si la cuenta de tipo invitado existe en la base de datos, false si no existe.
+     */
+    public Cuentainvitado getCuentaInvitado(String nombreinvitado) {
+        EntityManagerFactory emf = javax.persistence.Persistence.createEntityManagerFactory("JuegoPreguntantasPU");
+        EntityManager em = emf.createEntityManager();
+        Cuentainvitado invitado = new Cuentainvitado();
+        try {
+            invitado = (Cuentainvitado) em.createQuery("SELECT c FROM Cuentainvitado c WHERE c.nombre = \""+ nombreinvitado +"\"").getSingleResult();
+        } catch (NoResultException noResult) {
+            invitado = null;
+        } finally {
+            em.close();
+        }
+        return invitado;
+    }
 }
-
-
