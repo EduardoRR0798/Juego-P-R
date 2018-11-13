@@ -5,6 +5,7 @@
  */
 package juegopreguntantas;
 
+import persistencia.PersistenciaCuentaUsuario;
 import entity.Cuentainvitado;
 import entity.Cuentausuario;
 import java.io.IOException;
@@ -63,7 +64,7 @@ public class VentanaLogInController implements Initializable {
     
     private Object cuenta; 
     private ObservableList idiomas = FXCollections.observableArrayList("Español", "English");
-    private String idioma;
+    private String idioma = "es";
     
     /**
      * Initializes the controller class.
@@ -75,7 +76,7 @@ public class VentanaLogInController implements Initializable {
     
     @FXML
     private void ingresar(ActionEvent event) throws IOException {
-        if (validarAcceso() == true && validarCampos() == true) {
+        if (validarCampos() == true && validarAcceso() == true) {
             Locale.setDefault(new Locale(idioma));
             ResourceBundle resourceBundle = ResourceBundle.getBundle("juegopreguntantas.lang/lang");          
             
@@ -104,7 +105,28 @@ public class VentanaLogInController implements Initializable {
      */
     @FXML
     private void registrar(ActionEvent event) {
-        
+        Locale.setDefault(new Locale(idioma));
+        ResourceBundle resourceBundle = ResourceBundle.getBundle("juegopreguntantas.lang/lang");
+
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("RegistrarUsuario.fxml"));
+        loader.setResources(resourceBundle);
+        Parent registro;
+        try {
+            registro = loader.load();
+            RegistrarUsuarioController controller = loader.getController();
+            controller.setIdioma(idioma);
+            
+            Scene scene = new Scene(registro);
+            Stage stage = new Stage();
+            
+            stage.setScene(scene);
+            stage.show();
+
+            ((Node) (event.getSource())).getScene().getWindow().hide();
+        } catch (IOException ex) {
+            Logger.getLogger(VentanaLogInController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     /**
@@ -124,9 +146,11 @@ public class VentanaLogInController implements Initializable {
         boolean validador = true;
         if(tfUser.getText().equals(null)) {
             validador = false;
+            lMensaje.setText("Llene todos los campos.");
         }
         if(pfPassword.getText().equals(null)) {
             validador = false;
+            lMensaje.setText("Llene todos los campos.");
         }
         return validador;
     }
@@ -138,7 +162,7 @@ public class VentanaLogInController implements Initializable {
      */
     private boolean validarIngresoUsuario() {
         boolean ingresoExitoso = false;
-        Persistencia persistencia = new Persistencia();
+        PersistenciaCuentaUsuario persistencia = new PersistenciaCuentaUsuario();
         Cuentausuario usuario = persistencia.getCuentaUsuarioNombre(tfUser.getText().replaceAll("\\s", ""));
         if (usuario != null) {
             if (pfPassword.getText().replaceAll("\\s", "").equals(usuario.getContrasenia())
@@ -162,8 +186,8 @@ public class VentanaLogInController implements Initializable {
      */
     private boolean validarIngresoInvitado() {
         boolean ingresoExitoso = false;
-        Persistencia persistencia = new Persistencia();
-        Cuentainvitado invitado = persistencia.getCuentaInvitado(tfUser.getText().replaceAll("\\s", ""));
+        PersistenciaCuentaUsuario persistencia = new PersistenciaCuentaUsuario();
+        Cuentainvitado invitado = persistencia.getCuentaInvitadoPorNombre(tfUser.getText().replaceAll("\\s", ""));
         if(invitado != null) {
             if (pfPassword.getText().replaceAll("\\s", "").equals(invitado.getCodigo())
                     && tfUser.getText().replaceAll("\\s", "").equals(invitado.getNombre())) {
@@ -233,8 +257,7 @@ public class VentanaLogInController implements Initializable {
         }
     }
     
-    private String identificarIdioma() {
-        String idioma = "";
+    private void identificarIdioma() {
         if(cbCambiarIdioma.getSelectionModel().isEmpty()) {
             idioma = "es";
         }else {
@@ -244,10 +267,10 @@ public class VentanaLogInController implements Initializable {
                 idioma = "en";
             }
         }
-        return idioma;
     }
     
-    private void setIdioma(String idioma) {
+    public void setIdioma(String idioma) {
         this.idioma = idioma;
+        System.out.println(idioma);
     }
 }

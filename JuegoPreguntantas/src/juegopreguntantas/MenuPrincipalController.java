@@ -10,7 +10,6 @@ import entity.Cuentausuario;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,13 +23,13 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
-import persistencia.PersistenciaCuentaInvitado;
 
-/**
- * FXML Controller class
- *
- * @author Eduar
- */
+/******************************************************************/ 
+/* @version 1.0                                                   */ 
+/* @author Eduardo Rosas Rivera                                   */ 
+/* @since 29/10/2018                                              */
+/* Nombre de la clase MenuPrincipalController                     */
+/******************************************************************/
 public class MenuPrincipalController implements Initializable {
 
     @FXML
@@ -45,146 +44,87 @@ public class MenuPrincipalController implements Initializable {
     private Button btnIniciar;
     @FXML
     private Button btnInvitar;
-    
+    private Object cuenta;
     private Cuentausuario usuario;
     private Cuentainvitado invitado;
-    private Locale locale;
+    private String idioma;
     
     /**
      * Initializes the controller class.
      */
     
     public MenuPrincipalController() {
-        //cuenta = (Cuentausuario) usuario;
-        //System.out.println(usuario.getNombreusuario());
+        
     }
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        //lUser.setText(usuario.getNombreusuario());
+        
     }    
 
-    /**
-     * Este metodo es para ir a la ventana de registrar pregunta
-     * @param event del click del mouse
-     */
     @FXML
     private void registrarPregunta(ActionEvent event) {
+        
+    }
 
+    @FXML
+    private void uniseAPartida(ActionEvent event) {
+        Locale.setDefault(new Locale(idioma));
+        ResourceBundle resourceBundle = ResourceBundle.getBundle("juegopreguntantas.lang/lang");
+
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("EsperarPartida.fxml"));
+        loader.setResources(resourceBundle);
+        Parent registro;
         try {
-
-            Locale.setDefault(new Locale(idioma));
-            ResourceBundle resourceBundle = ResourceBundle
-                    .getBundle("juegopreguntantas.lang/lang");
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(getClass()
-                    .getResource("RegistrarPregunta.fxml"));
-            loader.setResources(resourceBundle);
-            Parent esperaJugadores = loader.load();
-            RegistrarPreguntaController controller = loader.getController();
+            registro = loader.load();
+            EsperarPartidaController controller = loader.getController();
             controller.recibirParametros(cuenta, idioma);
-            Scene scene = new Scene(esperaJugadores);
+            
+            Scene scene = new Scene(registro);
             Stage stage = new Stage();
-            stage.setTitle("Preguntas");
+            
             stage.setScene(scene);
             stage.show();
+
             ((Node) (event.getSource())).getScene().getWindow().hide();
-        } catch (IOException e) {
-            
-            e.printStackTrace();
+        } catch (IOException ex) {
+            Logger.getLogger(VentanaLogInController.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    @FXML
+    private void iniciarPartida(ActionEvent event) {
     }
     
     /**
-     * Este metodo es para ir a la ventana para unirse a una partida disponible
-     * @param event del click del mouse
-     */
-    @FXML
-    private void uniseAPartida(ActionEvent event) {
-
-        try {
-
-            Locale.setDefault(new Locale(idioma));
-            ResourceBundle resourceBundle = ResourceBundle
-                    .getBundle("juegopreguntantas.lang/lang");
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(getClass()
-                    .getResource("EsperarPartida.fxml"));
-            loader.setResources(resourceBundle);
-            Parent esperaJugadores = loader.load();
-            EsperarPartidaController controller = loader.getController();
-            controller.recibirParametros(cuenta, idioma);
-            Scene scene = new Scene(esperaJugadores);
-            Stage stage = new Stage();
-            stage.setTitle("Espera de inicio de partida");
-            stage.setScene(scene);
-            stage.show();
-            ((Node) (event.getSource())).getScene().getWindow().hide();
-        } catch (IOException e) {
-            
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Este metodo es para ir a la ventana para iniciar una partida
-     * @param event del click del mouse
-     */    
-    @FXML
-    private void iniciarPartida(ActionEvent event) {
-        
-        try {
-            
-            Locale.setDefault(new Locale(idioma));
-            ResourceBundle resourceBundle = ResourceBundle
-                    .getBundle("juegopreguntantas.lang/lang");
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(getClass()
-                    .getResource("InicioPartida.fxml"));
-            loader.setResources(resourceBundle);
-            Parent esperaJugadores = loader.load();
-            InicioPartidaController controller = loader.getController();
-            controller.recibirParametros(cuenta, idioma);
-            Scene scene = new Scene(esperaJugadores);
-            Stage stage = new Stage();
-            stage.setTitle("Iniciar partida");
-            stage.setScene(scene);
-            stage.show();
-            ((Node) (event.getSource())).getScene().getWindow().hide();
-        } catch (IOException e) {
-            
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Este metodo es para ir a la ventana de enviar invitacion
-     * @param event del click del mouse
+     * Este metodo invoca a la pantalla EnviarInvitacion y le pasa como parametro
+     * el objeto y el idioma.
+     * @param event Clic en el boton invitar.
      */
     @FXML
     private void invitar(ActionEvent event) {
-        
+        Locale.setDefault(new Locale(idioma));
+        ResourceBundle resourceBundle = ResourceBundle.getBundle("juegopreguntantas.lang/lang");
+
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("EnviarInvitacion.fxml"));
+        loader.setResources(resourceBundle);
+        Parent registro;
         try {
-            
-            Locale.setDefault(new Locale(idioma));
-            ResourceBundle resourceBundle = ResourceBundle
-                    .getBundle("juegopreguntantas.lang/lang");
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(getClass()
-                    .getResource("EnviarInvitacion.fxml"));
-            loader.setResources(resourceBundle);
-            Parent esperaJugadores = loader.load();
+            registro = loader.load();
             EnviarInvitacionController controller = loader.getController();
             controller.recibirParametros(cuenta, idioma);
-            Scene scene = new Scene(esperaJugadores);
+            
+            Scene scene = new Scene(registro);
             Stage stage = new Stage();
-            stage.setTitle("Envio de invitacion");
+            
             stage.setScene(scene);
             stage.show();
+
             ((Node) (event.getSource())).getScene().getWindow().hide();
-        } catch (IOException e) {
-            
-            e.printStackTrace();
+        } catch (IOException ex) {
+            Logger.getLogger(VentanaLogInController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
@@ -195,18 +135,27 @@ public class MenuPrincipalController implements Initializable {
      */
     @FXML
     private void cerrarSesion(ActionEvent event) {
+        Locale.setDefault(new Locale(idioma));
         ResourceBundle resourceBundle = ResourceBundle.getBundle("juegopreguntantas.lang/lang");
-            try {
-                Parent root = FXMLLoader.load(getClass().getResource("VentanaLogIn.fxml"), resourceBundle);
-                Scene scene = new Scene(root);
-                Stage stage = new Stage();
-                stage.setTitle("Inicio de sesion");
-                stage.setScene(scene);
-                stage.show();
-                ((Node) (event.getSource())).getScene().getWindow().hide();
-            } catch (IOException ex) {
-                Logger.getLogger(MenuPrincipalController.class.getName()).log(Level.SEVERE, null, ex);
-            }
+        
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("VentanaLogIn.fxml"));
+        loader.setResources(resourceBundle);
+        try {
+            Parent logIn = loader.load();
+            VentanaLogInController controller = loader.getController();
+            controller.setIdioma(idioma);
+            
+            Scene scene = new Scene(logIn);
+            Stage stage = new Stage();
+            
+            stage.setScene(scene);
+            stage.show();
+            
+            ((Node) event.getSource()).getScene().getWindow().hide();
+        } catch (IOException ex) {
+            Logger.getLogger(MenuPrincipalController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     /**
@@ -217,15 +166,17 @@ public class MenuPrincipalController implements Initializable {
      */
     public void recibirParametros(Object cuenta, String idioma) {
         Locale.setDefault(new Locale(idioma));
-        usuario = (Cuentausuario) cuenta;
-        lUser.setText(usuario.getNombreusuario());
+        this.idioma = idioma;
+        this.cuenta = cuenta;
+        if(cuenta instanceof Cuentausuario) {
+            this.usuario = (Cuentausuario) cuenta;
+            lUser.setText(usuario.getNombreusuario());
+        } else {
+            this.invitado = (Cuentainvitado) cuenta;
+            btnIniciar.setDisable(true);
+            btnRegistrar.setDisable(true);
+            lUser.setText(invitado.getNombre());
+        }
     }
     
-    /**
-     * Metodo que elimina la cuenta de un usuario invitado una vez que cerro sesion.
-     */
-    public void borrarcuentainvitado() {
-        PersistenciaCuentaInvitado persistenciainvitado = new PersistenciaCuentaInvitado();
-        
-    }
 }

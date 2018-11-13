@@ -6,7 +6,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #355C7D;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juegopreguntantas.RegistrarUsuarioController">
   <columnConstraints>
     <ColumnConstraints hgrow="SOMETIMES" maxWidth="356.0" minWidth="10.0" prefWidth="147.0" />
     <ColumnConstraints hgrow="SOMETIMES" maxWidth="493.0" minWidth="10.0" prefWidth="453.0" />
@@ -21,22 +21,22 @@
       <RowConstraints minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
   </rowConstraints>
    <children>
-      <Label alignment="TOP_CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="603.0" text="%lbl.registrar_usuario" textAlignment="CENTER" textFill="WHITE" GridPane.columnSpan="2">
+      <Label alignment="TOP_CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="603.0" text="%lbl.registrar_usuario" textAlignment="CENTER" GridPane.columnSpan="2">
          <font>
             <Font size="25.0" />
          </font>
       </Label>
-      <Label text="%lbl.nombre_usuario" textFill="WHITE" GridPane.halignment="LEFT" GridPane.rowIndex="2">
+      <Label text="%lbl.nombre_usuario" GridPane.halignment="LEFT" GridPane.rowIndex="2">
          <GridPane.margin>
             <Insets left="20.0" />
          </GridPane.margin>
       </Label>
-      <Label layoutX="10.0" layoutY="49.0" text="%lbl.contrasenia" textFill="WHITE" GridPane.halignment="LEFT" GridPane.rowIndex="4">
+      <Label layoutX="10.0" layoutY="49.0" text="%lbl.contrasenia" GridPane.halignment="LEFT" GridPane.rowIndex="4">
          <padding>
             <Insets left="20.0" />
          </padding>
       </Label>
-      <Label alignment="CENTER" layoutX="10.0" layoutY="49.0" text="%lbl.correo_electronico" textFill="WHITE" GridPane.halignment="LEFT" GridPane.rowIndex="3">
+      <Label alignment="CENTER" layoutX="10.0" layoutY="49.0" text="%lbl.correo_electronico" GridPane.halignment="LEFT" GridPane.rowIndex="3">
          <padding>
             <Insets left="20.0" />
          </padding>
@@ -66,13 +66,14 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Button fx:id="btnCancelar" mnemonicParsing="false" style="-fx-background-color: #F67280;" text="%btn.cancelar" GridPane.halignment="RIGHT" />
-            <Button fx:id="btnRegistrar" mnemonicParsing="false" style="-fx-background-color: #F8B195;" text="%btn.registrar" GridPane.columnIndex="2" GridPane.halignment="RIGHT" />
+            <Button fx:id="btnCancelar" mnemonicParsing="false" onAction="#cancelar" text="%btn.cancelar" GridPane.halignment="RIGHT" />
+            <Button fx:id="btnRegistrar" mnemonicParsing="false" onAction="#registrar" text="%btn.registrar" GridPane.columnIndex="2" GridPane.halignment="RIGHT" />
          </children>
          <padding>
             <Insets right="20.0" />
          </padding>
       </GridPane>
-      <Label alignment="CENTER" prefHeight="17.0" prefWidth="656.0" text="%lbl.instruccion_usuario" textFill="WHITE" GridPane.columnSpan="2" GridPane.rowIndex="1" GridPane.valignment="TOP" />
+      <Label alignment="CENTER" prefHeight="17.0" prefWidth="656.0" text="%lbl.instruccion_usuario" GridPane.columnSpan="2" GridPane.rowIndex="1" GridPane.valignment="TOP" />
+      <Label fx:id="lMensaje" prefHeight="17.0" prefWidth="359.0" GridPane.columnIndex="1" GridPane.rowIndex="5" />
    </children>
 </GridPane>
