@@ -77,8 +77,6 @@ public class VentanaLogInController implements Initializable {
     @FXML
     private void ingresar(ActionEvent event) throws IOException {
         if (validarCampos() == true && validarAcceso() == true) {
-            //identificarIdioma();
-            System.out.println(idioma);
             Locale.setDefault(new Locale(idioma));
             ResourceBundle resourceBundle = ResourceBundle.getBundle("juegopreguntantas.lang/lang");          
             
@@ -273,5 +271,6 @@ public class VentanaLogInController implements Initializable {
     
     public void setIdioma(String idioma) {
         this.idioma = idioma;
+        System.out.println(idioma);
     }
 }

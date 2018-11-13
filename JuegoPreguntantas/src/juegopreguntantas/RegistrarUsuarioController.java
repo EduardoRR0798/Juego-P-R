@@ -54,7 +54,11 @@ public class RegistrarUsuarioController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
     }    
-
+  
+    /**
+     * Este metodo regresa a la pantalla de login.
+     * @param event Clic en cancelar.
+     */
     @FXML
     private void cancelar(ActionEvent event) {
         Locale.setDefault(new Locale(idioma));
@@ -79,11 +83,14 @@ public class RegistrarUsuarioController implements Initializable {
             Logger.getLogger(VentanaLogInController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+  
+    /**
+     * Este metodo registra a un usuario en la base de datos.
+     * @param event Clic en el boton Registrar.
+     */
     @FXML
     private void registrar(ActionEvent event) {
         PersistenciaCuentaUsuario persistencia = new PersistenciaCuentaUsuario();
-        
         if(validarCampos() == true){
             if(verificarRegistroUsuario() == true) {
                 Cuentausuario usuario = new Cuentausuario();
@@ -96,7 +103,7 @@ public class RegistrarUsuarioController implements Initializable {
         } else {
             lMensaje.setText("Llene todos los datos.");
         }
-        
+      
     }
     
     /**
@@ -130,6 +137,11 @@ public class RegistrarUsuarioController implements Initializable {
         return permiso;
     }
     
+
+    /**
+     * Este metodo verifica que no exista ese nombre en la base de datos.
+     * @return true si no existe, false si existe.
+     */
     private boolean verificarRegistrosNombre() {
         boolean permiso = false;
         PersistenciaCuentaUsuario persistencia = new PersistenciaCuentaUsuario();
@@ -140,6 +152,11 @@ public class RegistrarUsuarioController implements Initializable {
         return permiso;
     }
     
+
+    /**
+     * Este metodo verifica que el correo electronico no exista en la base de datos.
+     * @return true si no existe, false si existe.
+     */
     private boolean verificarRegistrosEmail() {
         boolean permiso = false;
         PersistenciaCuentaUsuario persistencia = new PersistenciaCuentaUsuario();
@@ -150,6 +167,10 @@ public class RegistrarUsuarioController implements Initializable {
         return permiso;
     }
     
+    /**
+     * Este metodo verifica si alguno de los dos metodos verificadores obtienen true.
+     * @return true si el usuario se puede registrar, false si no puede.
+     */
     private boolean verificarRegistroUsuario() {
         boolean permiso = true;
         if(verificarRegistrosNombre() != true) {
