@@ -175,6 +175,7 @@ public class MenuPrincipalController implements Initializable {
             this.invitado = (Cuentainvitado) cuenta;
             btnIniciar.setDisable(true);
             btnRegistrar.setDisable(true);
+            btnInvitar.setDisable(true);
             lUser.setText(invitado.getNombre());
         }
     }
