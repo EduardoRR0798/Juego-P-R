@@ -1,7 +1,10 @@
 package juegopreguntantas;
 
+import entity.Cuentausuario;
+import entity.Setpregunta;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -15,6 +18,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.stage.Stage;
+import persistencia.PersistenciaCuentaUsuario;
+import persistencia.PersistenciaPartida;
+import persistencia.PersistenciaSetpregunta;
 
 /******************************************************************/ 
 /* @version 1.0                                                   */ 
@@ -25,11 +31,21 @@ import javafx.stage.Stage;
 public class EsperarPartidaController implements Initializable {
 
     @FXML
-    private ComboBox<?> cbCategorias;
+    private ComboBox<String> cbCategorias;
     @FXML
-    private ComboBox<?> cbPartidas;
+    private ComboBox<String> cbPartidas;
     @FXML
     private Button btnCancelar;
+    
+    private Cuentausuario cuenta;
+    private String idioma;    
+    
+    @Override
+    public void initialize(URL url, ResourceBundle rb) {
+        
+        PersistenciaSetpregunta setPreguntaBD = new PersistenciaSetpregunta();
+        cbCategorias.getItems().addAll(setPreguntaBD.recuperarCategoria(cuenta));
+    }
 
     /**
      * Este metodo es para cancelar el inicio de la partida y regresar a la 
@@ -38,7 +54,9 @@ public class EsperarPartidaController implements Initializable {
      */
     @FXML
     private void cancelar(ActionEvent event) {
+        
         try {
+            
             ResourceBundle resourceBundle = ResourceBundle.getBundle
                 ("juegopreguntantas.lang/lang");
             Parent root = FXMLLoader.load(getClass().getResource
@@ -50,28 +68,35 @@ public class EsperarPartidaController implements Initializable {
             stage.show();
             ((Node) (event.getSource())).getScene().getWindow().hide();
         } catch (IOException e) {
+            
             Logger.getLogger(EnviarInvitacionController.class.getName()).log(Level.SEVERE, null, e);
         }
-    }
-    
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
-        //ESTO DEBE ESTAR EN LO DE LA DAO
-        /*
-        Map<String, String> properties = new HashMap<String, String>();
-        properties.put("javax.persistence.jdbc.user", "root");
-        properties.put("javax.persistence.jdbc.password", "puxkas");
-
-        EntityManagerFactory emf = javax.persistence.Persistence.createEntityManagerFactory("JuegoPreguntantasPU", properties);
-        EntityManager em = emf.createEntityManager();
-        em.getTransaction().begin();
-        try {
-            List<Employees> results = em.createNamedQuery("Employees.findByHireDate").setParameter("hireDate", date1).getResultList();
-            System.out.println(results.get(0).getEmpNo());
-        } catch (ParseException ex) {
-            Logger.getLogger(Empleados.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        */
     }    
     
+    /**
+     * Este metodo es para mostrar las partidas del set de preguntas 
+     * seleccionado anteriormente
+     * @param event del click del mouse
+     */
+    @FXML
+    private void mostrarPartidas(ActionEvent event) {
+
+        PersistenciaPartida partidaBD = new PersistenciaPartida();
+        PersistenciaSetpregunta setPreguntaBD = new PersistenciaSetpregunta();
+        Setpregunta setpregunta = setPreguntaBD
+                .recuperarSetPregunta(cbCategorias.getValue());
+        cbPartidas.getItems().addAll(partidaBD.recuperarNombre(setpregunta));
+    }
+    
+    /**
+     * Metodo que recibe el objeto de cuenta de usuario o invitado del 
+     * Controlador de la pantalla que la invocó
+     * @param usuario Cuenta de usuario registrado
+     * @param idioma Idioma del properties
+     */
+    public void recibirParametros(Object usuario, String idioma){
+        
+        Locale.setDefault(new Locale(idioma));
+        cuenta = (Cuentausuario)usuario;
+    }
 }
