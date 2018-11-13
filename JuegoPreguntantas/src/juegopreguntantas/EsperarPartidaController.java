@@ -37,7 +37,9 @@ public class EsperarPartidaController implements Initializable {
     @FXML
     private Button btnCancelar;
     
-    private Cuentausuario cuenta;
+    private Object cuenta;
+    private Cuentausuario usuario;
+    private Cuentainvitado invitado;
     private String idioma;    
     
     @Override
@@ -96,7 +98,12 @@ public class EsperarPartidaController implements Initializable {
      */
     public void recibirParametros(Object usuario, String idioma){
         
+        this.cuenta = usuario;
         Locale.setDefault(new Locale(idioma));
-        cuenta = (Cuentausuario)usuario;
+        if(cuenta instanceof Cuentausuario) {
+            this.usuario = (Cuentausuario) cuenta;
+        } else {
+            this.invitado = (Cuentainvitado) cuenta;
+        }
     }
 }
