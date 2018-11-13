@@ -111,8 +111,14 @@ public class MenuPrincipalController implements Initializable {
      */
     public void recibirParametros(Object cuenta, String idioma) {
         Locale.setDefault(new Locale(idioma));
-        usuario = (Cuentausuario) cuenta;
-        lUser.setText(usuario.getNombreusuario());
+        System.out.println(cuenta.getClass());
+        if(cuenta instanceof Cuentausuario) {
+            usuario = (Cuentausuario) cuenta;
+            lUser.setText(usuario.getNombreusuario());
+        } else {
+            invitado = (Cuentainvitado) cuenta;
+            lUser.setText(invitado.getNombre());
+        }
     }
     
     /**
