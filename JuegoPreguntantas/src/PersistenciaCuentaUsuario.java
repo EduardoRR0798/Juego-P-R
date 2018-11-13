@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.Query;
 
 /******************************************************************/ 
 /* @version 1.0                                                   */ 
@@ -15,25 +16,46 @@ import javax.persistence.EntityManagerFactory;
 /******************************************************************/
 public class PersistenciaCuentaUsuario {
     
-    public EntityManager conectarABaseDeDatos() {
+    /**
+     * Este metodo es para trabajar con las entidades de la base de datos 
+     * @return El EntityManager 
+     */
+    public EntityManager administrarEntidades() {
         
         Map<String, String> properties = new HashMap<String, String>();
-        properties.put("javax.persistence.jdbc.user", "root");
-        properties.put("javax.persistence.jdbc.password", "puxkas");
-        EntityManagerFactory emf = javax.persistence.Persistence.createEntityManagerFactory("JuegoPreguntantasPU", properties);
+        properties.put("javax.persistence.jdbc.user", "pregunton");
+        properties.put("javax.persistence.jdbc.password", "PR3GUNT0N");
+        EntityManagerFactory emf = javax.persistence.Persistence
+                .createEntityManagerFactory("JuegoPreguntantasPU", properties);
         EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
         return em;
     }
-
-    public boolean comprobarNombreInvitado(String nombre) {
+    
+    /**
+     * Este metodo es para comprobar que el nombre de invitado no es el mismo 
+     * que el de una cuenta de usuario
+     * @param nombreInvitado El nombre de la cuenta de invitado
+     * @return Si es verdadero o no la repeticion del nombre en la base de datos
+     */
+    public boolean comprobarNombreDiferente(String nombreInvitado) {
         
-        EntityManager em = conectarABaseDeDatos();
-        List<Cuentausuario> correoRepetido = em
-                .createNamedQuery("Cuentausuario.findByNombreusuario")
-                .setParameter("nombreusuario", nombre)
-                .getResultList();
-        boolean datoRepetido = correoRepetido.isEmpty();
+        EntityManager em = administrarEntidades();
+        Query query = em.createQuery("SELECT c.nombreusuario "
+                + "FROM Cuentausuario c WHERE c.nombreusuario = \"" 
+                + nombreInvitado + "\"");
+        List<String> nombreInvitadoRepetido = query.getResultList();
+        boolean datoRepetido = nombreInvitadoRepetido.isEmpty();
         return datoRepetido;
+    }
+    
+    public Cuentausuario recuperarUsuario(int id){
+        
+        EntityManager em = administrarEntidades();
+        Query query = em.createQuery("SELECT c "
+                + "FROM Cuentausuario c WHERE c.idcuentausuario = \"" 
+                + id + "\"");
+        List<Cuentausuario> usuario = query.getResultList();
+        return usuario.get(0);
     }
 }
