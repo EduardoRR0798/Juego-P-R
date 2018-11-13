@@ -6,7 +6,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juegopreguntantas.RegistrarUsuarioController">
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #355C7D;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juegopreguntantas.RegistrarUsuarioController">
   <columnConstraints>
     <ColumnConstraints hgrow="SOMETIMES" maxWidth="356.0" minWidth="10.0" prefWidth="147.0" />
     <ColumnConstraints hgrow="SOMETIMES" maxWidth="493.0" minWidth="10.0" prefWidth="453.0" />
@@ -66,14 +66,14 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Button fx:id="btnCancelar" mnemonicParsing="false" onAction="#cancelar" text="%btn.cancelar" GridPane.halignment="RIGHT" />
-            <Button fx:id="btnRegistrar" mnemonicParsing="false" onAction="#registrar" text="%btn.registrar" GridPane.columnIndex="2" GridPane.halignment="RIGHT" />
+            <Button fx:id="btnCancelar" mnemonicParsing="false" onAction="#cancelar" style="-fx-background-color: #F67280;" text="%btn.cancelar" GridPane.halignment="RIGHT" />
+            <Button fx:id="btnRegistrar" mnemonicParsing="false" onAction="#registrar" style="-fx-background-color: #F8B195;" text="%btn.registrar" GridPane.columnIndex="2" GridPane.halignment="RIGHT" />
          </children>
          <padding>
             <Insets right="20.0" />
          </padding>
       </GridPane>
-      <Label alignment="CENTER" prefHeight="17.0" prefWidth="656.0" text="%lbl.instruccion_usuario" GridPane.columnSpan="2" GridPane.rowIndex="1" GridPane.valignment="TOP" />
+      <Label alignment="CENTER" prefHeight="17.0" prefWidth="656.0" text="%lbl.instruccion_usuario" textFill="WHITE" GridPane.columnSpan="2" GridPane.rowIndex="1" GridPane.valignment="TOP" />
       <Label fx:id="lMensaje" prefHeight="17.0" prefWidth="359.0" GridPane.columnIndex="1" GridPane.rowIndex="5" />
    </children>
 </GridPane>

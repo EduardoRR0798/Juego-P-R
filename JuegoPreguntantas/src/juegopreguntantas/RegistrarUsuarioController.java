@@ -54,7 +54,7 @@ public class RegistrarUsuarioController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
     }    
-    
+  
     /**
      * Este metodo regresa a la pantalla de login.
      * @param event Clic en cancelar.
@@ -83,6 +83,7 @@ public class RegistrarUsuarioController implements Initializable {
             Logger.getLogger(VentanaLogInController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+  
     /**
      * Este metodo registra a un usuario en la base de datos.
      * @param event Clic en el boton Registrar.
@@ -102,6 +103,7 @@ public class RegistrarUsuarioController implements Initializable {
         } else {
             lMensaje.setText("Llene todos los datos.");
         }
+      
     }
     
     /**
@@ -111,7 +113,6 @@ public class RegistrarUsuarioController implements Initializable {
      */
     public void setIdioma(String idioma) {
         this.idioma = idioma;
-        System.out.println(idioma);
     }
     
     /**
@@ -136,6 +137,7 @@ public class RegistrarUsuarioController implements Initializable {
         return permiso;
     }
     
+
     /**
      * Este metodo verifica que no exista ese nombre en la base de datos.
      * @return true si no existe, false si existe.
@@ -150,6 +152,7 @@ public class RegistrarUsuarioController implements Initializable {
         return permiso;
     }
     
+
     /**
      * Este metodo verifica que el correo electronico no exista en la base de datos.
      * @return true si no existe, false si existe.
