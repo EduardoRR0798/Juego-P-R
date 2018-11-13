@@ -111,9 +111,9 @@ public class EnviarInvitacionController implements Initializable {
                     nuevoInvitado
                             .setCorreoelectronico(txtCorreoElectronico.getText());
                     nuevoInvitado.setCodigo(invitadoBD.crearCodigo());
-                    String deCorreo = "baoasamiya2002@gmail.com";
+                    String deCorreo = "juego.preguntantas@gmail.com";
 
-                    final String contrasenia = "p,lomkinj";
+                    final String contrasenia = "pr3gunt0n";
                     Properties properties = crearProperties();
                     Authenticator auth = new Authenticator() {
                         public PasswordAuthentication getPasswordAuthentication() {
