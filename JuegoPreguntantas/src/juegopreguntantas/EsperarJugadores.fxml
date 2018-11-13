@@ -6,7 +6,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juegopreguntantas.ComenzarPartidaController">
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #355C7D;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juegopreguntantas.EsperarJugadoresController">
   <columnConstraints>
     <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
   </columnConstraints>
@@ -16,7 +16,7 @@
     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
   </rowConstraints>
    <children>
-      <Label alignment="TOP_CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="603.0" text="%lbl.jugadores_unidos" textAlignment="CENTER">
+      <Label alignment="TOP_CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="603.0" text="%lbl.jugadores_unidos" textAlignment="CENTER" textFill="WHITE">
          <font>
             <Font size="25.0" />
          </font>
@@ -26,12 +26,12 @@
             <Insets left="70.0" right="70.0" />
          </GridPane.margin>
       </ListView>
-      <Button fx:id="btnIniciar" mnemonicParsing="false" onAction="#iniciar" prefWidth="99.0" text="%btn.iniciar" GridPane.halignment="RIGHT" GridPane.rowIndex="2">
+      <Button fx:id="btnIniciar" mnemonicParsing="false" onAction="#iniciar" prefWidth="99.0" style="-fx-background-color: #F8B195;" text="%btn.iniciar" GridPane.halignment="RIGHT" GridPane.rowIndex="2">
          <GridPane.margin>
             <Insets right="20.0" />
          </GridPane.margin>
       </Button>
-      <Button fx:id="btnCancelar" mnemonicParsing="false" onAction="#cancelar" prefWidth="99.0" text="%btn.cancelar" GridPane.rowIndex="2">
+      <Button fx:id="btnCancelar" mnemonicParsing="false" onAction="#cancelar" prefWidth="99.0" style="-fx-background-color: #F67280;" text="%btn.cancelar" GridPane.rowIndex="2">
          <GridPane.margin>
             <Insets left="20.0" />
          </GridPane.margin>

@@ -5,8 +5,16 @@
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.cell.*?>
+<?import javafx.collections.*?>
 
-<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #355C7D;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juegopreguntantas.InicioPartidaController">
   <columnConstraints>
     <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="147.0" />
     <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="453.0" />
@@ -18,12 +26,12 @@
       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
   </rowConstraints>
    <children>
-      <Label alignment="CENTER" prefHeight="36.0" prefWidth="608.0" text="%lbl.inicio_partida" GridPane.columnSpan="2">
+      <Label alignment="CENTER" prefHeight="36.0" prefWidth="608.0" text="%lbl.inicio_partida" textFill="WHITE" GridPane.columnSpan="2">
          <font>
             <Font size="25.0" />
          </font>
       </Label>
-      <Label text="%lbl.nombre_partida" GridPane.rowIndex="1">
+      <Label text="%lbl.nombre_partida" textFill="WHITE" GridPane.rowIndex="1">
          <GridPane.margin>
             <Insets left="20.0" />
          </GridPane.margin>
@@ -44,26 +52,32 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <ComboBox fx:id="cbCategoria" prefHeight="25.0" prefWidth="290.0" GridPane.rowIndex="1" GridPane.valignment="TOP">
+            <ComboBox fx:id="cbCategoria" prefHeight="25.0" prefWidth="290.0" style="-fx-background-color: #F8B195;" GridPane.rowIndex="1" GridPane.valignment="TOP">
                <GridPane.margin>
                   <Insets left="20.0" right="10.0" />
                </GridPane.margin>
             </ComboBox>
-            <Label alignment="CENTER" prefHeight="17.0" prefWidth="285.0" text="%lbl.selec_categoria" />
-            <ComboBox fx:id="cbModoJuego" layoutX="20.0" layoutY="60.0" prefHeight="25.0" prefWidth="290.0" GridPane.columnIndex="2" GridPane.rowIndex="1" GridPane.valignment="TOP">
-               <GridPane.margin>
-                  <Insets left="10.0" right="20.0" />
-               </GridPane.margin>
+            <Label alignment="CENTER" prefHeight="17.0" prefWidth="285.0" text="%lbl.selec_categoria" textFill="WHITE" />
+            <ComboBox fx:id="cbModoJuego" layoutX="20.0" layoutY="60.0" prefHeight="25.0" prefWidth="290.0" style="-fx-background-color: #F8B195;" GridPane.columnIndex="2" GridPane.rowIndex="1" GridPane.valignment="TOP">
+                <GridPane.margin>
+                    <Insets left="10.0" right="20.0" />
+                </GridPane.margin>
+                <items>
+                    <FXCollections fx:factory="observableArrayList">
+                        <String fx:value="Individual" />
+                        <String fx:value="Equipo" />
+                    </FXCollections>
+                </items>
             </ComboBox>
-            <Label alignment="CENTER" layoutX="10.0" layoutY="27.0" prefHeight="17.0" prefWidth="285.0" text="%lbl.selec_mod_juego" GridPane.columnIndex="2" />
+            <Label alignment="CENTER" layoutX="10.0" layoutY="27.0" prefHeight="17.0" prefWidth="285.0" text="%lbl.selec_mod_juego" textFill="WHITE" GridPane.columnIndex="2" />
          </children>
       </GridPane>
-      <Button fx:id="btnCancelar" mnemonicParsing="false" text="%btn.cancelar" GridPane.rowIndex="3">
+      <Button fx:id="btnCancelar" mnemonicParsing="false" onAction="#cancelar" style="-fx-background-color: #F67280;" text="%btn.cancelar" GridPane.rowIndex="3">
          <GridPane.margin>
             <Insets left="20.0" />
          </GridPane.margin>
       </Button>
-      <Button fx:id="btnSiguiente" mnemonicParsing="false" prefWidth="90.0" text="%btn.siguiente" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="3">
+      <Button fx:id="btnSiguiente" mnemonicParsing="false" onAction="#seguirEsperarJugadores" prefWidth="90.0" style="-fx-background-color: #F8B195;" text="%btn.siguiente" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="3">
          <GridPane.margin>
             <Insets right="20.0" />
          </GridPane.margin>

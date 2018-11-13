@@ -1,5 +1,7 @@
 package juegopreguntantas;
 
+import entity.Cuentainvitado;
+import entity.Cuentausuario;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -16,6 +18,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Properties;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -45,6 +48,9 @@ public class EnviarInvitacionController implements Initializable {
     @FXML
     private Button btnEnviarInvitacion;
     
+    private Cuentausuario cuenta;
+    private String idioma;
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
@@ -57,93 +63,193 @@ public class EnviarInvitacionController implements Initializable {
      */
     @FXML
     private void cancelar(ActionEvent event) {
-        
+
         try {
-            
-            ResourceBundle resourceBundle = ResourceBundle.getBundle
-                ("juegopreguntantas.lang/lang");
-            Parent root = FXMLLoader.load(getClass().getResource
-                ("MenuPrincipal.fxml"), resourceBundle);
-            Scene scene = new Scene(root);
+
+            Locale.setDefault(new Locale(idioma));
+            ResourceBundle resourceBundle = ResourceBundle
+                    .getBundle("juegopreguntantas.lang/lang");
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass()
+                    .getResource("MenuPrincipal.fxml"));
+            loader.setResources(resourceBundle);
+            Parent esperaJugadores = loader.load();
+            MenuPrincipalController controller = loader.getController();
+            controller.recibirParametros(cuenta, idioma);
+            Scene scene = new Scene(esperaJugadores);
             Stage stage = new Stage();
             stage.setTitle("Menu principal");
             stage.setScene(scene);
             stage.show();
             ((Node) (event.getSource())).getScene().getWindow().hide();
         } catch (IOException e) {
-            
-            Logger.getLogger(EnviarInvitacionController.class.getName()).log(Level.SEVERE, null, e);
+
+            Logger.getLogger(EnviarInvitacionController.class.getName())
+                    .log(Level.SEVERE, null, e);
         }
     }
-    
+
     /**
-     * Este metodo es para enviar una invitacion por correo electronico para 
-     * unirse a una partida, cuando el enviado es exitoso envía un mensaje de
-     * confirmacion!!!!!!!!!!!!!!!
+     * Este metodo es para enviar una invitacion por correo electronico para
+     * unirse a una partida, cuando es exitoso envía un mensaje de confirmacion
      * @param event del click del mouse
      */
     @FXML
     private void enviarInvitacion(ActionEvent event) throws MessagingException {
-        
-        PersistenciaCuentaInvitado consultaBD = new PersistenciaCuentaInvitado();
-        int datoRepetido = 0;//consultaBD.comprobarInvitado
-            //(txtCorreoElectronico.getText(), "x0o");
-        if(datoRepetido == 1){
-            Alert alert = new Alert(AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText(null);
-            alert.setContentText("Ya se había invitado a este correo");
-            alert.showAndWait();
-        } else if (datoRepetido == 2){
-            //tendré que separar los métods por que si el código está repetido se tiene que volver a sacar random y volver a checar si no se repite
-        } else {
-            //enviar la invitación
-        }
-        try {
+
+        if (!txtCorreoElectronico.getText().isEmpty()) {
             
-            String to = "baoasamiya2002@gmail.com";
-            String from = "baoasamiya2002@gmail.com";
-            String host = "smtp.gmail.com";
-            String port = "587";
-            final String password = "******";
-            Properties properties = new Properties();
-            properties.put("mail.smtp.host", host);
-            properties.put("mail.smtp.starttls.enable", "true");
-            properties.put("mail.smtp.ssl.trust", "smtp.gmail.com");
-            properties.put("mail.smtp.auth", "true");
-            properties.put("mail.smtp.port", port);
-            properties.put("mail.smtp.debug", "true");
-            Authenticator auth = new Authenticator() {
-                public PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(from, password);
+            try {
+                
+                PersistenciaCuentaInvitado invitadoBD = new PersistenciaCuentaInvitado();
+                if (invitadoBD.comprobarCorreo(txtCorreoElectronico.getText())) {
+                    mostrarCorreoRepetido();
+                } else {
+
+                    Cuentainvitado nuevoInvitado = new Cuentainvitado();
+                    nuevoInvitado.setNombre(invitadoBD.crearNombre());
+                    nuevoInvitado
+                            .setCorreoelectronico(txtCorreoElectronico.getText());
+                    nuevoInvitado.setCodigo(invitadoBD.crearCodigo());
+                    String deCorreo = "juego.preguntantas@gmail.com";
+
+                    final String contrasenia = "pr3gunt0n";
+                    Properties properties = crearProperties();
+                    Authenticator auth = new Authenticator() {
+                        public PasswordAuthentication getPasswordAuthentication() {
+
+                            return new PasswordAuthentication(deCorreo
+                                    , contrasenia);
+                        }
+                    };
+                    Session sesion = Session.getInstance(properties, auth);
+                    Message mensaje = crearContenidoInvitacion(sesion
+                            , nuevoInvitado);
+                    mostrarInvitadoExito(mensaje, nuevoInvitado);
                 }
-            };
-            
-            Session session = Session.getInstance(properties, auth);
-            Message message = new MimeMessage(session);
-            InternetAddress[] address = {new InternetAddress(to)};
-            message.setRecipients(Message.RecipientType.TO, address);
-            message.setSubject("This is the Subject Line!");
-            message.setSentDate(new Date());
-            message.setText("This is actual message");
-            Transport.send(message);
-            System.out.println("Sent message successfully....");
-        } catch (AddressException ex) {
-            
-            Logger.getLogger(EnviarInvitacionController.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (MessagingException mex) {
-            
-            System.out.println("Error: unable to send message....");
-            Logger.getLogger(EnviarInvitacionController.class.getName()).log(Level.SEVERE, null, mex);
+            } finally {
+                
+                txtCorreoElectronico.clear();
+            }
         }
-        /*Alert alert = new Alert(AlertType.INFORMATION);
-        alert.setTitle("Information Dialog");
-        alert.setHeaderText(null);
-        alert.setContentText("I have a great message for you!");
-        alert.showAndWait();*/
     }
+    
+    /**
+     * Este metodo es para mostrar una ventana de error si intenta el usuario 
+     * volver a invitar al mismo usuario
+     */
+    private void mostrarCorreoRepetido() {
         
-    private void comprobarInvitado() {
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(null);
+        alert.setContentText("Ya se había invitado a este correo");
+        alert.showAndWait();
+    }
+    
+    /**
+     * Este metodo es para hacer todos los put que necesitan las properties
+     * @return El el properties para la sesion
+     */
+    private Properties crearProperties() {
         
+        Properties properties = new Properties();
+        String host = "smtp.gmail.com";
+        String puerto = "587";
+        properties.put("mail.smtp.host", host);
+        properties.put("mail.smtp.starttls.enable", "true");
+        properties.put("mail.smtp.ssl.trust", "smtp.gmail.com");
+        properties.put("mail.smtp.auth", "true");
+        properties.put("mail.smtp.port", puerto);
+        properties.put("mail.smtp.debug", "true");
+        return properties;
+    }
+    
+    /**
+     * Este metodo es para crear el mensaje que se va a enviar por correo
+     * @param sesion Session para enviar mensaje
+     * @param nuevoInvitado Cuenta de invitado con los datos para el mensaje
+     * @return El mensaje que se enviara por correo
+     */    
+    private Message crearContenidoInvitacion(Session sesion, 
+            Cuentainvitado nuevoInvitado) {
+        
+        Message mensaje = new MimeMessage(sesion);
+        try {
+            InternetAddress[] address 
+                    = {new InternetAddress(nuevoInvitado.getCorreoelectronico())};
+            mensaje.setRecipients(Message.RecipientType.TO, address);
+            mensaje.setSubject("Invitacion a jugar Preguntantas");
+            String saludo = "Hola futuro pregunton\n\n";
+            String cuerpo = "Haz sido invitado a jugar Preguntantas\n\n";
+            String despedida = "¡Ingresa con usuario: " 
+                    + nuevoInvitado.getNombre() + " y contraseña " 
+                    + nuevoInvitado.getCodigo() + " !";
+            String contenidoCorreo = saludo + cuerpo + despedida;
+            mensaje.setSentDate(new Date());
+            mensaje.setText(contenidoCorreo);
+        } catch (AddressException ex) {
+            Logger.getLogger(EnviarInvitacionController.class.getName())
+                    .log(Level.SEVERE, null, ex);
+        } catch (MessagingException ex) {
+            Logger.getLogger(EnviarInvitacionController.class.getName())
+                    .log(Level.SEVERE, null, ex);
+        }
+        return mensaje;
+    }
+    
+    /**
+     * Este metodo es para mostrar una ventana en caso de exito
+     * @param mensaje Message que se va a enviar por correo
+     * @param nuevoInvitado Cuenta de invitado que se guardara en BD
+     */ 
+    private void mostrarInvitadoExito(Message mensaje, Cuentainvitado nuevoInvitado) {
+        
+        PersistenciaCuentaInvitado invitadoBD = new PersistenciaCuentaInvitado();
+        if (invitadoBD.crearInvitado(nuevoInvitado)) {
+
+            try {
+                
+                Transport.send(mensaje);
+                Alert alert = new Alert(AlertType.INFORMATION);
+                alert.setTitle("Invitacion exitosa");
+                alert.setHeaderText(null);
+                alert.setContentText("Invitación enviada");
+                alert.showAndWait();
+            } catch (MessagingException ex) {
+                
+                Logger.getLogger(EnviarInvitacionController.class.getName())
+                        .log(Level.SEVERE, null, ex);
+                mostrarInvitadoFracaso();
+                invitadoBD.eliminarInvitado(nuevoInvitado);
+            }
+        } else {
+            mostrarInvitadoFracaso();
+        }
+    }
+    
+    /**
+     * Este metodo es para mostrar una ventana en caso de fracaso
+     */ 
+    private void mostrarInvitadoFracaso() {
+        
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(null);
+        alert.setContentText("Se ha perdido conexión con el servidor"
+                + ", prueba de nuevo");
+        alert.showAndWait();
+    }
+    
+    /**
+     * Metodo que recibe el objeto de cuenta de usuario o invitado del 
+     * Controlador de la pantalla que la invocó
+     * @param usuario Cuenta de usuario registrado
+     * @param idioma Idioma del properties
+     */
+    public void recibirParametros(Object usuario, String idioma){
+        
+        Locale.setDefault(new Locale(idioma));
+        cuenta = (Cuentausuario)usuario;
     }
 }
