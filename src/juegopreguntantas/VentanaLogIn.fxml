@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #355C7D;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juegopreguntantas.VentanaLogInController">
+   <children>
+      <ImageView fx:id="imgLogin" fitHeight="220.0" fitWidth="220.0" layoutX="29.0" layoutY="85.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="95.0" AnchorPane.leftAnchor="29.0" AnchorPane.topAnchor="85.0">
+         <viewport>
+            <Rectangle2D />
+         </viewport>
+         <image>
+            <Image url="@../../../../../Tecnologias/Pantallas/Login.png" />
+         </image>
+      </ImageView>
+      <TextField fx:id="tfUser" layoutX="301.0" layoutY="140.0" prefHeight="25.0" prefWidth="271.0" AnchorPane.leftAnchor="300.0" AnchorPane.rightAnchor="40.0" />
+      <Label fx:id="lbUser" layoutX="301.0" layoutY="123.0" text="%lbl.usuario" textFill="WHITE" AnchorPane.leftAnchor="301.0" />
+      <Label layoutX="301.0" layoutY="186.0" text="%lbl.contrasenia" textFill="WHITE" AnchorPane.leftAnchor="301.0" />
+      <Button fx:id="btnLogin" layoutX="501.0" layoutY="280.0" mnemonicParsing="false" onAction="#ingresar" style="-fx-background-color: #F67280;" text="%btn.login" textAlignment="CENTER" AnchorPane.rightAnchor="40.0" />
+      <Button fx:id="btnRegistrar" layoutX="302.0" layoutY="280.0" mnemonicParsing="false" onAction="#registrar" style="-fx-background-color: #F8B195;" text="%btn.registrar" textAlignment="CENTER" AnchorPane.leftAnchor="302.0" />
+      <Button fx:id="btnCerrar" layoutX="14.0" layoutY="361.0" mnemonicParsing="false" onAction="#cerrar" style="-fx-background-color: #F8B195;" text="%btn.exit" textAlignment="CENTER" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="14.0" />
+      <Label fx:id="lTittle" layoutX="141.0" layoutY="14.0" text="%lbl.title" textAlignment="CENTER" AnchorPane.leftAnchor="141.0" AnchorPane.rightAnchor="137.0" AnchorPane.topAnchor="14.0">
+         <font>
+            <Font name="Arial Unicode MS" size="36.0" />
+         </font>
+      </Label>
+      <CheckBox fx:id="chbInvitado" layoutX="301.0" layoutY="244.0" mnemonicParsing="false" text="%chb.invitado" textFill="WHITE" AnchorPane.leftAnchor="301.0" />
+      <Label fx:id="lMensaje" layoutX="300.0" layoutY="85.0" prefHeight="17.0" prefWidth="260.0" textFill="WHITE" AnchorPane.leftAnchor="300.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="85.0" />
+      <PasswordField fx:id="pfPassword" layoutX="302.0" layoutY="203.0" prefHeight="25.0" prefWidth="260.0" AnchorPane.leftAnchor="302.0" AnchorPane.rightAnchor="38.0" />
+      <ComboBox fx:id="cbCambiarIdioma" layoutX="412.0" layoutY="361.0" onAction="#cambiarIdioma" prefWidth="150.0" promptText="%cb.cambiar_idioma" style="-fx-background-color: #FFFFFF;" />
+   </children>
+</AnchorPane>
