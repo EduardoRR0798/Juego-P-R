@@ -1,9 +1,11 @@
 package juegopreguntantas;
 
+import entity.Cuentainvitado;
 import entity.Cuentausuario;
 import entity.Setpregunta;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -46,7 +48,16 @@ public class EsperarPartidaController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         
         PersistenciaSetpregunta setPreguntaBD = new PersistenciaSetpregunta();
-        cbCategorias.getItems().addAll(setPreguntaBD.recuperarCategoria(cuenta));
+        try {
+
+            List<String> categorias = setPreguntaBD
+                    .recuperarCategoria((Cuentausuario)cuenta);
+            cbCategorias.getItems().addAll(categorias);
+        } catch (NullPointerException e) {
+
+            cbCategorias.setDisable(true);
+            cbPartidas.setDisable(true);
+        }
     }
 
     /**
@@ -59,11 +70,17 @@ public class EsperarPartidaController implements Initializable {
         
         try {
             
-            ResourceBundle resourceBundle = ResourceBundle.getBundle
-                ("juegopreguntantas.lang/lang");
-            Parent root = FXMLLoader.load(getClass().getResource
-                ("MenuPrincipal.fxml"), resourceBundle);
-            Scene scene = new Scene(root);
+            Locale.setDefault(new Locale(idioma));
+            ResourceBundle resourceBundle = ResourceBundle
+                    .getBundle("juegopreguntantas.lang/lang");
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass()
+                    .getResource("MenuPrincipal.fxml"));
+            loader.setResources(resourceBundle);
+            Parent esperaJugadores = loader.load();
+            MenuPrincipalController controller = loader.getController();
+            controller.recibirParametros(cuenta, idioma);
+            Scene scene = new Scene(esperaJugadores);
             Stage stage = new Stage();
             stage.setTitle("Menu principal");
             stage.setScene(scene);
@@ -98,12 +115,18 @@ public class EsperarPartidaController implements Initializable {
      */
     public void recibirParametros(Object usuario, String idioma){
         
+        Locale.setDefault(new Locale(idioma));
+        this.idioma = idioma;
         this.cuenta = usuario;
         Locale.setDefault(new Locale(idioma));
         if(cuenta instanceof Cuentausuario) {
+            
             this.usuario = (Cuentausuario) cuenta;
         } else {
+            
             this.invitado = (Cuentainvitado) cuenta;
         }
+        
     }
+    
 }

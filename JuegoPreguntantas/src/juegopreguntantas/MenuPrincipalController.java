@@ -62,39 +62,95 @@ public class MenuPrincipalController implements Initializable {
         
     }    
 
+    /**
+     * Este metodo es para ir a la ventana de registrar pregunta
+     * @param event del click del mouse
+     */
     @FXML
     private void registrarPregunta(ActionEvent event) {
         
-    }
-
-    @FXML
-    private void uniseAPartida(ActionEvent event) {
-        Locale.setDefault(new Locale(idioma));
-        ResourceBundle resourceBundle = ResourceBundle.getBundle("juegopreguntantas.lang/lang");
-
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("EsperarPartida.fxml"));
-        loader.setResources(resourceBundle);
-        Parent registro;
         try {
-            registro = loader.load();
-            EsperarPartidaController controller = loader.getController();
+            Locale.setDefault(new Locale(idioma));
+            ResourceBundle resourceBundle = ResourceBundle
+                    .getBundle("juegopreguntantas.lang/lang");
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass()
+                    .getResource("RegistrarPregunta.fxml"));
+            loader.setResources(resourceBundle);
+            Parent esperaJugadores = loader.load();
+            RegistrarPreguntaController controller = loader.getController();
             controller.recibirParametros(cuenta, idioma);
-            
-            Scene scene = new Scene(registro);
+            Scene scene = new Scene(esperaJugadores);
             Stage stage = new Stage();
-            
+            stage.setTitle("Preguntas");
             stage.setScene(scene);
             stage.show();
-
             ((Node) (event.getSource())).getScene().getWindow().hide();
         } catch (IOException ex) {
-            Logger.getLogger(VentanaLogInController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MenuPrincipalController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
+    /**
+     * Este metodo es para ir a la ventana para unirse a una partida disponible
+     * @param event del click del mouse
+     */
+    @FXML
+    private void uniseAPartida(ActionEvent event) {
+        
+        try {
+
+            Locale.setDefault(new Locale(idioma));
+            ResourceBundle resourceBundle = ResourceBundle
+                    .getBundle("juegopreguntantas.lang/lang");
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass()
+                    .getResource("EsperarPartida.fxml"));
+            loader.setResources(resourceBundle);
+            Parent esperaJugadores = loader.load();
+            EsperarPartidaController controller = loader.getController();
+            controller.recibirParametros(cuenta, idioma);
+            Scene scene = new Scene(esperaJugadores);
+            Stage stage = new Stage();
+            stage.setTitle("Espera de inicio de partida");
+            stage.setScene(scene);
+            stage.show();
+            ((Node) (event.getSource())).getScene().getWindow().hide();
+        } catch (IOException e) {
+            
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Este metodo es para ir a la ventana para iniciar una partida
+     * @param event del click del mouse
+     */ 
     @FXML
     private void iniciarPartida(ActionEvent event) {
+        
+        try {
+            
+            Locale.setDefault(new Locale(idioma));
+            ResourceBundle resourceBundle = ResourceBundle
+                    .getBundle("juegopreguntantas.lang/lang");
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass()
+                    .getResource("InicioPartida.fxml"));
+            loader.setResources(resourceBundle);
+            Parent esperaJugadores = loader.load();
+            InicioPartidaController controller = loader.getController();
+            controller.recibirParametros(cuenta, idioma);
+            Scene scene = new Scene(esperaJugadores);
+            Stage stage = new Stage();
+            stage.setTitle("Iniciar partida");
+            stage.setScene(scene);
+            stage.show();
+            ((Node) (event.getSource())).getScene().getWindow().hide();
+        } catch (IOException e) {
+            
+            e.printStackTrace();
+        }
     }
     
     /**
@@ -179,5 +235,7 @@ public class MenuPrincipalController implements Initializable {
             lUser.setText(invitado.getNombre());
         }
     }
+    
+    
     
 }

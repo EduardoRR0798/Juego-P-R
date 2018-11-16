@@ -31,6 +31,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
+import persistencia.PersistenciaCuentaInvitado;
 
 /**
  * FXML Controller class
@@ -162,11 +163,13 @@ public class VentanaLogInController implements Initializable {
      */
     private boolean validarIngresoUsuario() {
         boolean ingresoExitoso = false;
+        String usuarioR = tfUser.getText().replaceAll("\\s", "");
+        String contrasenia = pfPassword.getText().replaceAll("\\s", "");
         PersistenciaCuentaUsuario persistencia = new PersistenciaCuentaUsuario();
-        Cuentausuario usuario = persistencia.getCuentaUsuarioNombre(tfUser.getText().replaceAll("\\s", ""));
+        Cuentausuario usuario = persistencia.getCuentaUsuarioNombre(usuarioR.toUpperCase());
         if (usuario != null) {
-            if (pfPassword.getText().replaceAll("\\s", "").equals(usuario.getContrasenia())
-                    && tfUser.getText().replaceAll("\\s", "").equals(usuario.getNombreusuario())) {
+            
+            if (contrasenia.equals(usuario.getContrasenia())) {
                 cuenta = usuario;
                 ingresoExitoso = true;
                 lMensaje.setText("Iniciando Sesion...");
@@ -186,17 +189,21 @@ public class VentanaLogInController implements Initializable {
      */
     private boolean validarIngresoInvitado() {
         boolean ingresoExitoso = false;
-        PersistenciaCuentaUsuario persistencia = new PersistenciaCuentaUsuario();
-        Cuentainvitado invitado = persistencia.getCuentaInvitadoPorNombre(tfUser.getText().replaceAll("\\s", ""));
+        String usuario = tfUser.getText().replaceAll("\\s", "");
+        String contrasenia = pfPassword.getText().replaceAll("\\s", "");
+        PersistenciaCuentaInvitado persistencia = new PersistenciaCuentaInvitado();
+        Cuentainvitado invitado = persistencia.getCuentaInvitado(usuario.toUpperCase());
+        
         if(invitado != null) {
-            if (pfPassword.getText().replaceAll("\\s", "").equals(invitado.getCodigo())
-                    && tfUser.getText().replaceAll("\\s", "").equals(invitado.getNombre())) {
+            
+            if (contrasenia.equals(invitado.getCodigo())) {
                 ingresoExitoso = true;
                 cuenta = invitado;
                 lMensaje.setText("Iniciando Sesion...");
             } else {
                 lMensaje.setText("Usuario o Contraseña incorrectos.");
             }
+            
         } else {
             lMensaje.setText("Usuario no encontrado");
         }
@@ -210,15 +217,21 @@ public class VentanaLogInController implements Initializable {
      */
     private boolean validarAcceso() {
         boolean ingresoExitoso = false;
+        
         if(chbInvitado.isSelected()) {
+            
             if(validarIngresoInvitado() == true) {
                 ingresoExitoso = true;
             }
+        
         } else {
+            
             if(validarIngresoUsuario() == true) {
                 ingresoExitoso = true;
             }
+            
         }
+        
         return ingresoExitoso;
     }
     
@@ -271,6 +284,5 @@ public class VentanaLogInController implements Initializable {
     
     public void setIdioma(String idioma) {
         this.idioma = idioma;
-        System.out.println(idioma);
     }
 }

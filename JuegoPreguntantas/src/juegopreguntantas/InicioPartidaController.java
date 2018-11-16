@@ -4,6 +4,7 @@ import entity.Cuentausuario;
 import entity.Partida;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
@@ -47,7 +48,17 @@ public class InicioPartidaController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         
         PersistenciaSetpregunta setPreguntaBD = new PersistenciaSetpregunta();
-        cbCategoria.getItems().addAll(setPreguntaBD.recuperarCategoria(cuenta));
+        try {
+
+            List<String> categorias = setPreguntaBD.recuperarCategoria(cuenta);
+            cbCategoria.getItems().addAll(categorias);
+        } catch (NullPointerException e) {
+
+            cbCategoria.setDisable(true);
+            cbModoJuego.setDisable(true);
+            txtNombrePartida.setDisable(true);
+        }
+        
     }    
     
     /**
@@ -140,6 +151,7 @@ public class InicioPartidaController implements Initializable {
     public void recibirParametros(Object usuario, String idioma){
         
         Locale.setDefault(new Locale(idioma));
-        cuenta = (Cuentausuario)usuario;
+        this.idioma = idioma;
+        this.cuenta = (Cuentausuario)usuario;
     }
 }

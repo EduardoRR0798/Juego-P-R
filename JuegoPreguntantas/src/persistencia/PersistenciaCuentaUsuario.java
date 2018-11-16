@@ -76,7 +76,8 @@ public class PersistenciaCuentaUsuario {
      * @param object objeto a guadar en la base de datos.
      */
     public void persist(Object object) {
-        EntityManagerFactory emf = javax.persistence.Persistence.createEntityManagerFactory("JuegoPreguntantasPU");
+        EntityManagerFactory emf = javax.persistence.Persistence.
+                createEntityManagerFactory("JuegoPreguntantasPU");
         EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
         try {
@@ -95,7 +96,8 @@ public class PersistenciaCuentaUsuario {
      * @param id identificador de la cuenta a eliminar.
      */
     public void destroyCuentaUsuario(long id) {
-        EntityManagerFactory emf = javax.persistence.Persistence.createEntityManagerFactory("JuegoPreguntantasPU");
+        EntityManagerFactory emf = javax.persistence.Persistence.
+                createEntityManagerFactory("JuegoPreguntantasPU");
         EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
         try {
@@ -116,13 +118,16 @@ public class PersistenciaCuentaUsuario {
      * @return true si existe en la base de datos, false si no existe.
      */
     public Cuentausuario getCuentaUsuarioNombre(String nombreusuario) {
-        EntityManagerFactory emf = javax.persistence.Persistence.createEntityManagerFactory("JuegoPreguntantasPU");
+        EntityManagerFactory emf = javax.persistence.Persistence.
+                createEntityManagerFactory("JuegoPreguntantasPU");
         EntityManager em = emf.createEntityManager();
         Cuentausuario cuenta = new Cuentausuario();
 
         try {
             cuenta = (Cuentausuario) em.createQuery(
-                    "SELECT c FROM Cuentausuario c WHERE c.nombreusuario = \""+nombreusuario +"\"").getSingleResult();
+                    "SELECT c FROM Cuentausuario c "
+                            + "WHERE UPPER(c.nombreusuario) = \""+
+                            nombreusuario +"\"").getSingleResult();
         } catch (NoResultException noResult) {
             cuenta = null;
         } finally {
@@ -132,14 +137,16 @@ public class PersistenciaCuentaUsuario {
         return cuenta;
     }
     
-    public Cuentausuario getCuentaUsuarioemail(String email) {
-        EntityManagerFactory emf = javax.persistence.Persistence.createEntityManagerFactory("JuegoPreguntantasPU");
+    public Cuentausuario getCuentaUsuarioEmail(String email) {
+        EntityManagerFactory emf = javax.persistence.Persistence.
+                createEntityManagerFactory("JuegoPreguntantasPU");
         EntityManager em = emf.createEntityManager();
         Cuentausuario cuenta = new Cuentausuario();
 
         try {
             cuenta = (Cuentausuario) em.createQuery(
-                    "SELECT c FROM Cuentausuario c WHERE c.nombreusuario = \""+email +"\"").getSingleResult();
+                    "SELECT c FROM Cuentausuario c WHERE UPPER(c.correoelectronico) = \""
+                            +email +"\"").getSingleResult();
         } catch (NoResultException noResult) {
             cuenta = null;
         } finally {

@@ -250,6 +250,7 @@ public class EnviarInvitacionController implements Initializable {
     public void recibirParametros(Object usuario, String idioma){
         
         Locale.setDefault(new Locale(idioma));
-        cuenta = (Cuentausuario)usuario;
+        this.idioma = idioma;
+        this.cuenta = (Cuentausuario)usuario;
     }
 }

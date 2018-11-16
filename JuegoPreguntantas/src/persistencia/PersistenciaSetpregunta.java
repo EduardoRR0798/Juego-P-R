@@ -17,11 +17,12 @@ import javax.persistence.Query;
 /******************************************************************/
 public class PersistenciaSetpregunta {
     
-     /**
+     /**try {
      * Este metodo es para trabajar con las entidades de la base de datos 
      * @return El EntityManager 
      */ 
     public EntityManager administrarEntidades() {
+        
         
         Map<String, String> properties = new HashMap<String, String>();
         properties.put("javax.persistence.jdbc.user", "pregunton");
@@ -40,7 +41,7 @@ public class PersistenciaSetpregunta {
      * @return La lista de categorias de los set de pregunta
      */
     public List<String> recuperarCategoria(Cuentausuario usuario) {
-        
+
         EntityManager em = administrarEntidades();
         Query query = em.createQuery("SELECT s.categoria "
                 + "FROM Setpregunta s WHERE s.idcuentausuario"

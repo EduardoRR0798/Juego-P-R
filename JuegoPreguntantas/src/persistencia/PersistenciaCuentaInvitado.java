@@ -1,17 +1,12 @@
 package persistencia;
   
-import java.util.ArrayList;
 import entity.Cuentainvitado;
-import entity.Cuentausuario;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
-import java.util.concurrent.ThreadLocalRandom;
 import javax.persistence.NoResultException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
@@ -65,7 +60,7 @@ public class PersistenciaCuentaInvitado {
         }
     }
     
-
+    /*
      * Este metodo es para crear el nombre al invitado
      * @return El nombre de la cuenta de invitado
      */
@@ -75,9 +70,18 @@ public class PersistenciaCuentaInvitado {
         Query query = em.createQuery("SELECT MAX(c.idcuentainvitado) "
                 + "FROM Cuentainvitado c");
         List<Integer> idInvitado = query.getResultList();
-        String nombre = "Pregunton" + (idInvitado.get(0).intValue() + 1);
-        nombre = comprobarNombre(nombre);
-        return nombre;
+        String nombre = null;
+        try{
+            
+            nombre = "Pregunton" + (idInvitado.get(0) + 1);
+        } catch(NullPointerException e) {
+            
+            nombre = "Pregunton0";
+        } finally {
+            
+            nombre = comprobarNombre(nombre);
+            return nombre;
+        }
 
     }
     
@@ -107,7 +111,7 @@ public class PersistenciaCuentaInvitado {
         
         EntityManager em = administrarEntidades();
         Query query = em.createQuery("SELECT c.correoelectronico "
-                + "FROM Cuentainvitado c WHERE c.correoelectronico = \"" 
+                + "FROM Cuentainvitado c WHERE UPPER(c.correoelectronico) = \"" 
                 + correoElectronico + "\"");
         List<String> correoRepetido = query.getResultList();
         boolean datoRepetido = !correoRepetido.isEmpty();
@@ -238,7 +242,7 @@ public class PersistenciaCuentaInvitado {
         EntityManager em = emf.createEntityManager();
         Cuentainvitado invitado = new Cuentainvitado();
         try {
-            invitado = (Cuentainvitado) em.createQuery("SELECT c FROM Cuentainvitado c WHERE c.nombre = \""+ nombreinvitado +"\"").getSingleResult();
+            invitado = (Cuentainvitado) em.createQuery("SELECT c FROM Cuentainvitado c WHERE UPPER(c.nombre) = \""+ nombreinvitado +"\"").getSingleResult();
         } catch (NoResultException noResult) {
             invitado = null;
         } finally {
