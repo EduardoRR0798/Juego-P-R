@@ -46,19 +46,17 @@ public class InicioPartidaController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        
-        PersistenciaSetpregunta setPreguntaBD = new PersistenciaSetpregunta();
-        try {
 
-            List<String> categorias = setPreguntaBD.recuperarCategoria(cuenta);
-            cbCategoria.getItems().addAll(categorias);
-        } catch (NullPointerException e) {
+        PersistenciaSetpregunta setPreguntaBD = new PersistenciaSetpregunta();
+        List<String> categorias = setPreguntaBD.recuperarCategoria(cuenta);
+        cbCategoria.getItems().addAll(categorias);
+        if (cbCategoria.getItems().isEmpty()) {
 
             cbCategoria.setDisable(true);
             cbModoJuego.setDisable(true);
             txtNombrePartida.setDisable(true);
         }
-        
+ 
     }    
     
     /**

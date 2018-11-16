@@ -176,6 +176,7 @@ public class EnviarInvitacionController implements Initializable {
         
         Message mensaje = new MimeMessage(sesion);
         try {
+            
             InternetAddress[] address 
                     = {new InternetAddress(nuevoInvitado.getCorreoelectronico())};
             mensaje.setRecipients(Message.RecipientType.TO, address);
@@ -188,13 +189,12 @@ public class EnviarInvitacionController implements Initializable {
             String contenidoCorreo = saludo + cuerpo + despedida;
             mensaje.setSentDate(new Date());
             mensaje.setText(contenidoCorreo);
-        } catch (AddressException ex) {
-            Logger.getLogger(EnviarInvitacionController.class.getName())
-                    .log(Level.SEVERE, null, ex);
         } catch (MessagingException ex) {
+            
             Logger.getLogger(EnviarInvitacionController.class.getName())
                     .log(Level.SEVERE, null, ex);
         }
+        
         return mensaje;
     }
     

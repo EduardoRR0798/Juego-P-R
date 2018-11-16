@@ -20,7 +20,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.stage.Stage;
-import persistencia.PersistenciaCuentaUsuario;
 import persistencia.PersistenciaPartida;
 import persistencia.PersistenciaSetpregunta;
 
@@ -40,24 +39,21 @@ public class EsperarPartidaController implements Initializable {
     private Button btnCancelar;
     
     private Object cuenta;
-    private Cuentausuario usuario;
-    private Cuentainvitado invitado;
     private String idioma;    
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        
-        PersistenciaSetpregunta setPreguntaBD = new PersistenciaSetpregunta();
-        try {
 
-            List<String> categorias = setPreguntaBD
-                    .recuperarCategoria((Cuentausuario)cuenta);
-            cbCategorias.getItems().addAll(categorias);
-        } catch (NullPointerException e) {
+        PersistenciaSetpregunta setPreguntaBD = new PersistenciaSetpregunta();
+        List<String> categorias = setPreguntaBD
+                .recuperarCategoria((Cuentausuario) cuenta);
+        cbCategorias.getItems().addAll(categorias);
+        if (cbCategorias.getItems().isEmpty()) {
 
             cbCategorias.setDisable(true);
             cbPartidas.setDisable(true);
         }
+        
     }
 
     /**
@@ -119,14 +115,6 @@ public class EsperarPartidaController implements Initializable {
         this.idioma = idioma;
         this.cuenta = usuario;
         Locale.setDefault(new Locale(idioma));
-        if(cuenta instanceof Cuentausuario) {
-            
-            this.usuario = (Cuentausuario) cuenta;
-        } else {
-            
-            this.invitado = (Cuentainvitado) cuenta;
-        }
-        
     }
     
 }
