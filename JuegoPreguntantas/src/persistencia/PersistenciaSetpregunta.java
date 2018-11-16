@@ -2,9 +2,12 @@ package persistencia;
 
 import entity.Cuentausuario;
 import entity.Setpregunta;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
@@ -43,11 +46,20 @@ public class PersistenciaSetpregunta {
     public List<String> recuperarCategoria(Cuentausuario usuario) {
 
         EntityManager em = administrarEntidades();
-        Query query = em.createQuery("SELECT s.categoria "
-                + "FROM Setpregunta s WHERE s.idcuentausuario"
-                + ".idcuentausuario = \"" + usuario.getIdcuentausuario() + "\"");
-        List<String> categorias = query.getResultList();
-        return categorias;
+        List<String> categorias = new ArrayList<String>();
+        try {
+            Query query = em.createQuery("SELECT s.categoria "
+                    + "FROM Setpregunta s WHERE s.idcuentausuario"
+                    + ".idcuentausuario = \"" + usuario.getIdcuentausuario() + "\"");
+            categorias = query.getResultList();
+        } catch (NullPointerException e) {
+
+            Logger.getLogger(PersistenciaSetpregunta.class.getName())
+                    .log(Level.SEVERE, null, e);
+        } finally {
+
+            return categorias;
+        }
     }
     
     /**
