@@ -38,31 +38,6 @@ public class PersistenciaSetpregunta {
     }
     
     /**
-     * Este metodo es para recuperar las categorias de los set de preguntas que 
-     * haya en la base de datos
-     * @param usuario Cuenta del usuario que esta usando el juego
-     * @return La lista de categorias de los set de pregunta
-     */
-    public List<String> recuperarCategoria(Cuentausuario usuario) {
-
-        EntityManager em = administrarEntidades();
-        List<String> categorias = new ArrayList<String>();
-        try {
-            Query query = em.createQuery("SELECT s.categoria "
-                    + "FROM Setpregunta s WHERE s.idcuentausuario"
-                    + ".idcuentausuario = \"" + usuario.getIdcuentausuario() + "\"");
-            categorias = query.getResultList();
-        } catch (NullPointerException e) {
-
-            Logger.getLogger(PersistenciaSetpregunta.class.getName())
-                    .log(Level.SEVERE, null, e);
-        } finally {
-
-            return categorias;
-        }
-    }
-    
-    /**
      * Este metodo es para recuperar un set de preguntas por el usuario creador
      * @param usuario Cuenta del usuario que esta usando el juego
      * @return Un set de preguntas
@@ -91,4 +66,36 @@ public class PersistenciaSetpregunta {
         List<Setpregunta> setPregunta = query.getResultList();
         return setPregunta.get(0);
     }
+    
+    /**
+     * Este metodo es para recuperar las categorias de los set de preguntas que 
+     * haya en la base de datos
+     * @param usuario Cuenta del usuario que esta usando el juego
+     * @return La lista de categorias de los set de pregunta
+     */
+    public List<String> recuperarCategorias(Cuentausuario usuario) {
+        
+        EntityManager em = administrarEntidades();
+        List<String> categorias = new ArrayList<String>();
+        System.out.println("antes del try~");
+        try {
+            System.out.println("inicio del try");
+            Query query = em.createQuery("SELECT s.categoria "
+                    + "FROM Setpregunta s "
+                    + "WHERE s.idcuentausuario.idcuentausuario = \"" 
+                    + usuario.getIdcuentausuario() + "\"");
+            categorias = query.getResultList();
+            System.out.println("final try");
+        } catch (NullPointerException e) {
+            
+            System.out.println("exception");
+            Logger.getLogger(PersistenciaSetpregunta.class.getName())
+                    .log(Level.SEVERE, null, e);
+        } finally {
+    
+            System.out.println("inicio del finally");
+            return categorias;
+        }
+    }
+    
 }
