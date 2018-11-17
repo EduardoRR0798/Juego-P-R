@@ -104,6 +104,15 @@ public class EsperarJugadoresController implements Initializable {
     }
     
     /**
+     * Metodo que para mostrar las categorias de los set de pregunta que ha 
+     * hecho el usuario
+     */
+    public void mostrarCategorias(){
+        
+        
+    }
+    
+    /**
      * Metodo que recibe el objeto de cuenta de usuario o invitado del 
      * Controlador de la pantalla que la invocó
      * @param usuario Cuenta de usuario registrado
@@ -111,8 +120,8 @@ public class EsperarJugadoresController implements Initializable {
      */
     public void recibirParametros(Object usuario, String idioma){
         
-        Locale.setDefault(new Locale(idioma));
         this.idioma = idioma;
         this.cuenta = (Cuentausuario)usuario;
+        mostrarCategorias();
     }
 }

@@ -1,6 +1,5 @@
 package juegopreguntantas;
 
-import entity.Cuentainvitado;
 import entity.Cuentausuario;
 import entity.Setpregunta;
 import java.io.IOException;
@@ -43,16 +42,6 @@ public class EsperarPartidaController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-
-        PersistenciaSetpregunta setPreguntaBD = new PersistenciaSetpregunta();
-        List<String> categorias = setPreguntaBD
-                .recuperarCategoria((Cuentausuario) cuenta);
-        cbCategorias.getItems().addAll(categorias);
-        if (cbCategorias.getItems().isEmpty()) {
-
-            cbCategorias.setDisable(true);
-            cbPartidas.setDisable(true);
-        }
         
     }
 
@@ -98,9 +87,27 @@ public class EsperarPartidaController implements Initializable {
 
         PersistenciaPartida partidaBD = new PersistenciaPartida();
         PersistenciaSetpregunta setPreguntaBD = new PersistenciaSetpregunta();
-        Setpregunta setpregunta = setPreguntaBD
-                .recuperarSetPregunta(cbCategorias.getValue());
-        cbPartidas.getItems().addAll(partidaBD.recuperarNombre(setpregunta));
+        //Setpregunta setpregunta = setPreguntaBD
+        //        .recuperarSetPregunta(cbCategorias.getValue());
+        //cbPartidas.getItems().addAll(partidaBD.recuperarNombre(setpregunta));
+    }
+    
+        /**
+     * Metodo que para mostrar las categorias de los set de pregunta que ha 
+     * hecho el usuario
+     */
+    public void mostrarCategorias(){
+        
+        PersistenciaSetpregunta setPreguntaBD = new PersistenciaSetpregunta();
+        List<String> categorias = setPreguntaBD
+                .recuperarCategorias((Cuentausuario) cuenta);
+        cbCategorias.getItems().addAll(categorias);
+        if (cbCategorias.getItems().isEmpty()) {
+
+            cbCategorias.setDisable(true);
+            cbPartidas.setDisable(true);
+        }
+        
     }
     
     /**
@@ -111,10 +118,9 @@ public class EsperarPartidaController implements Initializable {
      */
     public void recibirParametros(Object usuario, String idioma){
         
-        Locale.setDefault(new Locale(idioma));
         this.idioma = idioma;
         this.cuenta = usuario;
-        Locale.setDefault(new Locale(idioma));
+        mostrarCategorias();
     }
     
 }

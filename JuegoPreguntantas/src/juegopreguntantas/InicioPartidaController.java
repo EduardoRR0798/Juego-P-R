@@ -2,6 +2,7 @@ package juegopreguntantas;
 
 import entity.Cuentausuario;
 import entity.Partida;
+import entity.Setpregunta;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
@@ -18,7 +19,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import persistencia.PersistenciaCuentaUsuario;
 import persistencia.PersistenciaPartida;
 import persistencia.PersistenciaSetpregunta;
 
@@ -46,16 +46,6 @@ public class InicioPartidaController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-
-        PersistenciaSetpregunta setPreguntaBD = new PersistenciaSetpregunta();
-        List<String> categorias = setPreguntaBD.recuperarCategoria(cuenta);
-        cbCategoria.getItems().addAll(categorias);
-        if (cbCategoria.getItems().isEmpty()) {
-
-            cbCategoria.setDisable(true);
-            cbModoJuego.setDisable(true);
-            txtNombrePartida.setDisable(true);
-        }
  
     }    
     
@@ -141,6 +131,24 @@ public class InicioPartidaController implements Initializable {
     }
     
     /**
+     * Metodo que para mostrar las categorias de los set de pregunta que ha 
+     * hecho el usuario
+     */
+    public void mostrarCategorias(){
+        
+        PersistenciaSetpregunta setPreguntaBD = new PersistenciaSetpregunta();
+        List<String> categorias = setPreguntaBD.recuperarCategorias(cuenta);
+        cbCategoria.getItems().addAll(categorias);
+        if (cbCategoria.getItems().isEmpty()) {
+
+            cbCategoria.setDisable(true);
+            cbModoJuego.setDisable(true);
+            txtNombrePartida.setDisable(true);
+        }
+        
+    }
+    
+    /**
      * Metodo que recibe el objeto de cuenta de usuario o invitado del 
      * Controlador de la pantalla que la invocó
      * @param usuario Cuenta de usuario registrado
@@ -148,8 +156,9 @@ public class InicioPartidaController implements Initializable {
      */
     public void recibirParametros(Object usuario, String idioma){
         
-        Locale.setDefault(new Locale(idioma));
         this.idioma = idioma;
         this.cuenta = (Cuentausuario)usuario;
+        mostrarCategorias();
+        System.out.println("final de recibir");
     }
 }
