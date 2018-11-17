@@ -4,6 +4,10 @@
     <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
     <class>entity.Cuentausuario</class>
     <class>entity.Cuentainvitado</class>
+    <class>entity.Partida</class>
+    <class>entity.Setpregunta</class>
+    <class>entity.Respuesta</class>
+    <class>entity.Pregunta</class>
     <properties>
       <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/juegopr?zeroDateTimeBehavior=convertToNull"/>
       <property name="javax.persistence.jdbc.user" value="pregunton"/>
