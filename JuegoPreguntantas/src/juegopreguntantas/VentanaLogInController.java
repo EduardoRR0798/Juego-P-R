@@ -5,6 +5,8 @@
  */
 package juegopreguntantas;
 
+import clases.IndicadorDeIP;
+import clases.RecibirIP;
 import persistencia.PersistenciaCuentaUsuario;
 import entity.Cuentainvitado;
 import entity.Cuentausuario;
@@ -33,11 +35,12 @@ import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import persistencia.PersistenciaCuentaInvitado;
 
-/**
- * FXML Controller class
- *
- * @author Eduardo Rosas Rivera
- */
+/******************************************************************/ 
+/* @version 1.0                                                   */ 
+/* @author Eduardo Rosas Rivera                                   */ 
+/* @since 28/11/2018                                              */
+/* Nombre de la clase VentanaLogInController                      */
+/******************************************************************/
 public class VentanaLogInController implements Initializable {
 
     @FXML
@@ -64,7 +67,8 @@ public class VentanaLogInController implements Initializable {
     private Label lMensaje;
     
     private Object cuenta; 
-    private ObservableList idiomas = FXCollections.observableArrayList("Español", "English");
+    private ObservableList idiomas = 
+            FXCollections.observableArrayList("Español", "English");
     private String idioma = "es";
     
     /**
@@ -72,14 +76,24 @@ public class VentanaLogInController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        cbCambiarIdioma.setItems(idiomas);
+        
+        
+            /*IndicadorDeIP indicador = new IndicadorDeIP();
+            indicador.emitoIP();
+            RecibirIP recibidor = new RecibirIP();
+            recibidor.emitoIP();*/
+            cbCambiarIdioma.setItems(idiomas);
+        
     }    
     
     @FXML
     private void ingresar(ActionEvent event) throws IOException {
+        
         if (validarCampos() == true && validarAcceso() == true) {
+            
             Locale.setDefault(new Locale(idioma));
-            ResourceBundle resourceBundle = ResourceBundle.getBundle("juegopreguntantas.lang/lang");          
+            ResourceBundle resourceBundle = ResourceBundle.getBundle(
+                    "juegopreguntantas.lang/lang");          
             
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass().getResource("MenuPrincipal.fxml"));
@@ -106,14 +120,17 @@ public class VentanaLogInController implements Initializable {
      */
     @FXML
     private void registrar(ActionEvent event) {
+        
         Locale.setDefault(new Locale(idioma));
-        ResourceBundle resourceBundle = ResourceBundle.getBundle("juegopreguntantas.lang/lang");
+        ResourceBundle resourceBundle = ResourceBundle.getBundle(
+                "juegopreguntantas.lang/lang");
 
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("RegistrarUsuario.fxml"));
         loader.setResources(resourceBundle);
         Parent registro;
         try {
+            
             registro = loader.load();
             RegistrarUsuarioController controller = loader.getController();
             controller.setIdioma(idioma);
@@ -126,7 +143,9 @@ public class VentanaLogInController implements Initializable {
 
             ((Node) (event.getSource())).getScene().getWindow().hide();
         } catch (IOException ex) {
-            Logger.getLogger(VentanaLogInController.class.getName()).log(Level.SEVERE, null, ex);
+            
+            Logger.getLogger(VentanaLogInController.class.getName())
+                    .log(Level.SEVERE, null, ex);
         }
     }
     
@@ -136,6 +155,7 @@ public class VentanaLogInController implements Initializable {
      */
     @FXML
     private void cerrar(ActionEvent event) {
+        
         System.exit(0);
     }
     
@@ -144,12 +164,15 @@ public class VentanaLogInController implements Initializable {
      * @return true si ambos estan llenos, false si alguno esta vacio.
      */
     private boolean validarCampos() {
+        
         boolean validador = true;
         if(tfUser.getText().equals(null)) {
+            
             validador = false;
             lMensaje.setText("Llene todos los campos.");
         }
         if(pfPassword.getText().equals(null)) {
+            
             validador = false;
             lMensaje.setText("Llene todos los campos.");
         }
@@ -157,42 +180,52 @@ public class VentanaLogInController implements Initializable {
     }
     
     /**
-     * Metodo que valida si el nombre de usuario y la contrase;a introducidos por el usuario
-     * concuerdan con alguno registrado en la base de datos.
+     * Metodo que valida si el nombre de usuario y la contrase;a introducidos 
+     * por el usuario concuerdan con alguno registrado en la base de datos.
      * @return true si los datos son validos, false si no coinciden.
      */
     private boolean validarIngresoUsuario() {
+        
         boolean ingresoExitoso = false;
         String usuarioR = tfUser.getText().replaceAll("\\s", "");
         String contrasenia = pfPassword.getText().replaceAll("\\s", "");
-        PersistenciaCuentaUsuario persistencia = new PersistenciaCuentaUsuario();
-        Cuentausuario usuario = persistencia.getCuentaUsuarioNombre(usuarioR.toUpperCase());
+        PersistenciaCuentaUsuario persistencia = 
+                new PersistenciaCuentaUsuario();
+        Cuentausuario usuario = persistencia.getCuentaUsuarioNombre(usuarioR
+                .toUpperCase());
         if (usuario != null) {
             
             if (contrasenia.equals(usuario.getContrasenia())) {
+                
                 cuenta = usuario;
                 ingresoExitoso = true;
                 lMensaje.setText("Iniciando Sesion...");
             } else {
+                
                 lMensaje.setText("Usuario o Contraseña incorrectos.");
             }
         } else {
+            
             lMensaje.setText("Usuario no encontrado");
         }
         return ingresoExitoso;   
     }
     
     /**
-     * Metodo que valida si el nombre de usuario y la contrase;a introducidos por el usuario
+     * Metodo que valida si el nombre de usuario y la contrase;a 
+     * introducidos por el usuario
      * consuerdan con alguno de invitado registrado en la base de datos 
      * @return true si los datos son validos, false si no coinciden.
      */
     private boolean validarIngresoInvitado() {
+        
         boolean ingresoExitoso = false;
         String usuario = tfUser.getText().replaceAll("\\s", "");
         String contrasenia = pfPassword.getText().replaceAll("\\s", "");
-        PersistenciaCuentaInvitado persistencia = new PersistenciaCuentaInvitado();
-        Cuentainvitado invitado = persistencia.getCuentaInvitado(usuario.toUpperCase());
+        PersistenciaCuentaInvitado persistencia = 
+                new PersistenciaCuentaInvitado();
+        Cuentainvitado invitado = 
+                persistencia.getCuentaInvitado(usuario.toUpperCase());
         
         if(invitado != null) {
             
@@ -212,10 +245,12 @@ public class VentanaLogInController implements Initializable {
     }
     
     /**
-     * Metodo que valida si el usuario se trata de una cuenta invitada o una cuenta registrada.
+     * Metodo que valida si el usuario se trata de una cuenta invitada o 
+     * una cuenta registrada.
      * @return true si el usuario esta en la base de datos.
      */
     private boolean validarAcceso() {
+        
         boolean ingresoExitoso = false;
         
         if(chbInvitado.isSelected()) {
@@ -235,25 +270,41 @@ public class VentanaLogInController implements Initializable {
         return ingresoExitoso;
     }
     
+    /**
+     * Este metodo sirve para cambiar el idioma de la ventana.
+     * @param event Clic en una opcion del cdIdioma.
+     */
     @FXML
     private void cambiarIdioma(ActionEvent event) {
+        
         String idioma;
-        if(cbCambiarIdioma.getSelectionModel().getSelectedItem().equals("English")) {
+        if(cbCambiarIdioma.getSelectionModel().getSelectedItem()
+                .equals("English")) {
+            
             idioma = "en";
         } else {
+            
             idioma = "es";
         }
         abrirLogin(idioma, event);
     }
     
+    /**
+     * Este metodo sirve para abrir la ventana con un nuevo idioma.
+     * @param idioma idioma con el que se abrira la ventana.
+     * @param event Clic en cdIdioma.
+     */
     private void abrirLogin(String idioma, ActionEvent event) {
+        
         Locale.setDefault(new Locale(idioma));
-        ResourceBundle resourceBundle = ResourceBundle.getBundle("juegopreguntantas.lang/lang");
+        ResourceBundle resourceBundle = 
+                ResourceBundle.getBundle("juegopreguntantas.lang/lang");
         
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("VentanaLogIn.fxml"));
         loader.setResources(resourceBundle);
         try {
+            
             Parent logIn = loader.load();
             VentanaLogInController controller = loader.getController();
             controller.setIdioma(idioma);
@@ -266,22 +317,17 @@ public class VentanaLogInController implements Initializable {
             
             ((Node) event.getSource()).getScene().getWindow().hide();
         } catch (IOException ex) {
-            Logger.getLogger(VentanaLogInController.class.getName()).log(Level.SEVERE, null, ex);
+            
+            Logger.getLogger(VentanaLogInController.class.getName())
+                    .log(Level.SEVERE, null, ex);
         }
     }
     
-    private void identificarIdioma() {
-        if(cbCambiarIdioma.getSelectionModel().isEmpty()) {
-            idioma = "es";
-        }else {
-            if (cbCambiarIdioma.getSelectionModel().getSelectedItem().equals("Español")) {
-                idioma = "es";
-            } else {
-                idioma = "en";
-            }
-        }
-    }
-    
+    /**
+     * Este metodo sirve para fijar solo el idioma con el que se abrira la 
+     * ventana.
+     * @param idioma idioma con el que iniciara la ventana.
+     */
     public void setIdioma(String idioma) {
         this.idioma = idioma;
     }
