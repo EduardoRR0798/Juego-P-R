@@ -1,33 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
+<?import javafx.scene.chart.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="415.0" prefWidth="650.0" style="-fx-background-color: #355C7D;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="602.0" prefWidth="789.0" style="-fx-background-color: #355C7D;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juegopreguntantas.ResponderPreguntaController">
    <children>
-      <Separator layoutX="196.0" orientation="VERTICAL" prefHeight="415.0" prefWidth="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="196.0" AnchorPane.topAnchor="0.0" />
       <TextField fx:id="tfMensaje" layoutX="8.0" layoutY="362.0" prefHeight="25.0" prefWidth="156.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="2.0" />
       <Button fx:id="btnEnviar" layoutX="157.0" layoutY="377.0" mnemonicParsing="false" onAction="#enviar" prefHeight="25.0" prefWidth="44.0" style="-fx-background-color: #F67280;" text="%btn.enviar" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="157.0" />
-      <TextArea fx:id="txtChat" layoutX="2.0" layoutY="2.0" prefHeight="352.0" prefWidth="198.0" AnchorPane.bottomAnchor="46.0" AnchorPane.leftAnchor="2.0" AnchorPane.topAnchor="2.0" />
-      <ImageView fx:id="imgA" fitHeight="130.0" fitWidth="130.0" layoutX="268.0" layoutY="135.0" onMouseClicked="#seleccionarA" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="268.0" AnchorPane.rightAnchor="252.0">
+      <TextArea fx:id="txtChat" editable="false" layoutX="2.0" layoutY="2.0" prefHeight="352.0" prefWidth="198.0" AnchorPane.bottomAnchor="46.0" AnchorPane.leftAnchor="2.0" AnchorPane.topAnchor="2.0" />
+      <ImageView fx:id="imgA" fitHeight="150.0" fitWidth="150.0" layoutX="266.0" layoutY="267.0" onMouseClicked="#seleccionarA" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="185.0" AnchorPane.leftAnchor="266.0" AnchorPane.rightAnchor="373.0">
          <image>
-            <Image url="@1.png" />
+            <Image url="@../../PartidaActual/1.png" />
          </image></ImageView>
-      <ImageView fx:id="imgB" fitHeight="130.0" fitWidth="130.0" layoutX="461.0" layoutY="135.0" onMouseClicked="#seleccionarB" pickOnBounds="true" preserveRatio="true" AnchorPane.rightAnchor="59.0">
+      <ImageView fx:id="imgB" fitHeight="150.0" fitWidth="150.0" layoutX="266.0" layoutY="438.0" onMouseClicked="#seleccionarB" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="373.0">
          <image>
-            <Image url="@2.png" />
+            <Image url="@../../PartidaActual/2.png" />
          </image></ImageView>
-      <ImageView fx:id="imgC" fitHeight="130.0" fitWidth="157.0" layoutX="268.0" layoutY="272.0" onMouseClicked="#seleccionarC" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="268.0">
+      <ImageView fx:id="imgC" fitHeight="150.0" fitWidth="150.0" layoutX="565.0" layoutY="267.0" onMouseClicked="#seleccionarC" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="185.0" AnchorPane.leftAnchor="565.0">
          <image>
-            <Image url="@3.png" />
+            <Image url="@../../PartidaActual/3.png" />
          </image></ImageView>
-      <ImageView fx:id="imgD" fitHeight="130.0" fitWidth="130.0" layoutX="461.0" layoutY="272.0" onMouseClicked="#seleccionarD" pickOnBounds="true" preserveRatio="true" AnchorPane.rightAnchor="59.0">
+      <ImageView fx:id="imgD" fitHeight="150.0" fitWidth="150.0" layoutX="565.0" layoutY="438.0" onMouseClicked="#seleccionarD" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="74.0">
          <image>
-            <Image url="@4.png" />
-         </image></ImageView>
+            <Image url="@../../PartidaActual/4.png" />
+         </image>
+         <viewport>
+            <Rectangle2D />
+         </viewport></ImageView>
       <Separator layoutX="296.0" layoutY="44.0" prefHeight="4.0" prefWidth="268.0" AnchorPane.leftAnchor="296.0" AnchorPane.rightAnchor="104.0" />
       <Label fx:id="lblPuntaje" layoutX="296.0" layoutY="21.0" prefHeight="27.0" prefWidth="73.0" text="%lbl.puntaje" textFill="WHITE" AnchorPane.leftAnchor="296.0" AnchorPane.rightAnchor="281.0" AnchorPane.topAnchor="21.0">
          <font>
@@ -44,7 +48,7 @@
             <Font size="18.0" />
          </font>
       </Label>
-      <Label fx:id="lblPreguntaNo" layoutX="325.0" layoutY="59.0" text="%lbl.pregunta_no" textFill="WHITE" AnchorPane.leftAnchor="325.0" AnchorPane.rightAnchor="182.0">
+      <Label fx:id="lblPreguntaNo" layoutX="325.0" layoutY="59.0" text="%lbl.no_pregunta" textFill="WHITE" AnchorPane.leftAnchor="325.0" AnchorPane.rightAnchor="182.0">
          <font>
             <Font size="18.0" />
          </font>
@@ -60,5 +64,56 @@
             <Font size="18.0" />
          </font>
       </Label>
+      <CheckBox fx:id="chbOpcionA" layoutX="211.0" layoutY="349.0" mnemonicParsing="false" text="CheckBox" textFill="WHITE">
+         <font>
+            <Font size="14.0" />
+         </font></CheckBox>
+      <CheckBox fx:id="chbOpcionB" layoutX="211.0" layoutY="388.0" mnemonicParsing="false" text="CheckBox" textFill="WHITE">
+         <font>
+            <Font size="14.0" />
+         </font></CheckBox>
+      <CheckBox fx:id="chbOpcionC" layoutX="211.0" layoutY="428.0" mnemonicParsing="false" text="CheckBox" textFill="WHITE">
+         <font>
+            <Font size="14.0" />
+         </font></CheckBox>
+      <CheckBox fx:id="chbOpcionD" layoutX="211.0" layoutY="467.0" mnemonicParsing="false" text="CheckBox" textFill="WHITE">
+         <font>
+            <Font size="14.0" />
+         </font></CheckBox>
+      <Pane fx:id="pPanelGrafica" layoutX="201.0" layoutY="3.0" prefHeight="415.0" prefWidth="450.0" style="-fx-background-color: #355C7D;" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="200.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <BarChart fx:id="bcGraficaPuntaje" layoutX="3.0" layoutY="35.0" prefHeight="492.0" prefWidth="550.0" title="%lbl.jugadores_unidos">
+              <xAxis>
+                <CategoryAxis fx:id="caJugadores" side="BOTTOM" />
+              </xAxis>
+              <yAxis>
+                <NumberAxis fx:id="caPuntos" side="LEFT" />
+              </yAxis>
+               <padding>
+                  <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+               </padding>
+            </BarChart>
+            <Pane fx:id="pPanelGanador" prefHeight="415.0" prefWidth="450.0" style="-fx-background-color: #355C7D;" visible="false">
+               <children>
+                  <Label fx:id="lblAnunciador" layoutX="151.0" layoutY="33.0" prefHeight="35.0" prefWidth="149.0" text="%lbl.el_ganador_es" textAlignment="CENTER" textFill="WHITE">
+                     <font>
+                        <Font size="24.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="lblGanador" layoutX="5.0" layoutY="85.0" prefHeight="70.0" prefWidth="444.0" textAlignment="CENTER" textFill="#f8b195">
+                     <font>
+                        <Font size="48.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="lblBuenJuego" layoutX="138.0" layoutY="226.0" text="%lbl.buen_juego" textAlignment="CENTER" textFill="#f67280">
+                     <font>
+                        <Font size="24.0" />
+                     </font>
+                  </Label>
+               </children>
+            </Pane>
+         </children>
+      </Pane>
+      <ImageView fx:id="imgPregunta" fitHeight="150.0" fitWidth="150.0" layoutX="401.0" layoutY="95.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="364.0" AnchorPane.leftAnchor="401.0" AnchorPane.rightAnchor="238.0" AnchorPane.topAnchor="95.0" />
    </children>
 </AnchorPane>

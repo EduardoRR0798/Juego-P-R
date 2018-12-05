@@ -43,6 +43,7 @@ import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
 import java.net.URISyntaxException;
+import java.util.Objects;
 
 /******************************************************************/ 
 /* @version 1.0                                                   */ 
@@ -58,6 +59,8 @@ public class ResponderPreguntaController implements Initializable {
     private Button btnEnviar;
     @FXML
     private TextArea txtChat;
+    @FXML
+    private ImageView imgPregunta;
     @FXML
     private ImageView imgA;
     @FXML
@@ -123,7 +126,6 @@ public class ResponderPreguntaController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         
-        mensajero = new Chat_Cliente();
         activarPanelGanador(false);
         activarPanelGrafica(false);
         activarRespuestaEscrita(false);
@@ -150,7 +152,10 @@ public class ResponderPreguntaController implements Initializable {
         socketChat.connect();
     }    
     
-    
+    /**
+     * Este metodo inicializa el socket para el chat.
+     * @return el Socket.
+     */
     private Socket puertoServidor(){
         
         Socket socket = null;
@@ -164,25 +169,36 @@ public class ResponderPreguntaController implements Initializable {
     }
     
     /**
-     * Este metodo sirve para ebvisar un mensaje en el chat.
+     * Este metodo sirve para envisar un mensaje en el chat.
      * @param event Clic en el boton Enviar.
      */
     @FXML
     private void enviar(ActionEvent event) {
         
         String nombre = "";
-        
+        String mensaje = tfMensaje.getText().trim();
         if(cuenta instanceof Cuentausuario) {
+            
             nombre = usuario.getNombreusuario();
         } else {
+            
             nombre = invitado.getNombre();
         }
+        if(!Objects.equals(mensaje, "")) {
+            
+            String mensajeEnviado = nombre + ": " + mensaje;
+            socketChat.emit("envioMensaje", mensajeEnviado);
+            mostrarMensaje(mensajeEnviado);
+        }
         
-        String mensajeEnviado = nombre + ": " + tfMensaje.getText();
-        socketChat.emit("envioMensaje", mensajeEnviado);
-        mostrarMensaje(mensajeEnviado);
+        
     }
     
+    /**
+     * Este metodo sirve para imprimir en el TextArea del chat todos lo mensajes
+     * escritos.
+     * @param mensaje mensaje a enviar.
+     */
     private void mostrarMensaje(String mensaje) {
         
         mensajesChat.add(mensaje);
@@ -197,21 +213,25 @@ public class ResponderPreguntaController implements Initializable {
     
     @FXML
     private void seleccionarA(MouseEvent event) {
+        
         activarPanelGrafica(true);
     }
 
     @FXML
     private void seleccionarB(MouseEvent event) {
+        
         activarPanelGrafica(true);
     }
 
     @FXML
     private void seleccionarC(MouseEvent event) {
+        
         activarPanelGrafica(true);
     }
 
     @FXML
     private void seleccionarD(MouseEvent event) {
+        
         activarPanelGrafica(true);
     }
     
@@ -226,10 +246,11 @@ public class ResponderPreguntaController implements Initializable {
         Locale.setDefault(new Locale(idioma));
         this.idioma = idioma;
         this.cuenta = cuenta;
-        
         if(cuenta instanceof Cuentausuario) {
+            
             this.usuario = (Cuentausuario) cuenta;
         } else {
+            
             this.invitado = (Cuentainvitado) cuenta; 
         }
     }
@@ -242,10 +263,11 @@ public class ResponderPreguntaController implements Initializable {
     private void activarPanelGanador(boolean visibilidad) {
         
         boolean activacion;
-        
         if(visibilidad) {
+            
             activacion = false;
         } else {
+            
             activacion = true;
         }
         
@@ -267,10 +289,11 @@ public class ResponderPreguntaController implements Initializable {
     private void activarPanelGrafica(boolean visibilidad) {
         
         boolean activacion;
-        
         if(visibilidad) {
+            
             activacion = false;
         } else {
+            
             activacion = true;
         }
         
@@ -334,14 +357,17 @@ public class ResponderPreguntaController implements Initializable {
         Timer timer = new Timer();
 
         timer.scheduleAtFixedRate(new TimerTask() {
+            
             public void run() {
                 
                 if (tiempoRestante > 0) {
+                    
                     Platform.runLater(() -> lblTiempo.setText(
                             Integer.toString(tiempoRestante)));
                     sobra = tiempoRestante;
                     tiempoRestante--;
                 } else {
+                    
                     timer.cancel();
                     activarPanelGrafica(true);
                 }
@@ -381,6 +407,7 @@ public class ResponderPreguntaController implements Initializable {
             System.out.println(InetAddress.getLocalHost().getHostAddress());
             System.out.println(InetAddress.getLocalHost().getHostName());
         } catch (UnknownHostException ex) {
+            
             Logger.getLogger(ResponderPreguntaController.class.getName())
                     .log(Level.SEVERE, null, ex);
         }
