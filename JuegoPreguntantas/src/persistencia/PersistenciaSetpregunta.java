@@ -16,16 +16,15 @@ import javax.persistence.Query;
 /* @version 1.0                                                   */ 
 /* @author Puxka Acosta Domínguez                                 */ 
 /* @since 10/11/2018                                              */
-/* Nombre de la clase ComenzarPartidaController                   */
+/* Nombre de la clase PersistenciaSetpregunta                     */
 /******************************************************************/
 public class PersistenciaSetpregunta {
     
-     /**try {
+    /**
      * Este metodo es para trabajar con las entidades de la base de datos 
      * @return El EntityManager 
      */ 
     public EntityManager administrarEntidades() {
-        
         
         Map<String, String> properties = new HashMap<String, String>();
         properties.put("javax.persistence.jdbc.user", "pregunton");
@@ -38,15 +37,45 @@ public class PersistenciaSetpregunta {
     }
     
     /**
+     * Este metodo es para recuperar las categorias de los set de preguntas que 
+     * haya en la base de datos
+     * @param usuario Cuenta del usuario que esta usando el juego
+     * @return La lista de categorias de los set de pregunta
+     */
+    public List<String> recuperarCategorias(Cuentausuario usuario) {
+        
+        EntityManager em = administrarEntidades();
+        PersistenciaCategoria categoriasSet = new PersistenciaCategoria();
+        List<String> categorias = new ArrayList<String>();
+        try {
+            
+            Query queryId = em.createQuery("SELECT s.idcategoria "
+                    + "FROM Setpregunta s "
+                    + "WHERE s.idcuentausuario.idcuentausuario = \"" 
+                    + usuario.getIdcuentausuario() + "\"");
+            List<Integer> idCategoria = queryId.getResultList();
+            categorias = categoriasSet.recuperarCategoriasSet(idCategoria);
+        } catch (NullPointerException e) {
+            
+            Logger.getLogger(PersistenciaSetpregunta.class.getName())
+                    .log(Level.SEVERE, null, e);
+        } finally {
+    
+            return categorias;
+        }
+        
+    }
+    
+    /**
      * Este metodo es para recuperar un set de preguntas por el usuario creador
      * @param usuario Cuenta del usuario que esta usando el juego
      * @return Un set de preguntas
      */
     public Setpregunta recuperarSetPregunta(Cuentausuario usuario) {
-        
         EntityManager em = administrarEntidades();
         Query query = em.createQuery("SELECT s "
-                + "FROM Setpregunta s WHERE s.idcuentausuario.idcuentausuario = \"" 
+                + "FROM Setpregunta s "
+                + "WHERE s.idcuentausuario.idcuentausuario = \"" 
                 + usuario.getIdcuentausuario() + "\"");
         List<Setpregunta> setsPregunta = query.getResultList();
         return setsPregunta.get(0);
@@ -58,44 +87,56 @@ public class PersistenciaSetpregunta {
      * @return Un set de preguntas
      */
     public Setpregunta recuperarSetPregunta(String categoria) {
-        
         EntityManager em = administrarEntidades();
-        Query query = em.createQuery("SELECT s "
-                + "FROM Setpregunta s WHERE s.categoria = \"" 
-                + categoria + "\"");
-        List<Setpregunta> setPregunta = query.getResultList();
+        String[] idSetPregunta = categoria.split(".- ");
+        Query querySetPregunta = em.createQuery("SELECT s "
+                + "FROM Setpregunta s WHERE s.idsetpregunta = \""
+                + idSetPregunta[0] + "\"");
+        List<Setpregunta> setPregunta = querySetPregunta.getResultList();
         return setPregunta.get(0);
     }
     
     /**
-     * Este metodo es para recuperar las categorias de los set de preguntas que 
-     * haya en la base de datos
-     * @param usuario Cuenta del usuario que esta usando el juego
-     * @return La lista de categorias de los set de pregunta
+     * Este metodo es para crear un set de preguntas
+     * @param categoria La categoria del set
+     * @param cuenta La cuenta del usuario creador del set de preguntas
+     * @return Si la creacion es exitosa o no
      */
-    public List<String> recuperarCategorias(Cuentausuario usuario) {
+    public boolean crearSetPregunta(String categoria, Cuentausuario cuenta) {
         
+        boolean exito = false;
         EntityManager em = administrarEntidades();
-        List<String> categorias = new ArrayList<String>();
-        System.out.println("antes del try~");
+        PersistenciaCategoria categorias = new PersistenciaCategoria();
+        Setpregunta setPregunta = new Setpregunta();
+        setPregunta.setIdcuentausuario(cuenta);
         try {
-            System.out.println("inicio del try");
-            Query query = em.createQuery("SELECT s.categoria "
-                    + "FROM Setpregunta s "
-                    + "WHERE s.idcuentausuario.idcuentausuario = \"" 
-                    + usuario.getIdcuentausuario() + "\"");
-            categorias = query.getResultList();
-            System.out.println("final try");
+            
+            int idCategoria = categorias.recuperarIdCategoria(categoria);
+            setPregunta.setIdcategoria(idCategoria);
+            em.persist(setPregunta);
+            em.getTransaction().commit();
+            exito = true;
         } catch (NullPointerException e) {
             
-            System.out.println("exception");
             Logger.getLogger(PersistenciaSetpregunta.class.getName())
                     .log(Level.SEVERE, null, e);
         } finally {
     
-            System.out.println("inicio del finally");
-            return categorias;
+            return exito;
         }
+        
     }
     
+    /**
+     * Este metodo es para recuperar la id del último set de preguntas
+     * @return El id del set de preguntas
+     */
+    public int recuperarUltimaId(){
+        
+        EntityManager em = administrarEntidades();
+        Query query = em.createQuery("SELECT s.idsetpregunta FROM Setpregunta s");
+        List<Integer> idSetPregunta = query.getResultList();
+        int indice = idSetPregunta.size() - 1;
+        return idSetPregunta.get(indice);
+    }
 }

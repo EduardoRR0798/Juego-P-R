@@ -1,6 +1,5 @@
 package persistencia;
 
-import entity.Cuentausuario;
 import entity.Partida;
 import entity.Setpregunta;
 import java.util.HashMap;
@@ -39,10 +38,15 @@ public class PersistenciaPartida {
      * @param nuevaPartida Cuenta de invitado a insertar
      * @return Si es verdadero o no el exito de la creacion de la partida
      */
-    public boolean crearPartida(Partida nuevaPartida) {
+    public boolean crearPartida(String nombre, String modoJuego, 
+            Setpregunta idSetPregunta) {
         
         boolean exito = false;
         EntityManager em = administrarEntidades();
+        Partida nuevaPartida = new Partida();
+        nuevaPartida.setIdsetpregunta(idSetPregunta);
+        nuevaPartida.setModojuego(modoJuego);
+        nuevaPartida.setNombre(nombre);
         try {
             
             em.persist(nuevaPartida);

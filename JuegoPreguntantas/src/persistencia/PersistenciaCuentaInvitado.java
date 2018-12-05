@@ -15,7 +15,7 @@ import javax.persistence.Query;
 /* @version 1.0                                                   */ 
 /* @author Puxka Acosta Domínguez Eduardo Rosas Rivera            */ 
 /* @since 07/11/2018                                              */
-/* Nombre de la clase EnviarInvitacionController                  */
+/* Nombre de la clase PersistenciaCuentaInvitado                  */
 /******************************************************************/
 public class PersistenciaCuentaInvitado {
     
@@ -58,6 +58,7 @@ public class PersistenciaCuentaInvitado {
             em.close();
             return exito;
         }
+        
     }
     
     /*
@@ -190,7 +191,8 @@ public class PersistenciaCuentaInvitado {
      * @param cu Entidad de cuentainvitado a guardar;
      */
     public void registrarCuentaInvitado(Cuentainvitado ci) {
-        PersistenciaCuentaInvitado persistencia = new PersistenciaCuentaInvitado();
+        PersistenciaCuentaInvitado persistencia = 
+                new PersistenciaCuentaInvitado();
         persistencia.persist(ci);
     }
     
@@ -199,7 +201,8 @@ public class PersistenciaCuentaInvitado {
      * @param object objeto a guadar en la base de datos.
      */
     public void persist(Object object) {
-        EntityManagerFactory emf = javax.persistence.Persistence.createEntityManagerFactory("JuegoPreguntantasPU");
+        EntityManagerFactory emf = javax.persistence.Persistence.
+                createEntityManagerFactory("JuegoPreguntantasPU");
         EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
         try {
@@ -212,12 +215,15 @@ public class PersistenciaCuentaInvitado {
             em.close();
         }
     }
-          /**
-     * Metodo usado para eliminar una cuenta de un usuario registrado en la base de datos.
+    
+    /**
+     * Metodo usado para eliminar una cuenta de un usuario registrado en la base
+     * de datos.
      * @param id identificador de la cuenta a eliminar.
      */
     public void destroyCuentaInvitado(long id) {
-        EntityManagerFactory emf = javax.persistence.Persistence.createEntityManagerFactory("JuegoPreguntantasPU");
+        EntityManagerFactory emf = javax.persistence.Persistence.
+                createEntityManagerFactory("JuegoPreguntantasPU");
         EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
         try {
@@ -233,16 +239,22 @@ public class PersistenciaCuentaInvitado {
     }
     
     /**
-     * Metodo que busca el nombre ingresado por el usuario en la base de datos de la tabla de invitados.
-     * @param nombreinvitado nombre ingresado por el usuario en la pantalla de login.
-     * @return true si la cuenta de tipo invitado existe en la base de datos, false si no existe.
+     * Metodo que busca el nombre ingresado por el usuario en la base de datos 
+     * de la tabla de invitados.
+     * @param nombreinvitado nombre ingresado por el usuario en la pantalla de 
+     * login.
+     * @return true si la cuenta de tipo invitado existe en la base de datos, 
+     * false si no existe.
      */
     public Cuentainvitado getCuentaInvitado(String nombreinvitado) {
-        EntityManagerFactory emf = javax.persistence.Persistence.createEntityManagerFactory("JuegoPreguntantasPU");
+        EntityManagerFactory emf = javax.persistence.Persistence.
+                createEntityManagerFactory("JuegoPreguntantasPU");
         EntityManager em = emf.createEntityManager();
         Cuentainvitado invitado = new Cuentainvitado();
         try {
-            invitado = (Cuentainvitado) em.createQuery("SELECT c FROM Cuentainvitado c WHERE UPPER(c.nombre) = \""+ nombreinvitado +"\"").getSingleResult();
+            invitado = (Cuentainvitado) em.createQuery("SELECT c FROM "
+                    + "Cuentainvitado c WHERE UPPER(c.nombre) = \"" + 
+                    nombreinvitado +"\"").getSingleResult();
         } catch (NoResultException noResult) {
             invitado = null;
         } finally {
