@@ -137,7 +137,7 @@ public class RegistrarPreguntaController implements Initializable {
     @FXML
     private void registrarSet(ActionEvent event) {
         
-        if ((cbNoPregunta.getItems().size() > 0) && 
+        if ((cbNoPregunta.getItems().size() > 1) && 
                 !cbCategoriaSet.getSelectionModel().isEmpty()) {
 
             PersistenciaSetpregunta setPreguntaBD = new PersistenciaSetpregunta();
