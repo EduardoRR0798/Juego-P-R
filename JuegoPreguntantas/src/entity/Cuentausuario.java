@@ -6,6 +6,7 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.Collection;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,8 +15,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
@@ -44,6 +47,10 @@ public class Cuentausuario implements Serializable {
     private String nombreusuario;
     @Column(name = "correoelectronico")
     private String correoelectronico;
+    @OneToMany(mappedBy = "idcuentausuario")
+    private Collection<Setpregunta> setpreguntaCollection;
+    @OneToMany(mappedBy = "idcuentausuario")
+    private Collection<Estadistica> estadisticaCollection;
 
     public Cuentausuario() {
     }
@@ -82,6 +89,24 @@ public class Cuentausuario implements Serializable {
 
     public void setCorreoelectronico(String correoelectronico) {
         this.correoelectronico = correoelectronico;
+    }
+
+    @XmlTransient
+    public Collection<Setpregunta> getSetpreguntaCollection() {
+        return setpreguntaCollection;
+    }
+
+    public void setSetpreguntaCollection(Collection<Setpregunta> setpreguntaCollection) {
+        this.setpreguntaCollection = setpreguntaCollection;
+    }
+
+    @XmlTransient
+    public Collection<Estadistica> getEstadisticaCollection() {
+        return estadisticaCollection;
+    }
+
+    public void setEstadisticaCollection(Collection<Estadistica> estadisticaCollection) {
+        this.estadisticaCollection = estadisticaCollection;
     }
 
     @Override
