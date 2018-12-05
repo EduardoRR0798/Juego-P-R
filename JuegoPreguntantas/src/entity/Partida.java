@@ -21,7 +21,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
- * @author Samsung RV415
+ * @author Eduar
  */
 @Entity
 @Table(name = "partida")
@@ -29,8 +29,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @NamedQueries({
     @NamedQuery(name = "Partida.findAll", query = "SELECT p FROM Partida p")
     , @NamedQuery(name = "Partida.findByIdpartida", query = "SELECT p FROM Partida p WHERE p.idpartida = :idpartida")
-    , @NamedQuery(name = "Partida.findByNombre", query = "SELECT p FROM Partida p WHERE p.nombre = :nombre")
-    , @NamedQuery(name = "Partida.findByModojuego", query = "SELECT p FROM Partida p WHERE p.modojuego = :modojuego")})
+    , @NamedQuery(name = "Partida.findByNombre", query = "SELECT p FROM Partida p WHERE p.nombre = :nombre")})
 public class Partida implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -41,8 +40,6 @@ public class Partida implements Serializable {
     private Integer idpartida;
     @Column(name = "nombre")
     private String nombre;
-    @Column(name = "modojuego")
-    private String modojuego;
     @JoinColumn(name = "idsetpregunta", referencedColumnName = "idsetpregunta")
     @ManyToOne
     private Setpregunta idsetpregunta;
@@ -55,7 +52,7 @@ public class Partida implements Serializable {
     }
 
     public Integer getIdpartida() {
-        return idpartida; 
+        return idpartida;
     }
 
     public void setIdpartida(Integer idpartida) {
@@ -68,14 +65,6 @@ public class Partida implements Serializable {
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
-    }
-
-    public String getModojuego() {
-        return modojuego;
-    }
-
-    public void setModojuego(String modojuego) {
-        this.modojuego = modojuego;
     }
 
     public Setpregunta getIdsetpregunta() {

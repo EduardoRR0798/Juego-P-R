@@ -24,7 +24,7 @@ import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
- * @author Samsung RV415
+ * @author Eduar
  */
 @Entity
 @Table(name = "setpregunta")
@@ -32,7 +32,7 @@ import javax.xml.bind.annotation.XmlTransient;
 @NamedQueries({
     @NamedQuery(name = "Setpregunta.findAll", query = "SELECT s FROM Setpregunta s")
     , @NamedQuery(name = "Setpregunta.findByIdsetpregunta", query = "SELECT s FROM Setpregunta s WHERE s.idsetpregunta = :idsetpregunta")
-    , @NamedQuery(name = "Setpregunta.findByCategoria", query = "SELECT s FROM Setpregunta s WHERE s.categoria = :categoria")})
+    , @NamedQuery(name = "Setpregunta.findByIdcategoria", query = "SELECT s FROM Setpregunta s WHERE s.idcategoria = :idcategoria")})
 public class Setpregunta implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -41,8 +41,8 @@ public class Setpregunta implements Serializable {
     @Basic(optional = false)
     @Column(name = "idsetpregunta")
     private Integer idsetpregunta;
-    @Column(name = "categoria")
-    private String categoria;
+    @Column(name = "idcategoria")
+    private Integer idcategoria;
     @JoinColumn(name = "idcuentausuario", referencedColumnName = "idcuentausuario")
     @ManyToOne
     private Cuentausuario idcuentausuario;
@@ -64,12 +64,12 @@ public class Setpregunta implements Serializable {
         this.idsetpregunta = idsetpregunta;
     }
 
-    public String getCategoria() {
-        return categoria;
+    public Integer getIdcategoria() {
+        return idcategoria;
     }
 
-    public void setCategoria(String categoria) {
-        this.categoria = categoria;
+    public void setIdcategoria(Integer idcategoria) {
+        this.idcategoria = idcategoria;
     }
 
     public Cuentausuario getIdcuentausuario() {
