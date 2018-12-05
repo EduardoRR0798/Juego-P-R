@@ -42,6 +42,8 @@ public class Pregunta implements Serializable {
     private Integer idpregunta;
     @Column(name = "pregunta")
     private String pregunta;
+    @Column(name = "tipoPregunta")
+    private Integer tipoPregunta;
     @Column(name = "idsetpregunta")
     private Integer idsetpregunta;
     @OneToMany(mappedBy = "idpregunta")
@@ -68,6 +70,14 @@ public class Pregunta implements Serializable {
 
     public void setPregunta(String pregunta) {
         this.pregunta = pregunta;
+    }
+    
+    public Integer getTipoPregunta() {
+        return tipoPregunta;
+    }
+
+    public void setTipoPregunta(Integer tipoPregunta) {
+        this.tipoPregunta = tipoPregunta;
     }
 
     public Integer getIdsetpregunta() {

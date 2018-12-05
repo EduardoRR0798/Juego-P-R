@@ -51,6 +51,7 @@ public class Respuesta implements Serializable {
     private Pregunta idpregunta;
 
     public Respuesta() {
+        this.puntaje = 0;
     }
 
     public Respuesta(Integer idrespuesta) {
