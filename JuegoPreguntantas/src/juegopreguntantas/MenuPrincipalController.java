@@ -7,6 +7,7 @@ package juegopreguntantas;
 
 import entity.Cuentainvitado;
 import entity.Cuentausuario;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Locale;
@@ -44,22 +45,23 @@ public class MenuPrincipalController implements Initializable {
     private Button btnIniciar;
     @FXML
     private Button btnInvitar;
+    @FXML
+    private Button btnResponderPregunta;
     private Object cuenta;
     private Cuentausuario usuario;
     private Cuentainvitado invitado;
     private String idioma;
     
-    /**
-     * Initializes the controller class.
-     */
-    
     public MenuPrincipalController() {
         
     }
     
+    /**
+     * Initializes the controller class.
+     */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        
+        crearCarpetas();
     }    
 
     /**
@@ -215,6 +217,35 @@ public class MenuPrincipalController implements Initializable {
     }
     
     /**
+     * Este metodo es para probar la pantalla de responder pregunta.
+     * @param event Clic en el boton responder
+     */
+    @FXML
+    private void responderPregunta(ActionEvent event) {
+        Locale.setDefault(new Locale(idioma));
+        ResourceBundle resourceBundle = ResourceBundle.getBundle("juegopreguntantas.lang/lang");
+        
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("ResponderPregunta.fxml"));
+        loader.setResources(resourceBundle);
+        try {
+            Parent responder = loader.load();
+            ResponderPreguntaController controller = loader.getController();
+            controller.recibirParametros(cuenta, idioma);
+            
+            Scene scene = new Scene(responder);
+            Stage stage = new Stage();
+            
+            stage.setScene(scene);
+            stage.show();
+            
+            ((Node) event.getSource()).getScene().getWindow().hide();
+        } catch (IOException ex) {
+            Logger.getLogger(MenuPrincipalController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    /**
      * Metodo que recibe el objeto de cuenta de usuario o invitado del
      * Controlador de la pantalla de Login.
      * @param cuenta Cuenta de invitado o usuario registrado.
@@ -236,6 +267,21 @@ public class MenuPrincipalController implements Initializable {
         }
     }
     
-    
+    /**
+     * Este metodo verifica que exista que las carpetas necesarias para 
+     * las partidas existan.
+     */
+    private void crearCarpetas() {
+        File carpetaJuego = new File("PartidaActual");
+        File carpetaPartidas = new File("MisPartidas");
+
+        if (!carpetaJuego.exists()) {
+            carpetaJuego.mkdir();
+        }
+        
+        if (!carpetaPartidas.exists()) {
+            carpetaPartidas.mkdir();
+        }
+    }
     
 }
