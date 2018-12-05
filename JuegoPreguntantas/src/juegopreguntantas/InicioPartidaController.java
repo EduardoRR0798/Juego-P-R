@@ -1,8 +1,8 @@
 package juegopreguntantas;
 
+import clases.EnvioCliente;
 import entity.Cuentausuario;
 import entity.Partida;
-import entity.Setpregunta;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
@@ -35,18 +35,17 @@ public class InicioPartidaController implements Initializable {
     @FXML
     private ComboBox<String> cbCategoria;
     @FXML
-    private ComboBox<String> cbModoJuego;
-    @FXML
     private Button btnCancelar;
     @FXML
     private Button btnSiguiente;
     
     private Cuentausuario cuenta;
     private String idioma;
-
+    private EnvioCliente enviador;
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
- 
+            enviador = new EnvioCliente();
     }    
     
     /**
@@ -75,9 +74,9 @@ public class InicioPartidaController implements Initializable {
             stage.show();
             ((Node) (event.getSource())).getScene().getWindow().hide();
         } catch (IOException e) {
-            
             e.printStackTrace();
         }
+        
     }
     
     /**
@@ -89,14 +88,16 @@ public class InicioPartidaController implements Initializable {
     private void seguirEsperarJugadores(ActionEvent event) {
         
         if(!txtNombrePartida.getText().isEmpty() 
-                && !cbModoJuego.getSelectionModel().isEmpty() 
                 && !cbCategoria.getSelectionModel().isEmpty()){
             
             PersistenciaPartida partidaBD = new PersistenciaPartida();
             PersistenciaSetpregunta setPreguntaBD = new PersistenciaSetpregunta();
-            if (partidaBD.crearPartida(txtNombrePartida.getText(), 
-                    cbModoJuego.getValue(), 
-                    setPreguntaBD.recuperarSetPregunta(cuenta))) {
+            Partida nuevaPartida = new Partida();
+            nuevaPartida.setNombre(txtNombrePartida.getText());
+//            nuevaPartida.setModojuego(cbModoJuego.getValue());
+            nuevaPartida.setIdsetpregunta(setPreguntaBD
+                    .recuperarSetPregunta(cuenta));
+            if (partidaBD.crearPartida(nuevaPartida)) {
 
                 try {
                     
@@ -108,8 +109,7 @@ public class InicioPartidaController implements Initializable {
                             .getResource("EsperarJugadores.fxml"));
                     loader.setResources(resourceBundle);
                     Parent esperaJugadores = loader.load();
-                    EsperarJugadoresController controller = 
-                            loader.getController();
+                    EsperarJugadoresController controller = loader.getController();
                     controller.recibirParametros(cuenta, idioma);
                     Scene scene = new Scene(esperaJugadores);
                     Stage stage = new Stage();
@@ -129,47 +129,33 @@ public class InicioPartidaController implements Initializable {
     }
     
     /**
-     * Metodo que para mostrar las categorias de los set de pregunta que ha 
-     * hecho el usuario
-     */
-    public void mostrarCategorias(){
-        
-        PersistenciaSetpregunta setPreguntaBD = new PersistenciaSetpregunta();
-        List<String> categorias = setPreguntaBD.recuperarCategorias(cuenta);
-        cbCategoria.getItems().addAll(categorias);
-        if (cbCategoria.getItems().isEmpty()) {
-
-            cbCategoria.setDisable(true);
-            cbModoJuego.setDisable(true);
-            txtNombrePartida.setDisable(true);
-        }
-        
-    }
-    
-    /**
-     * Metodo que para registrar una partida
-     * @return Si la creacion es exitosa o no
-     */
-    public boolean registrarPartida(){
-        
-        PersistenciaPartida partidaBD = new PersistenciaPartida();
-            PersistenciaSetpregunta setPreguntaBD =
-                    new PersistenciaSetpregunta();
-        return partidaBD.crearPartida(txtNombrePartida.getText(), 
-                cbModoJuego.getValue(), 
-                setPreguntaBD.recuperarSetPregunta(cbCategoria.getValue()));
-    }
-    
-    /**
      * Metodo que recibe el objeto de cuenta de usuario o invitado del 
      * Controlador de la pantalla que la invocó
      * @param usuario Cuenta de usuario registrado
      * @param idioma Idioma del properties
      */
     public void recibirParametros(Object usuario, String idioma){
-        
+        Locale.setDefault(new Locale(idioma));
         this.idioma = idioma;
         this.cuenta = (Cuentausuario)usuario;
-        mostrarCategorias();
+        arreglosIniciales();
+    }
+    
+    private void arreglosIniciales() {
+        PersistenciaSetpregunta setPreguntaBD = new PersistenciaSetpregunta();
+        
+        try {
+            List<String> categorias = setPreguntaBD.recuperarCategoria(cuenta);
+            cbCategoria.getItems().addAll(categorias);
+        } catch (NullPointerException e) {
+            System.out.println("S");
+            //cbCategoria.setDisable(true);
+            //cbModoJuego.setDisable(true);
+            //txtNombrePartida.setDisable(true);
+        }
+    }
+    
+    private void enviarImagenes() {
+        
     }
 }
