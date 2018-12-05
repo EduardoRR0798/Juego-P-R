@@ -94,12 +94,9 @@ public class InicioPartidaController implements Initializable {
             
             PersistenciaPartida partidaBD = new PersistenciaPartida();
             PersistenciaSetpregunta setPreguntaBD = new PersistenciaSetpregunta();
-            Partida nuevaPartida = new Partida();
-            nuevaPartida.setNombre(txtNombrePartida.getText());
-            nuevaPartida.setModojuego(cbModoJuego.getValue());
-            nuevaPartida.setIdsetpregunta(setPreguntaBD
-                    .recuperarSetPregunta(cuenta));
-            if (partidaBD.crearPartida(nuevaPartida)) {
+            if (partidaBD.crearPartida(txtNombrePartida.getText(), 
+                    cbModoJuego.getValue(), 
+                    setPreguntaBD.recuperarSetPregunta(cuenta))) {
 
                 try {
                     
@@ -111,7 +108,8 @@ public class InicioPartidaController implements Initializable {
                             .getResource("EsperarJugadores.fxml"));
                     loader.setResources(resourceBundle);
                     Parent esperaJugadores = loader.load();
-                    EsperarJugadoresController controller = loader.getController();
+                    EsperarJugadoresController controller = 
+                            loader.getController();
                     controller.recibirParametros(cuenta, idioma);
                     Scene scene = new Scene(esperaJugadores);
                     Stage stage = new Stage();
@@ -149,6 +147,20 @@ public class InicioPartidaController implements Initializable {
     }
     
     /**
+     * Metodo que para registrar una partida
+     * @return Si la creacion es exitosa o no
+     */
+    public boolean registrarPartida(){
+        
+        PersistenciaPartida partidaBD = new PersistenciaPartida();
+            PersistenciaSetpregunta setPreguntaBD =
+                    new PersistenciaSetpregunta();
+        return partidaBD.crearPartida(txtNombrePartida.getText(), 
+                cbModoJuego.getValue(), 
+                setPreguntaBD.recuperarSetPregunta(cbCategoria.getValue()));
+    }
+    
+    /**
      * Metodo que recibe el objeto de cuenta de usuario o invitado del 
      * Controlador de la pantalla que la invocó
      * @param usuario Cuenta de usuario registrado
@@ -159,6 +171,5 @@ public class InicioPartidaController implements Initializable {
         this.idioma = idioma;
         this.cuenta = (Cuentausuario)usuario;
         mostrarCategorias();
-        System.out.println("final de recibir");
     }
 }

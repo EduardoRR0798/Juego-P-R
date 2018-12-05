@@ -53,7 +53,7 @@ public class EnviarInvitacionController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
+        
     }
     
     /**
@@ -101,7 +101,8 @@ public class EnviarInvitacionController implements Initializable {
             
             try {
                 
-                PersistenciaCuentaInvitado invitadoBD = new PersistenciaCuentaInvitado();
+                PersistenciaCuentaInvitado invitadoBD = 
+                        new PersistenciaCuentaInvitado();
                 if (invitadoBD.comprobarCorreo(txtCorreoElectronico.getText())) {
                     mostrarCorreoRepetido();
                 } else {
@@ -149,7 +150,7 @@ public class EnviarInvitacionController implements Initializable {
     
     /**
      * Este metodo es para hacer todos los put que necesitan las properties
-     * @return El el properties para la sesion
+     * @return El properties para la sesion
      */
     private Properties crearProperties() {
         
@@ -203,7 +204,8 @@ public class EnviarInvitacionController implements Initializable {
      * @param mensaje Message que se va a enviar por correo
      * @param nuevoInvitado Cuenta de invitado que se guardara en BD
      */ 
-    private void mostrarInvitadoExito(Message mensaje, Cuentainvitado nuevoInvitado) {
+    private void mostrarInvitadoExito(Message mensaje, Cuentainvitado 
+            nuevoInvitado) {
         
         PersistenciaCuentaInvitado invitadoBD = new PersistenciaCuentaInvitado();
         if (invitadoBD.crearInvitado(nuevoInvitado)) {

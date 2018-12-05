@@ -1,30 +1,62 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.text.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.canvas.*?>
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.collections.*?>
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #355C7D;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juegopreguntantas.RegistrarPreguntaController">
    <children>
       <Label layoutX="33.0" layoutY="105.0" text="%lbl.respuesta" textFill="WHITE" />
       <TextField fx:id="txtPregunta" layoutX="121.0" layoutY="58.0" prefHeight="25.0" prefWidth="297.0" />
-      <Button fx:id="btnRespuesta2" layoutX="188.0" layoutY="169.0" mnemonicParsing="false" prefHeight="85.0" prefWidth="85.0" style="-fx-background-color: #F8B195;" text="+" />
-      <Button fx:id="btnRespuesta1" layoutX="51.0" layoutY="169.0" mnemonicParsing="false" prefHeight="85.0" prefWidth="85.0" style="-fx-background-color: #F8B195;" text="+" />
-      <Button fx:id="btnRespuesta4" layoutX="462.0" layoutY="169.0" mnemonicParsing="false" prefHeight="85.0" prefWidth="85.0" style="-fx-background-color: #F8B195;" text="+" />
-      <Button fx:id="btnRespuesta3" layoutX="326.0" layoutY="169.0" mnemonicParsing="false" prefHeight="85.0" prefWidth="85.0" style="-fx-background-color: #F8B195;" text="+" />
-      <ChoiceBox fx:id="cbCategoriaSet" layoutX="246.0" layoutY="309.0" prefHeight="25.0" prefWidth="196.0" style="-fx-background-color: #F8B195;" />
-      <ChoiceBox fx:id="cbRespuestaCorrecta" layoutX="33.0" layoutY="307.0" prefHeight="25.0" prefWidth="196.0" style="-fx-background-color: #F8B195;" />
+      <Button fx:id="btnRespuesta2" layoutX="188.0" layoutY="169.0" mnemonicParsing="false" onAction="#seleccionarImagen" prefHeight="85.0" prefWidth="85.0" style="-fx-background-color: #F8B195;" text="+" />
+      <Button fx:id="btnRespuesta1" layoutX="51.0" layoutY="169.0" mnemonicParsing="false" onAction="#seleccionarImagen" prefHeight="85.0" prefWidth="85.0" style="-fx-background-color: #F8B195;" text="+" />
+      <Button fx:id="btnRespuesta4" layoutX="462.0" layoutY="169.0" mnemonicParsing="false" onAction="#seleccionarImagen" prefHeight="85.0" prefWidth="85.0" style="-fx-background-color: #F8B195;" text="+" />
+      <Button fx:id="btnRespuesta3" layoutX="326.0" layoutY="169.0" mnemonicParsing="false" onAction="#seleccionarImagen" prefHeight="85.0" prefWidth="85.0" style="-fx-background-color: #F8B195;" text="+" />
+      <ChoiceBox fx:id="cbCategoriaSet" layoutX="246.0" layoutY="309.0" prefHeight="25.0" prefWidth="196.0" style="-fx-background-color: #F8B195;">
+      <items>
+              <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="Arte" />
+                  <String fx:value="Conocimiento general" />
+                  <String fx:value="Colores" />
+                  <String fx:value="Deportes" />
+                  <String fx:value="Entretenimiento" />
+                  <String fx:value="Historia" />
+              </FXCollections>
+          </items>
+      </ChoiceBox>
+      <ChoiceBox fx:id="cbRespuestaCorrecta" layoutX="33.0" layoutY="307.0" prefHeight="25.0" prefWidth="196.0" style="-fx-background-color: #F8B195;">
+          <items>
+              <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="1a" />
+                  <String fx:value="2a" />
+                  <String fx:value="3a" />
+                  <String fx:value="4a" />
+              </FXCollections>
+          </items>
+      </ChoiceBox>
       <Label layoutX="452.0" layoutY="281.0" text="%lbl.no_set" textFill="WHITE" />
-      <Button fx:id="btnPregunta" layoutX="433.0" layoutY="30.0" mnemonicParsing="false" prefHeight="53.0" prefWidth="85.0" style="-fx-background-color: #F8B195;" text="+" />
+      <Button fx:id="btnPregunta" layoutX="433.0" layoutY="30.0" mnemonicParsing="false" onAction="#seleccionarImagen" prefHeight="53.0" prefWidth="85.0" style="-fx-background-color: #F8B195;" text="+" />
       <TextField fx:id="txtRespuesta1" layoutX="33.0" layoutY="134.0" prefHeight="25.0" prefWidth="120.0" />
       <TextField fx:id="txtRespuesta2" layoutX="170.0" layoutY="134.0" prefHeight="25.0" prefWidth="120.0" />
       <TextField fx:id="txtRespuesta3" layoutX="308.0" layoutY="134.0" prefHeight="25.0" prefWidth="120.0" />
       <TextField fx:id="txtRespuesta4" layoutX="444.0" layoutY="134.0" prefHeight="25.0" prefWidth="120.0" />
       <ChoiceBox fx:id="cbNoPregunta" layoutX="33.0" layoutY="58.0" prefHeight="25.0" prefWidth="71.0" style="-fx-background-color: #F8B195;" />
-      <Button fx:id="btnAgregarPregunta" layoutX="537.0" layoutY="24.0" mnemonicParsing="false" style="-fx-background-color: #F8B195;" text="+" />
-      <Button fx:id="btnEliminarPregunta" layoutX="537.0" layoutY="56.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="25.0" style="-fx-background-color: #F67280;" text="-" />
-      <Button fx:id="btnEliminarSet" layoutX="537.0" layoutY="307.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="25.0" style="-fx-background-color: #F67280;" text="-" />
+      <Button fx:id="btnAgregarPregunta" layoutX="537.0" layoutY="24.0" mnemonicParsing="false" onAction="#agregarPregunta" style="-fx-background-color: #F8B195;" text="+">
+         <tooltip>
+            <Tooltip text="%tt.agregar_pregunta" />
+         </tooltip></Button>
+      <Button fx:id="btnEliminarPregunta" layoutX="537.0" layoutY="56.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="25.0" style="-fx-background-color: #F67280;" text="-" disable="true">
+         <tooltip>
+            <Tooltip text="%tt.eliminar_pregunta" />
+         </tooltip></Button>
+      <Button fx:id="btnEliminarSet" layoutX="537.0" layoutY="307.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="25.0" style="-fx-background-color: #F67280;" text="-" disable="true">
+         <tooltip>
+            <Tooltip text="%tt.eliminar_set" />
+         </tooltip></Button>
       <ChoiceBox fx:id="cbNoSet" layoutX="451.0" layoutY="307.0" prefHeight="25.0" prefWidth="71.0" style="-fx-background-color: #F8B195;" />
       <GridPane layoutX="355.0" layoutY="350.0">
         <columnConstraints>
@@ -36,8 +68,8 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Button fx:id="btnRegistrar" mnemonicParsing="false" prefHeight="25.0" prefWidth="134.0" style="-fx-background-color: #F8B195;" text="%btn.registrar_set" GridPane.columnIndex="2" />
-            <Button fx:id="btnCancelar" mnemonicParsing="false" style="-fx-background-color: #F67280;" text="%btn.cancelar" />
+            <Button fx:id="btnRegistrar" mnemonicParsing="false" onAction="#registrarSet" prefHeight="25.0" prefWidth="134.0" style="-fx-background-color: #F8B195;" text="%btn.registrar_set" GridPane.columnIndex="2" />
+            <Button fx:id="btnCancelar" mnemonicParsing="false" onAction="#cancelar" style="-fx-background-color: #F67280;" text="%btn.cancelar" />
          </children>
       </GridPane>
       <HBox layoutX="33.0" layoutY="280.0" prefHeight="17.0" prefWidth="411.0">
@@ -55,5 +87,40 @@
       <Separator layoutX="24.0" layoutY="96.0" prefHeight="0.0" prefWidth="553.0" />
       <Separator layoutX="236.0" layoutY="271.0" orientation="VERTICAL" prefHeight="76.0" prefWidth="0.0" />
       <Separator layoutX="237.0" layoutY="270.0" prefHeight="3.0" prefWidth="333.0" />
+      <Label layoutX="419.0" layoutY="60.0" text="?" textFill="WHITE">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+      </Label>
+      <Label layoutX="114.0" layoutY="60.0" text="¿" textFill="WHITE">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+      </Label>
+      <Button fx:id="btnCancelarImagen1" graphicTextGap="1.0" layoutX="33.0" layoutY="169.0" mnemonicParsing="false" onAction="#cancelarImagen" prefHeight="85.0" prefWidth="0.0" style="-fx-background-color: #F67280;" text="X" visible="false">
+         <font>
+            <Font size="10.0" />
+         </font>
+      </Button>
+      <Button fx:id="btnCancelarImagen2" graphicTextGap="1.0" layoutX="170.0" layoutY="169.0" mnemonicParsing="false" onAction="#cancelarImagen" prefHeight="85.0" prefWidth="0.0" style="-fx-background-color: #F67280;" text="X" visible="false">
+         <font>
+            <Font size="10.0" />
+         </font>
+      </Button>
+      <Button fx:id="btnCancelarImagen3" graphicTextGap="1.0" layoutX="308.0" layoutY="169.0" mnemonicParsing="false" onAction="#cancelarImagen" prefHeight="85.0" prefWidth="0.0" style="-fx-background-color: #F67280;" text="X" visible="false">
+         <font>
+            <Font size="10.0" />
+         </font>
+      </Button>
+      <Button fx:id="btnCancelarImagen4" graphicTextGap="1.0" layoutX="444.0" layoutY="169.0" mnemonicParsing="false" onAction="#cancelarImagen" prefHeight="85.0" prefWidth="0.0" style="-fx-background-color: #F67280;" text="X" visible="false">
+         <font>
+            <Font size="10.0" />
+         </font>
+      </Button>
+      <Button fx:id="btnCancelarPregunta" graphicTextGap="1.0" layoutX="432.0" layoutY="30.0" mnemonicParsing="false" onAction="#cancelarImagen" prefHeight="53.0" prefWidth="0.0" style="-fx-background-color: #F67280;" text="X" visible="false">
+         <font>
+            <Font size="10.0" />
+         </font>
+      </Button>
    </children>
 </AnchorPane>

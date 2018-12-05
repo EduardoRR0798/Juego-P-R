@@ -26,7 +26,7 @@ import persistencia.PersistenciaSetpregunta;
 /* @version 1.0                                                   */ 
 /* @author Puxka Acosta Domínguez                                 */ 
 /* @since 07/11/2018                                              */
-/* Nombre de la clase EnviarInvitacionController                  */
+/* Nombre de la clase EsperarPartidaController                    */
 /******************************************************************/
 public class EsperarPartidaController implements Initializable {
 
@@ -84,12 +84,13 @@ public class EsperarPartidaController implements Initializable {
      */
     @FXML
     private void mostrarPartidas(ActionEvent event) {
-
+        
+        cbPartidas.getItems().clear();
         PersistenciaPartida partidaBD = new PersistenciaPartida();
         PersistenciaSetpregunta setPreguntaBD = new PersistenciaSetpregunta();
-        //Setpregunta setpregunta = setPreguntaBD
-        //        .recuperarSetPregunta(cbCategorias.getValue());
-        //cbPartidas.getItems().addAll(partidaBD.recuperarNombre(setpregunta));
+        Setpregunta setpregunta = setPreguntaBD
+                .recuperarSetPregunta(cbCategorias.getValue());
+        cbPartidas.getItems().addAll(partidaBD.recuperarNombre(setpregunta));
     }
     
         /**
