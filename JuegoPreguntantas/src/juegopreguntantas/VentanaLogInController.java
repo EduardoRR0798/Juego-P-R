@@ -5,8 +5,6 @@
  */
 package juegopreguntantas;
 
-import clases.IndicadorDeIP;
-import clases.RecibirIP;
 import persistencia.PersistenciaCuentaUsuario;
 import entity.Cuentainvitado;
 import entity.Cuentausuario;
@@ -77,11 +75,6 @@ public class VentanaLogInController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         
-        
-            /*IndicadorDeIP indicador = new IndicadorDeIP();
-            indicador.emitoIP();
-            RecibirIP recibidor = new RecibirIP();
-            recibidor.emitoIP();*/
             cbCambiarIdioma.setItems(idiomas);
         
     }    
@@ -169,12 +162,16 @@ public class VentanaLogInController implements Initializable {
         if(tfUser.getText().equals(null)) {
             
             validador = false;
-            lMensaje.setText("Llene todos los campos.");
+            lMensaje.setText(java.util.ResourceBundle.getBundle(
+                    "juegopreguntantas/lang/lang").getString(
+                            "string_llenarCampos"));
         }
         if(pfPassword.getText().equals(null)) {
             
             validador = false;
-            lMensaje.setText("Llene todos los campos.");
+            lMensaje.setText(java.util.ResourceBundle.getBundle(
+                    "juegopreguntantas/lang/lang").getString(
+                            "string_llenarCampos"));
         }
         return validador;
     }
@@ -199,14 +196,20 @@ public class VentanaLogInController implements Initializable {
                 
                 cuenta = usuario;
                 ingresoExitoso = true;
-                lMensaje.setText("Iniciando Sesion...");
+                lMensaje.setText(java.util.ResourceBundle.getBundle(
+                        "juegopreguntantas/lang/lang")
+                        .getString("string_iniciandoSesion"));
             } else {
                 
-                lMensaje.setText("Usuario o Contraseña incorrectos.");
+                lMensaje.setText(java.util.ResourceBundle.getBundle(
+                        "juegopreguntantas/lang/lang")
+                        .getString("string_incorrectos"));
             }
         } else {
             
-            lMensaje.setText("Usuario no encontrado");
+            lMensaje.setText(java.util.ResourceBundle.getBundle(
+                    "juegopreguntantas/lang/lang")
+                    .getString("string_noEncontrado"));
         }
         return ingresoExitoso;   
     }
@@ -230,15 +233,24 @@ public class VentanaLogInController implements Initializable {
         if(invitado != null) {
             
             if (contrasenia.equals(invitado.getCodigo())) {
+                
                 ingresoExitoso = true;
                 cuenta = invitado;
-                lMensaje.setText("Iniciando Sesion...");
+                lMensaje.setText(java.util.ResourceBundle.getBundle(
+                        "juegopreguntantas/lang/lang")
+                        .getString("string_iniciandoSesion"));
             } else {
-                lMensaje.setText("Usuario o Contraseña incorrectos.");
+                
+                lMensaje.setText(java.util.ResourceBundle.getBundle(
+                        "juegopreguntantas/lang/lang")
+                        .getString("string_incorrectos"));
             }
-            
+
         } else {
-            lMensaje.setText("Usuario no encontrado");
+            
+            lMensaje.setText(java.util.ResourceBundle.getBundle(
+                    "juegopreguntantas/lang/lang")
+                    .getString("string_noEncontrado"));
         }
         
         return ingresoExitoso;
