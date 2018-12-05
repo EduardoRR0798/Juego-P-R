@@ -80,7 +80,8 @@ public class RegistrarUsuarioController implements Initializable {
     @FXML
     private void cancelar(ActionEvent event) {
         Locale.setDefault(new Locale(idioma));
-        ResourceBundle resourceBundle = ResourceBundle.getBundle("juegopreguntantas.lang/lang");
+        ResourceBundle resourceBundle = 
+                ResourceBundle.getBundle("juegopreguntantas.lang/lang");
         
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("VentanaLogIn.fxml"));
@@ -98,7 +99,8 @@ public class RegistrarUsuarioController implements Initializable {
             
             ((Node) event.getSource()).getScene().getWindow().hide();
         } catch (IOException ex) {
-            Logger.getLogger(VentanaLogInController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(VentanaLogInController.class.getName()).log(
+                    Level.SEVERE, null, ex);
         }
     }
   
@@ -116,19 +118,26 @@ public class RegistrarUsuarioController implements Initializable {
         if(validarCampos() == true){
             
             if(verificarRegistroUsuario() == true) {
+                
                 try {
+                    
                     Cuentausuario usuario = new Cuentausuario();
                     usuario.setNombreusuario(nombre);
                     usuario.setContrasenia(contrasenia);
                     usuario.setCorreoelectronico(email);
                     persistencia.registrarCuentaUsuario(usuario);
                     enviarConfirmacion();
+                    txtNombreUsuario.clear();
+                    pfPassword.clear();
                 } catch (MessagingException ex) {
-                    Logger.getLogger(RegistrarUsuarioController.class.getName()).log(Level.SEVERE, null, ex);
+                    
+                    Logger.getLogger(RegistrarUsuarioController.class.getName())
+                            .log(Level.SEVERE, null, ex);
                 }
             } 
             
         } else {
+            
             lMensaje.setText("Llene todos los datos.");
         }
       
@@ -174,7 +183,8 @@ public class RegistrarUsuarioController implements Initializable {
         boolean permiso = false;
         String user = txtNombreUsuario.getText().trim();
         PersistenciaCuentaUsuario persistencia = new PersistenciaCuentaUsuario();
-        Cuentausuario usuario = persistencia.getCuentaUsuarioNombre(user.toUpperCase());
+        Cuentausuario usuario = persistencia.getCuentaUsuarioNombre(
+                user.toUpperCase());
         
         if(Objects.equals(usuario, null)) {
             permiso = true;
@@ -184,14 +194,16 @@ public class RegistrarUsuarioController implements Initializable {
     
 
     /**
-     * Este metodo verifica que el correo electronico no exista en la base de datos.
+     * Este metodo verifica que el correo electronico no exista en la 
+     * base de datos.
      * @return true si no existe, false si existe.
      */
     private boolean verificarRegistrosEmail() {
         boolean permiso = false;
         String email = txtCorreoElectronico.getText().trim();
         PersistenciaCuentaUsuario persistencia = new PersistenciaCuentaUsuario();
-        Cuentausuario usuario = persistencia.getCuentaUsuarioEmail(email.toUpperCase());
+        Cuentausuario usuario = 
+                persistencia.getCuentaUsuarioEmail(email.toUpperCase());
         
         if(Objects.equals(usuario, null)) {
             permiso = true;
@@ -201,7 +213,8 @@ public class RegistrarUsuarioController implements Initializable {
     }
     
     /**
-     * Este metodo verifica si alguno de los dos metodos verificadores obtienen true.
+     * Este metodo verifica si alguno de los dos metodos verificadores 
+     * obtienen true.
      * @return true si el usuario se puede registrar, false si no puede.
      */
     private boolean verificarRegistroUsuario() {
@@ -228,23 +241,28 @@ public class RegistrarUsuarioController implements Initializable {
         if (!txtCorreoElectronico.getText().isEmpty()) {
             
             try {
-                String correo = txtCorreoElectronico.getText().replaceAll("\\S", "");
-                PersistenciaCuentaInvitado invitadoBD = new PersistenciaCuentaInvitado();
+                
+                String correo = 
+                        txtCorreoElectronico.getText().replaceAll("\\S", "");
+                PersistenciaCuentaInvitado invitadoBD =
+                        new PersistenciaCuentaInvitado();
                 if (invitadoBD.comprobarCorreo(correo.toUpperCase())) {
-                    lMensaje.setText("Ya existe una cuenta con ese correo, pruebe con otro.");
+                    
+                    lMensaje.setText("Email existente, pruebe otro.");
                 } else {
 
                     Cuentainvitado nuevoInvitado = new Cuentainvitado();
                     nuevoInvitado.setNombre(txtNombreUsuario.getText());
-                    nuevoInvitado
-                            .setCorreoelectronico(txtCorreoElectronico.getText());
+                    nuevoInvitado.setCorreoelectronico(
+                            txtCorreoElectronico.getText());
                     nuevoInvitado.setCodigo(pfPassword.getText());
                     String deCorreo = "juego.preguntantas@gmail.com";
 
                     final String contrasenia = "pr3gunt0n";
                     Properties properties = crearProperties();
                     Authenticator auth = new Authenticator() {
-                        public PasswordAuthentication getPasswordAuthentication() {
+                        public PasswordAuthentication 
+                            getPasswordAuthentication() {
 
                             return new PasswordAuthentication(deCorreo
                                     , contrasenia);
@@ -291,13 +309,13 @@ public class RegistrarUsuarioController implements Initializable {
         
         Message mensaje = new MimeMessage(sesion);
         try {
-            InternetAddress[] address 
-                    = {new InternetAddress(nuevoInvitado.getCorreoelectronico())};
+            InternetAddress[] address = {new InternetAddress(
+                    nuevoInvitado.getCorreoelectronico())};
             mensaje.setRecipients(Message.RecipientType.TO, address);
             mensaje.setSubject("Registro a PREGUNTANTAS!");
             String saludo = "Hola " + txtNombreUsuario.getText() + "\n\n";
             String cuerpo = "Tu registro a preguntantas ha sido realizado de"
-                    + "forma exitosa!\n\n";
+                    + " forma exitosa!\n\n";
             String contenidoCorreo = saludo + cuerpo;
             mensaje.setSentDate(new Date());
             mensaje.setText(contenidoCorreo);
@@ -316,9 +334,11 @@ public class RegistrarUsuarioController implements Initializable {
      * @param mensaje Message que se va a enviar por correo
      * @param nuevoInvitado Cuenta de invitado que se guardara en BD
      */ 
-    private void mostrarInvitadoExito(Message mensaje, Cuentainvitado nuevoInvitado) {
+    private void mostrarInvitadoExito(Message mensaje, 
+            Cuentainvitado nuevoInvitado) {
         
-        PersistenciaCuentaInvitado invitadoBD = new PersistenciaCuentaInvitado();
+        PersistenciaCuentaInvitado invitadoBD = 
+                new PersistenciaCuentaInvitado();
         if (invitadoBD.crearInvitado(nuevoInvitado)) {
 
             try {
@@ -327,7 +347,8 @@ public class RegistrarUsuarioController implements Initializable {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Registro Exitoso");
                 alert.setHeaderText(null);
-                alert.setContentText("Se ha enviado un correo electronico a su correo");
+                alert.setContentText("Se ha enviado un correo electronico a su "
+                        + "correo");
                 alert.showAndWait();
             } catch (MessagingException ex) {
                 
@@ -338,5 +359,13 @@ public class RegistrarUsuarioController implements Initializable {
         } else {
             lMensaje.setText("No se ha podido registrar su cuenta");
         }
+    }
+    
+    private void emitirMensaje(String titulo, String mensaje) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(titulo);
+        alert.setHeaderText(null);
+        alert.setContentText(mensaje);
+        alert.showAndWait();
     }
 }
