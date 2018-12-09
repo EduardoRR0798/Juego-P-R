@@ -31,7 +31,6 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -39,10 +38,12 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import clases.Chat_Cliente;
+import entity.Respuesta;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Objects;
 
 /******************************************************************/ 
@@ -103,22 +104,18 @@ public class ResponderPreguntaController implements Initializable {
     private BarChart<String, Number> bcGraficaPuntaje;
     private CategoryAxis caJugadores;
     private NumberAxis caPuntos;
-    @FXML
-    private ProgressBar pbRestante;
     
-    private static final Integer TIEMPORESPUESTA = 15;
     private Object cuenta;
     private String idioma;
     private Cuentausuario usuario;
     private Cuentainvitado invitado;
     private int tiempoRestante = 15;
     private int sobra = 16;
-    private Chat_Cliente mensajero;
     private ArrayList<String> mensajesChat = new ArrayList<>();
     private ObservableList<String> jugadores = 
             FXCollections.observableArrayList();
     private Pregunta preguntaActual;
-    private Socket socketChat = puertoServidor();
+    private final Socket socketChat = puertoServidor();
     
     /**
      * Initializes the controller class.
@@ -145,9 +142,12 @@ public class ResponderPreguntaController implements Initializable {
             @Override
             public void call(Object... os) {
                 String mensajeRecibido = (String) os[0];
-                System.out.println(mensajeRecibido+ "1");
                 mostrarMensaje(mensajeRecibido);
-                System.out.println(mensajeRecibido);
+            }
+        }).on("reciboPregunta", new Emitter.Listener() {
+            @Override
+            public void call(Object... os) {
+                preguntaActual = (Pregunta) os[0];
             }
         });
         
@@ -162,10 +162,13 @@ public class ResponderPreguntaController implements Initializable {
         
         Socket socket = null;
         try {
-            socket = IO.socket("http://192.168.43.91:4000");
+            
+            socket = IO.socket("http://localhost:4000");
         } catch (URISyntaxException ex) {
-            Logger.getLogger(Chat_Cliente.class.getName()).log(Level.SEVERE, null, ex);
+            
+            Logger.getLogger(ResponderPreguntaController.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
+            
             return socket;
         }
     }
@@ -194,8 +197,20 @@ public class ResponderPreguntaController implements Initializable {
             mostrarMensaje(mensajeEnviado);
         }
         
-        
     }
+    
+    /**
+     * Este metodo sirve para que al presionar la tecla Enter el tfMensaje pueda
+     * enviar un mensaje, sin la necesidad de presionar el Boton enviar.
+     
+    public void enviarMensajeEnter() {
+        tfMensaje.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                enviar(event);
+            }
+        });
+    }*/
     
     /**
      * Este metodo sirve para imprimir en el TextArea del chat todos lo mensajes
@@ -265,15 +280,6 @@ public class ResponderPreguntaController implements Initializable {
      */
     private void activarPanelGanador(boolean visibilidad) {
         
-        boolean activacion;
-        if(visibilidad) {
-            
-            activacion = false;
-        } else {
-            
-            activacion = true;
-        }
-        
         pPanelGanador.setVisible(visibilidad);
         pPanelGanador.setDisable(visibilidad);
         lblGanador.setDisable(visibilidad);
@@ -302,8 +308,8 @@ public class ResponderPreguntaController implements Initializable {
         
         pPanelGrafica.setVisible(visibilidad);
         bcGraficaPuntaje.setVisible(visibilidad);
-        pPanelGrafica.setDisable(activacion);
-        bcGraficaPuntaje.setDisable(activacion);
+        pPanelGrafica.setDisable(!visibilidad);
+        bcGraficaPuntaje.setDisable(!visibilidad);
     }
     
     /**
@@ -321,13 +327,13 @@ public class ResponderPreguntaController implements Initializable {
             activacion = true;
         }
         
-        chbOpcionA.setDisable(activacion);
+        chbOpcionA.setDisable(!permiso);
         chbOpcionA.setVisible(permiso);
-        chbOpcionB.setDisable(activacion);
+        chbOpcionB.setDisable(!permiso);
         chbOpcionB.setVisible(permiso);
-        chbOpcionC.setDisable(activacion);
+        chbOpcionC.setDisable(!permiso);
         chbOpcionC.setVisible(permiso);
-        chbOpcionD.setDisable(activacion);
+        chbOpcionD.setDisable(!permiso);
         chbOpcionD.setVisible(permiso);
     }
     
@@ -382,15 +388,15 @@ public class ResponderPreguntaController implements Initializable {
     
     private void fijarImagenes() {
         
-        Pregunta pregunta = new Pregunta();
-        String ubicacion = "C:\\Users\\Eduar\\Desktop\\Tecnologias\\Juego-P-R-master\\JuegoPreguntantas\\PartidaActual";
+        String ruta = "PartidaActual\\";
         try {
             
-            /*File file1 = new File(pregunta.getRespuesta(0).getRespuesta());
-            System.out.println(file1.getName());
-            File file2 = new File(pregunta.getRespuesta(1).getRespuesta());
-            File file3 = new File(pregunta.getRespuesta(2).getRespuesta());
-            File file4 = new File(pregunta.getRespuesta(3).getRespuesta());*/
+            List<Respuesta> respuestas = 
+                    (List<Respuesta>) preguntaActual.getRespuestaCollection();
+            
+            if(respuestas.get(0).getTipoRespuesta() == 2) {
+                
+            }
             File file1 = new File("C:\\Users\\Eduar\\Desktop\\Tecnologias\\Juego-P-R-master\\JuegoPreguntantas\\PartidaActual\\1.png");
             File file2 = new File("C:\\Users\\Eduar\\Desktop\\Tecnologias\\Juego-P-R-master\\JuegoPreguntantas\\PartidaActual\\2.png");
             File file3 = new File("C:\\Users\\Eduar\\Desktop\\Tecnologias\\Juego-P-R-master\\JuegoPreguntantas\\PartidaActual\\3.png");
