@@ -141,11 +141,13 @@ public class ResponderPreguntaController implements Initializable {
                 
             }
         }).on("reciboMensaje", new Emitter.Listener(){
+            
             @Override
-
             public void call(Object... os) {
                 String mensajeRecibido = (String) os[0];
+                System.out.println(mensajeRecibido+ "1");
                 mostrarMensaje(mensajeRecibido);
+                System.out.println(mensajeRecibido);
             }
         });
         
@@ -160,7 +162,7 @@ public class ResponderPreguntaController implements Initializable {
         
         Socket socket = null;
         try {
-            socket = IO.socket("http://localhost:4000");
+            socket = IO.socket("http://192.168.43.91:4000");
         } catch (URISyntaxException ex) {
             Logger.getLogger(Chat_Cliente.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
@@ -184,6 +186,7 @@ public class ResponderPreguntaController implements Initializable {
             
             nombre = invitado.getNombre();
         }
+        tfMensaje.clear();
         if(!Objects.equals(mensaje, "")) {
             
             String mensajeEnviado = nombre + ": " + mensaje;
@@ -208,7 +211,7 @@ public class ResponderPreguntaController implements Initializable {
             chatContenido = chatContenido + mensajesChat.get(i) + "\n";
         }
         txtChat.setText(chatContenido);
-        tfMensaje.clear();
+        
     }
     
     @FXML
