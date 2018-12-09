@@ -12,7 +12,7 @@
    <children>
       <TextField fx:id="tfMensaje" layoutX="8.0" layoutY="362.0" prefHeight="25.0" prefWidth="156.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="2.0" />
       <Button fx:id="btnEnviar" layoutX="157.0" layoutY="377.0" mnemonicParsing="false" onAction="#enviar" prefHeight="25.0" prefWidth="44.0" style="-fx-background-color: #F67280;" text="%btn.enviar" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="157.0" />
-      <TextArea fx:id="txtChat" editable="false" layoutX="2.0" layoutY="2.0" prefHeight="352.0" prefWidth="198.0" AnchorPane.bottomAnchor="46.0" AnchorPane.leftAnchor="2.0" AnchorPane.topAnchor="2.0" />
+      <TextArea fx:id="txtChat" editable="false" layoutX="2.0" layoutY="2.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="352.0" prefWidth="198.0" wrapText="true" AnchorPane.bottomAnchor="46.0" AnchorPane.leftAnchor="2.0" AnchorPane.topAnchor="2.0" />
       <ImageView fx:id="imgA" fitHeight="150.0" fitWidth="150.0" layoutX="266.0" layoutY="267.0" onMouseClicked="#seleccionarA" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="185.0" AnchorPane.leftAnchor="266.0" AnchorPane.rightAnchor="373.0">
          <image>
             <Image url="@../../PartidaActual/1.png" />
