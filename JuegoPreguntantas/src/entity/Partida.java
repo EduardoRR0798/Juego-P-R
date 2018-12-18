@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package entity;
 
 import java.io.Serializable;
@@ -17,12 +12,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- *
- * @author Eduar
- */
 @Entity
 @Table(name = "partida")
 @XmlRootElement
@@ -43,7 +35,9 @@ public class Partida implements Serializable {
     @JoinColumn(name = "idsetpregunta", referencedColumnName = "idsetpregunta")
     @ManyToOne
     private Setpregunta idsetpregunta;
-
+    @Transient
+    private int totalPreguntas;
+    
     public Partida() {
     }
 
@@ -97,7 +91,21 @@ public class Partida implements Serializable {
 
     @Override
     public String toString() {
-        return "entity.Partida[ idpartida=" + idpartida + " ]";
+        return nombre;
+    }
+    
+    /**
+     * Este metodo fija el total de preguntas con las que cuenta una partida.
+     * @param totalPreguntas total de preguntas que existen en la partida.
+     */
+    public void setTotalPreguntas(int totalPreguntas) {
+        
+        this.totalPreguntas = totalPreguntas;
+    }
+    
+    public int getTotalPreguntas() {
+        
+        return totalPreguntas;
     }
     
 }

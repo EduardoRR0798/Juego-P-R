@@ -1,12 +1,16 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package entity;
 
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.awt.image.WritableRaster;
+import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -17,13 +21,10 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
-/**
- *
- * @author Eduar
- */
 @Entity
 @Table(name = "pregunta")
 @XmlRootElement
@@ -48,7 +49,11 @@ public class Pregunta implements Serializable {
     private Integer idsetpregunta;
     @OneToMany(mappedBy = "idpregunta")
     private Collection<Respuesta> respuestaCollection;
-
+    @Transient
+    private byte[] imagen;
+    @Transient
+    private List<Respuesta> respuestas;
+    
     public Pregunta() {
     }
 
@@ -96,7 +101,22 @@ public class Pregunta implements Serializable {
     public void setRespuestaCollection(Collection<Respuesta> respuestaCollection) {
         this.respuestaCollection = respuestaCollection;
     }
-
+    
+    public void setRespuestas(List<Respuesta> respuestas) {
+        this.respuestas = respuestas;
+    }
+    
+    public List<Respuesta> getRespuestas() {
+        return respuestas;
+    }
+    public void setRespuesta(Respuesta respuesta) {
+        this.respuestas.add(respuesta);
+    }
+    
+    public Respuesta getRespuesta(int indice) {
+        return respuestas.get(indice);
+    }
+    
     @Override
     public int hashCode() {
         int hash = 0;
@@ -122,4 +142,39 @@ public class Pregunta implements Serializable {
         return "entity.Pregunta[ idpregunta=" + idpregunta + " ]";
     }
     
+    /**
+     * @return the imagen
+     */
+    public byte[] getImagen() {
+        return imagen;
+    }
+
+    /**
+     * @param imagen the imagen to set
+     */
+    public void setImagen(byte[] imagen) {
+        this.imagen = imagen;
+    }
+    
+    /**
+     * Este metodo crea un arreglo de bytes para poder ser enviado por nodeJs
+     * @return imagen convertida en un arreglo de bytes.
+     */
+    public byte[] crearArregloImagen() {
+        
+        DataBufferByte data = null;
+        try {
+            
+            File imgPath = new File(pregunta);
+            BufferedImage bufferedImage = ImageIO.read(imgPath);
+
+            WritableRaster raster = bufferedImage.getRaster();
+            data = (DataBufferByte) raster.getDataBuffer();
+        } catch (IOException ex) {
+            
+            Logger.getLogger(Pregunta.class.getName())
+                    .log(Level.SEVERE, null, ex);
+        }
+        return ( data.getData() );
+    }
 }

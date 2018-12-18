@@ -1,20 +1,12 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package entity;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.WritableRaster;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -32,10 +24,6 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- *
- * @author Eduar
- */
 @Entity
 @Table(name = "respuesta")
 @XmlRootElement
@@ -66,7 +54,6 @@ public class Respuesta implements Serializable {
     private byte[] imagen;
     
     public Respuesta() {
-        this.puntaje = 0;
     }
 
     public Respuesta(Integer idrespuesta) {
@@ -90,6 +77,10 @@ public class Respuesta implements Serializable {
     }
 
     public Integer getPuntaje() {
+        if(Objects.equals(puntaje, null)) {
+            
+            this.puntaje = 0;
+        }
         return puntaje;
     }
 
@@ -122,14 +113,12 @@ public class Respuesta implements Serializable {
 
     @Override
     public boolean equals(Object object) {
-        
+        // TODO: Warning - this method won't work in the case the id fields are not set
         if (!(object instanceof Respuesta)) {
             return false;
         }
         Respuesta other = (Respuesta) object;
-        if ((this.idrespuesta == null && other.idrespuesta != null) || 
-                (this.idrespuesta != null && 
-                !this.idrespuesta.equals(other.idrespuesta))) {
+        if ((this.idrespuesta == null && other.idrespuesta != null) || (this.idrespuesta != null && !this.idrespuesta.equals(other.idrespuesta))) {
             return false;
         }
         return true;
@@ -141,30 +130,17 @@ public class Respuesta implements Serializable {
     }
     
     /**
-     * Este metodo crea una imagen para guardarla en un directorio.
-     * @param ruta nueva ruta de la imagen.
+     * @return the imagen
      */
-    public void crearImagen(String ruta) throws IOException {
-        
-        OutputStream out = null;
-        try {
-            
-            out = new BufferedOutputStream(new FileOutputStream(ruta));
-            out.write(imagen);
-        } catch (FileNotFoundException ex) {
-            
-            Logger.getLogger(Respuesta.class.getName())
-                    .log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            
-            Logger.getLogger(Respuesta.class.getName())
-                    .log(Level.SEVERE, null, ex);
-        } finally {
-            if (out != null) {
-                
-                out.close();
-            }
-        }
+    public byte[] getImagen() {
+        return imagen;
+    }
+
+    /**
+     * @param imagen the imagen to set
+     */
+    public void setImagen(byte[] imagen) {
+        this.imagen = imagen;
     }
 
     /**
@@ -183,23 +159,10 @@ public class Respuesta implements Serializable {
             data = (DataBufferByte) raster.getDataBuffer();
         } catch (IOException ex) {
             
-            Logger.getLogger(Respuesta.class.getName())
+            Logger.getLogger(Pregunta.class.getName())
                     .log(Level.SEVERE, null, ex);
         }
         return ( data.getData() );
     }
     
-    /**
-     * Este metodo verifica se la respuesta es la correcta.
-     * @return true si la resuesta es correcta sino regresa false.
-     */
-    public boolean esCorrecta() {
-        
-        boolean correcta = false;
-        if(puntaje == 1) {
-            
-            correcta = true;
-        }
-        return correcta;
-    }
 }

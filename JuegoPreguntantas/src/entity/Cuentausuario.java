@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package entity;
 
 import java.io.Serializable;
@@ -20,10 +15,6 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
-/**
- *
- * @author Eduar
- */
 @Entity
 @Table(name = "cuentausuario")
 @XmlRootElement
@@ -49,8 +40,6 @@ public class Cuentausuario implements Serializable {
     private String correoelectronico;
     @OneToMany(mappedBy = "idcuentausuario")
     private Collection<Setpregunta> setpreguntaCollection;
-    @OneToMany(mappedBy = "idcuentausuario")
-    private Collection<Estadistica> estadisticaCollection;
 
     public Cuentausuario() {
     }
@@ -98,15 +87,6 @@ public class Cuentausuario implements Serializable {
 
     public void setSetpreguntaCollection(Collection<Setpregunta> setpreguntaCollection) {
         this.setpreguntaCollection = setpreguntaCollection;
-    }
-
-    @XmlTransient
-    public Collection<Estadistica> getEstadisticaCollection() {
-        return estadisticaCollection;
-    }
-
-    public void setEstadisticaCollection(Collection<Estadistica> estadisticaCollection) {
-        this.estadisticaCollection = estadisticaCollection;
     }
 
     @Override
