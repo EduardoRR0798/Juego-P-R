@@ -37,6 +37,7 @@
             <Font size="25.0" />
          </font>
       </Label>
-      <Button fx:id="btnCancelar" mnemonicParsing="false" onAction="#cancelar" style="-fx-background-color: #F67280;" text="%btn.cancelar" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="5" />
+      <Button fx:id="btnUnirse" mnemonicParsing="false" onAction="#unirse" style="-fx-background-color: #F67280;" text="%btn.unirse" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="4" />
+      <Button fx:id="btnCancelar" mnemonicParsing="false" onAction="#cancelar" style="-fx-background-color: #F8B195;" text="%btn.cancelar" GridPane.halignment="CENTER" GridPane.rowIndex="4" />
    </children>
 </GridPane>
