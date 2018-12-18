@@ -4,12 +4,17 @@
     <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
     <class>entity.Cuentausuario</class>
     <class>entity.Cuentainvitado</class>
-    <class>entity.Partida</class>
+    <class>entity.Setpregunta_1</class>
+    <class>entity.Cuentausuario_1</class>
+    <class>entity.Pregunta_1</class>
     <class>entity.Setpregunta</class>
-    <class>entity.Respuesta</class>
+    <class>entity.Partida</class>
     <class>entity.Pregunta</class>
+    <class>entity.Respuesta</class>
+    <class>entity.Respuesta_1</class>
+    <class>entity.Categoria</class>
     <properties>
-      <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/juegopr?zeroDateTimeBehavior=convertToNull"/>
+      <property name="javax.persistence.jdbc.url" value="jdbc:mysql://192.168.1.81:3306/juegopr?zeroDateTimeBehavior=convertToNull"/>
       <property name="javax.persistence.jdbc.user" value="pregunton"/>
       <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>
       <property name="javax.persistence.jdbc.password" value="PR3GUNT0N"/>
