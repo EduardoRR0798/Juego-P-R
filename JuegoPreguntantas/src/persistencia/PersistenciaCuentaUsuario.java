@@ -1,11 +1,12 @@
 package persistencia;
 
 import entity.Cuentausuario;
-import entity.Cuentainvitado;
 import javax.persistence.NoResultException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
@@ -24,7 +25,7 @@ public class PersistenciaCuentaUsuario {
      */
     public EntityManager administrarEntidades() {
         
-        Map<String, String> properties = new HashMap<String, String>();
+        Map<String, String> properties = new HashMap<>();
         properties.put("javax.persistence.jdbc.user", "pregunton");
         properties.put("javax.persistence.jdbc.password", "PR3GUNT0N");
         EntityManagerFactory emf = javax.persistence.Persistence
@@ -60,60 +61,91 @@ public class PersistenciaCuentaUsuario {
         List<Cuentausuario> usuario = query.getResultList();
         return usuario.get(0);
     }
+    
       public PersistenciaCuentaUsuario() {}
     
-    /**
-     * Metodo que registra una cuentausuario en la base de datos.
-     * @param cu Entidad de cuentausuario a guardar;
+        /**
+     * Este metodo es para crear una cuenta de usuario en la base de datos 
+     * @param nuevoUsuario Cuenta de usuario a registrar
+     * @return Si es verdadero o no el exito de la creacion de la cuenta
      */
-    public void registrarCuentaUsuario(Cuentausuario cu) {
-        PersistenciaCuentaUsuario persistencia = new PersistenciaCuentaUsuario();
-        persistencia.persist(cu);
-    }
-    
-    /**
-     * Metodo que guarda objetos en la base de datos.
-     * @param object objeto a guadar en la base de datos.
-     */
-    public void persist(Object object) {
-        EntityManagerFactory emf = javax.persistence.Persistence.
-                createEntityManagerFactory("JuegoPreguntantasPU");
-        EntityManager em = emf.createEntityManager();
-        em.getTransaction().begin();
+    public boolean crearUsuario(Cuentausuario nuevoUsuario) {
+        
+        boolean exito = false;
+        EntityManager em = administrarEntidades();
         try {
-            em.persist(object);
+            
+            em.persist(nuevoUsuario);
             em.getTransaction().commit();
+            exito = true;
         } catch (Exception e) {
-            e.printStackTrace();
+            
+            Logger.getLogger(PersistenciaCuentaUsuario.class.getName())
+                    .log(Level.SEVERE, null, e);
             em.getTransaction().rollback();
         } finally {
+            
             em.close();
         }
+        return exito;
+        
     }
     
     /**
-     * Metodo usado para eliminar una cuenta de un usuario registrado en la base de datos.
+     * Metodo usado para eliminar una cuenta de un usuario registrado en la 
+     * base de datos.
      * @param id identificador de la cuenta a eliminar.
      */
     public void destroyCuentaUsuario(long id) {
-        EntityManagerFactory emf = javax.persistence.Persistence.
-                createEntityManagerFactory("JuegoPreguntantasPU");
-        EntityManager em = emf.createEntityManager();
+        
+        EntityManager em = administrarEntidades();
         em.getTransaction().begin();
         try {
+            
             Cuentausuario cu= em.find(Cuentausuario.class, id);
             em.remove(cu);
             em.getTransaction().commit();
         } catch (Exception e) {
-            e.printStackTrace();
+            
+            Logger.getLogger(PersistenciaCuentaUsuario.class.getName())
+                    .log(Level.SEVERE, null, e);
             em.getTransaction().rollback();
         } finally {
+            
             em.close();
         }
     }
     
     /**
-     * Metodo que busca un usuario en la base de datos con el nombre que el usuario ingrese.
+     * Este metodo es para eliminar una cuenta de invitado en la base de datos 
+     * @param usuario Cuenta de usuario a eliminar
+     */
+    public void eliminarUsuario(Cuentausuario usuario) {
+        
+        EntityManager em = administrarEntidades();
+        try {
+
+            if (!em.contains(usuario)) {
+                
+                usuario = em.merge(usuario);
+            }
+
+            em.remove(usuario);
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            
+            Logger.getLogger(PersistenciaCuentaUsuario.class.getName())
+                    .log(Level.SEVERE, null, e);
+            em.getTransaction().rollback();
+        } finally {
+            
+            em.close();
+        }
+    }
+    
+    /**
+     * Metodo que busca un usuario en la base de datos con el nombre que 
+     * el usuario ingrese.
      * @param nombreusuario en el TextField de la pantalla del Login.
      * @return true si existe en la base de datos, false si no existe.
      */
@@ -124,32 +156,16 @@ public class PersistenciaCuentaUsuario {
         Cuentausuario cuenta = new Cuentausuario();
 
         try {
+            
             cuenta = (Cuentausuario) em.createQuery(
                     "SELECT c FROM Cuentausuario c "
                             + "WHERE UPPER(c.nombreusuario) = \""+
                             nombreusuario +"\"").getSingleResult();
         } catch (NoResultException noResult) {
+            
             cuenta = null;
         } finally {
-            em.close();
-        }
-        
-        return cuenta;
-    }
-    
-    public Cuentausuario getCuentaUsuarioEmail(String email) {
-        EntityManagerFactory emf = javax.persistence.Persistence.
-                createEntityManagerFactory("JuegoPreguntantasPU");
-        EntityManager em = emf.createEntityManager();
-        Cuentausuario cuenta = new Cuentausuario();
-
-        try {
-            cuenta = (Cuentausuario) em.createQuery(
-                    "SELECT c FROM Cuentausuario c WHERE UPPER(c.correoelectronico) = \""
-                            +email +"\"").getSingleResult();
-        } catch (NoResultException noResult) {
-            cuenta = null;
-        } finally {
+            
             em.close();
         }
         
@@ -157,22 +173,31 @@ public class PersistenciaCuentaUsuario {
     }
     
     /**
-     * Metodo que busca el nombre ingresado por el usuario en la base de datos de la tabla de invitados.
-     * @param nombreinvitado nombre ingresado por el usuario en la pantalla de login.
-     * @return true si la cuenta de tipo invitado existe en la base de datos, false si no existe.
+     * Este metodo recupera al usuario con su email.
+     * @param email email del usuario a buscar.
+     * @return el usuario a buscar, null si no hay ninguna ocurrencia.
      */
-    public Cuentainvitado getCuentaInvitadoPorNombre(String nombreinvitado) {
-        EntityManagerFactory emf = javax.persistence.Persistence.createEntityManagerFactory("JuegoPreguntantasPU");
+    public Cuentausuario getCuentaUsuarioEmail(String email) {
+        
+        EntityManagerFactory emf = javax.persistence.Persistence.
+                createEntityManagerFactory("JuegoPreguntantasPU");
         EntityManager em = emf.createEntityManager();
-        Cuentainvitado invitado = new Cuentainvitado();
+        Cuentausuario cuenta = new Cuentausuario();
         try {
-            invitado = (Cuentainvitado) em.createQuery("SELECT c FROM Cuentainvitado c WHERE c.nombre = \""+ nombreinvitado +"\"").getSingleResult();
+            
+            cuenta = (Cuentausuario) em.createQuery(
+                    "SELECT c FROM Cuentausuario c WHERE UPPER("
+                            + "c.correoelectronico) = \""
+                            +email +"\"").getSingleResult();
         } catch (NoResultException noResult) {
-            invitado = null;
+            
+            cuenta = null;
         } finally {
+            
             em.close();
         }
-        return invitado;
+        
+        return cuenta;
     }
   
 }

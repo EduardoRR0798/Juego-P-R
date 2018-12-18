@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.persistence.NoResultException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -25,7 +27,7 @@ public class PersistenciaCuentaInvitado {
      */ 
     public EntityManager administrarEntidades() {
         
-        Map<String, String> properties = new HashMap<String, String>();
+        Map<String, String> properties = new HashMap<>();
         properties.put("javax.persistence.jdbc.user", "pregunton");
         properties.put("javax.persistence.jdbc.password", "PR3GUNT0N");
         EntityManagerFactory emf = javax.persistence.Persistence
@@ -51,14 +53,14 @@ public class PersistenciaCuentaInvitado {
             exito = true;
         } catch (Exception e) {
             
-            e.printStackTrace();
+            Logger.getLogger(PersistenciaCuentaInvitado.class.getName())
+                    .log(Level.SEVERE, null, e);
             em.getTransaction().rollback();
         } finally {
             
             em.close();
-            return exito;
         }
-        
+        return exito;
     }
     
     /*
@@ -77,13 +79,14 @@ public class PersistenciaCuentaInvitado {
             nombre = "Pregunton" + (idInvitado.get(0) + 1);
         } catch(NullPointerException e) {
             
+            Logger.getLogger(PersistenciaCuentaInvitado.class.getName())
+                    .log(Level.SEVERE, null, e);
             nombre = "Pregunton0";
         } finally {
             
             nombre = comprobarNombre(nombre);
-            return nombre;
         }
-
+        return nombre;
     }
     
     /**
@@ -173,7 +176,8 @@ public class PersistenciaCuentaInvitado {
             em.getTransaction().commit();
         } catch (Exception e) {
             
-            e.printStackTrace();
+            Logger.getLogger(PersistenciaCuentaInvitado.class.getName())
+                    .log(Level.SEVERE, null, e);
             em.getTransaction().rollback();
         } finally {
             
@@ -188,7 +192,7 @@ public class PersistenciaCuentaInvitado {
     
     /**
      * Metodo que registra una Cuentainvitado en la base de datos.
-     * @param cu Entidad de cuentainvitado a guardar;
+     * @param ci Cuenta invitado
      */
     public void registrarCuentaInvitado(Cuentainvitado ci) {
         PersistenciaCuentaInvitado persistencia = 
@@ -201,17 +205,22 @@ public class PersistenciaCuentaInvitado {
      * @param object objeto a guadar en la base de datos.
      */
     public void persist(Object object) {
+        
         EntityManagerFactory emf = javax.persistence.Persistence.
                 createEntityManagerFactory("JuegoPreguntantasPU");
         EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
         try {
+            
             em.persist(object);
             em.getTransaction().commit();
         } catch (Exception e) {
-            e.printStackTrace();
+            
+            Logger.getLogger(PersistenciaCuentaInvitado.class.getName())
+                    .log(Level.SEVERE, null, e);
             em.getTransaction().rollback();
         } finally {
+            
             em.close();
         }
     }
@@ -222,18 +231,23 @@ public class PersistenciaCuentaInvitado {
      * @param id identificador de la cuenta a eliminar.
      */
     public void destroyCuentaInvitado(long id) {
+        
         EntityManagerFactory emf = javax.persistence.Persistence.
                 createEntityManagerFactory("JuegoPreguntantasPU");
         EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
         try {
+            
             Cuentainvitado cu= em.find(Cuentainvitado.class, id);
             em.remove(cu);
             em.getTransaction().commit();
         } catch (Exception e) {
-            e.printStackTrace();
+            
+            Logger.getLogger(PersistenciaCuentaInvitado.class.getName())
+                    .log(Level.SEVERE, null, e);
             em.getTransaction().rollback();
         } finally {
+            
             em.close();
         }
     }
@@ -247,19 +261,24 @@ public class PersistenciaCuentaInvitado {
      * false si no existe.
      */
     public Cuentainvitado getCuentaInvitado(String nombreinvitado) {
+        
         EntityManagerFactory emf = javax.persistence.Persistence.
                 createEntityManagerFactory("JuegoPreguntantasPU");
         EntityManager em = emf.createEntityManager();
+        List<Cuentainvitado> invitados = null;
         Cuentainvitado invitado = new Cuentainvitado();
         try {
-            invitado = (Cuentainvitado) em.createQuery("SELECT c FROM "
+            
+            invitados = (List<Cuentainvitado>) em.createQuery("SELECT c FROM "
                     + "Cuentainvitado c WHERE UPPER(c.nombre) = \"" + 
                     nombreinvitado +"\"").getSingleResult();
         } catch (NoResultException noResult) {
-            invitado = null;
+            
+            invitados.add(invitado);
         } finally {
+            
             em.close();
         }
-        return invitado;
+        return invitados.get(0);
     }
 }

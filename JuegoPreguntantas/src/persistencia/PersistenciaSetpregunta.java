@@ -1,6 +1,7 @@
 package persistencia;
 
 import entity.Cuentausuario;
+import entity.Pregunta;
 import entity.Setpregunta;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,7 +27,7 @@ public class PersistenciaSetpregunta {
      */ 
     public EntityManager administrarEntidades() {
         
-        Map<String, String> properties = new HashMap<String, String>();
+        Map<String, String> properties = new HashMap<>();
         properties.put("javax.persistence.jdbc.user", "pregunton");
         properties.put("javax.persistence.jdbc.password", "PR3GUNT0N");
         EntityManagerFactory emf = javax.persistence.Persistence
@@ -46,39 +47,39 @@ public class PersistenciaSetpregunta {
         
         EntityManager em = administrarEntidades();
         PersistenciaCategoria categoriasSet = new PersistenciaCategoria();
-        List<String> categorias = new ArrayList<String>();
+        List<String> categorias = new ArrayList<>();
         try {
             
             Query queryId = em.createQuery("SELECT s.idcategoria "
                     + "FROM Setpregunta s "
                     + "WHERE s.idcuentausuario.idcuentausuario = \"" 
                     + usuario.getIdcuentausuario() + "\"");
+            
             List<Integer> idCategoria = queryId.getResultList();
             categorias = categoriasSet.recuperarCategoriasSet(idCategoria);
         } catch (NullPointerException e) {
             
             Logger.getLogger(PersistenciaSetpregunta.class.getName())
                     .log(Level.SEVERE, null, e);
-        } finally {
-    
-            return categorias;
         }
-        
+        return categorias; 
     }
     
     /**
      * Este metodo es para recuperar un set de preguntas por el usuario creador
      * @param usuario Cuenta del usuario que esta usando el juego
-     * @return Un set de preguntas
+     * @return una lista de los sets de preguntas del usuario.
      */
-    public Setpregunta recuperarSetPregunta(Cuentausuario usuario) {
+    public List<Setpregunta> recuperarSetPregunta(Cuentausuario usuario) {
+        
         EntityManager em = administrarEntidades();
         Query query = em.createQuery("SELECT s "
                 + "FROM Setpregunta s "
-                + "WHERE s.idcuentausuario.idcuentausuario = \"" 
-                + usuario.getIdcuentausuario() + "\"");
+                + "WHERE s.idcuentausuario.idcuentausuario = " 
+                + usuario.getIdcuentausuario());
         List<Setpregunta> setsPregunta = query.getResultList();
-        return setsPregunta.get(0);
+        
+        return setsPregunta;
     }
     
     /**
@@ -87,44 +88,61 @@ public class PersistenciaSetpregunta {
      * @return Un set de preguntas
      */
     public Setpregunta recuperarSetPregunta(String categoria) {
+        
+        Setpregunta nuevoSet;
         EntityManager em = administrarEntidades();
         String[] idSetPregunta = categoria.split(".- ");
         Query querySetPregunta = em.createQuery("SELECT s "
                 + "FROM Setpregunta s WHERE s.idsetpregunta = \""
                 + idSetPregunta[0] + "\"");
         List<Setpregunta> setPregunta = querySetPregunta.getResultList();
-        return setPregunta.get(0);
+        if(setPregunta.isEmpty()) {
+            
+            nuevoSet = null;
+        } else {
+            
+            nuevoSet = setPregunta.get(0);
+        }
+        
+        return nuevoSet;
     }
     
     /**
      * Este metodo es para crear un set de preguntas
      * @param categoria La categoria del set
      * @param cuenta La cuenta del usuario creador del set de preguntas
+     * @param preguntas Las preguntas del set de preguntas
      * @return Si la creacion es exitosa o no
      */
-    public boolean crearSetPregunta(String categoria, Cuentausuario cuenta) {
+    public boolean crearSetPregunta(String categoria, Cuentausuario cuenta, 
+            List<Pregunta> preguntas) {
         
         boolean exito = false;
         EntityManager em = administrarEntidades();
-        PersistenciaCategoria categorias = new PersistenciaCategoria();
+        PersistenciaCategoria categoriaBD = new PersistenciaCategoria();
+        PersistenciaPregunta preguntaBD = new PersistenciaPregunta();
         Setpregunta setPregunta = new Setpregunta();
         setPregunta.setIdcuentausuario(cuenta);
         try {
             
-            int idCategoria = categorias.recuperarIdCategoria(categoria);
+            int idCategoria = categoriaBD.recuperarIdCategoria(categoria);
             setPregunta.setIdcategoria(idCategoria);
             em.persist(setPregunta);
             em.getTransaction().commit();
-            exito = true;
+            for(int i = 0; i < preguntas.size(); i++){
+                
+                preguntas.get(i).setIdsetpregunta(recuperarUltimaId());
+                if(preguntaBD.crearPregunta(preguntas.get(i))){
+                    
+                    exito = true;
+                }
+            }
         } catch (NullPointerException e) {
             
             Logger.getLogger(PersistenciaSetpregunta.class.getName())
                     .log(Level.SEVERE, null, e);
-        } finally {
-    
-            return exito;
         }
-        
+        return exito;
     }
     
     /**
@@ -138,5 +156,21 @@ public class PersistenciaSetpregunta {
         List<Integer> idSetPregunta = query.getResultList();
         int indice = idSetPregunta.size() - 1;
         return idSetPregunta.get(indice);
+    }
+    
+    /**
+     * Este metodo recupera todos los sets de pregunta que concuerden con un
+     * mismo id de una categoria.
+     * @param idCategoria id de la categoria de interes.
+     * @return una lista de setpregunta con la misma id categoria.
+     */
+    public List<Setpregunta> recuperarSetCategoria(int idCategoria) {
+        
+        List<Setpregunta> setsPregunta;
+        EntityManager em = administrarEntidades();
+        Query query;
+        query = em.createQuery("SELECT s FROM Setpregunta s WHERE s.idcategoria = " + idCategoria);
+        setsPregunta = query.getResultList();
+        return setsPregunta;
     }
 }

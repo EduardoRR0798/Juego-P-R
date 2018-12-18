@@ -2,17 +2,19 @@ package persistencia;
 
 import entity.Pregunta;
 import entity.Respuesta;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
 import javax.persistence.Query;
 
 /******************************************************************/ 
 /* @version 1.0                                                   */ 
-/* @author Puxka Acosta Domínguez                                 */ 
+/* @author Puxka Acosta Domínguez y Eduardo Rosas Rivera          */ 
 /* @since 17/11/2018                                              */
 /* Nombre de la clase PersistenciaPregunta                        */
 /******************************************************************/
@@ -24,8 +26,7 @@ public class PersistenciaPregunta {
      */ 
     public EntityManager administrarEntidades() {
         
-        
-        Map<String, String> properties = new HashMap<String, String>();
+        Map<String, String> properties = new HashMap<>();
         properties.put("javax.persistence.jdbc.user", "pregunton");
         properties.put("javax.persistence.jdbc.password", "PR3GUNT0N");
         EntityManagerFactory emf = javax.persistence.Persistence
@@ -40,37 +41,35 @@ public class PersistenciaPregunta {
      * @param nuevaPregunta Pregunta a insertar
      * @return Si es verdadero o no el exito de la creacion de la pregunta
      */
-    public boolean crearPregunta(String nuevaPregunta, int tipoPregunta, 
-            List<Respuesta> nuevaRespuesta) {
+    public boolean crearPregunta(Pregunta nuevaPregunta) {
         
         boolean exito = false;
         EntityManager em = administrarEntidades();
         PersistenciaRespuesta respuestaBD = new PersistenciaRespuesta();
-        Pregunta pregunta = new Pregunta();
-        pregunta.setPregunta(nuevaPregunta);
-        pregunta.setTipoPregunta(tipoPregunta);
+        Collection<Respuesta> respuestas = 
+                nuevaPregunta.getRespuestaCollection();
+        nuevaPregunta.setRespuestaCollection(null);
         try {
             
-            em.persist(pregunta);
+            em.persist(nuevaPregunta);
             em.getTransaction().commit();
-            if (respuestaBD.crearRespuesta(nuevaRespuesta, pregunta)) {
+            if (respuestaBD.crearRespuesta(respuestas,
+                    nuevaPregunta)) {
 
                 exito = true;
             }
-
+            
         } catch (Exception e) {
-            
-            e.printStackTrace();
+            Logger.getLogger(PersistenciaPregunta.class.getName())
+                    .log(Level.SEVERE, null, e);
             em.getTransaction().rollback();
-        } finally {
-            
-            return exito;
         }
+        return exito;
     }
     
     /**
      * Este metodo es para guardar la relacion con el set de preguntas
-     * @param nuevaPreguntas Numero de preguntas a recuperar para hacer relacion
+     * @param numPreguntas numero de preguntas.
      */
     public void guardarSetPregunta(int numPreguntas){
         
@@ -88,5 +87,42 @@ public class PersistenciaPregunta {
             pregunta.setIdsetpregunta(idSetPregunta);
             em.getTransaction().commit();
         }
+    }
+    
+    /**
+     * Este metodo es para recuperar las preguntas de un set de preguntas;
+     * @param idSetPregunta El id del set de preguntas
+     * @return Una lista de preguntas del set de preguntas
+     */
+    public List<Pregunta> recuperarPregunta(int idSetPregunta) {
+        
+        EntityManager em = administrarEntidades();
+        Query query = em.createQuery("SELECT p FROM Pregunta p " +
+                  "WHERE p.idsetpregunta = " + idSetPregunta);
+        List<Pregunta> preguntas = query.getResultList();
+        return preguntas;
+    }
+    
+    /**
+     * Este metodo recupera todas las preguntas junto con las respuestas, de un
+     * set de preguntas.
+     * @param idSetPregunta id del set a recuperar.
+     * @return Lista de preguntas con sus respuestas, del set.
+     */
+    public List<Pregunta> recuperarPreguntaConRespuestas(int idSetPregunta) {
+        
+        EntityManager em = administrarEntidades();
+        Query query = em.createQuery("SELECT p FROM Pregunta p WHERE "
+                + "p.idsetpregunta = " + idSetPregunta);
+        List<Pregunta> preguntas = query.getResultList();
+        for(int i = 0; i < preguntas.size(); i++) {
+            
+            PersistenciaRespuesta respuestaBD = new PersistenciaRespuesta();
+            List<Respuesta> respuestas;
+            respuestas = respuestaBD.recuperarRespuestasDePregunta(
+                    preguntas.get(i).getIdpregunta());
+            preguntas.get(i).setRespuestas(respuestas);
+        }
+        return preguntas;
     }
 }

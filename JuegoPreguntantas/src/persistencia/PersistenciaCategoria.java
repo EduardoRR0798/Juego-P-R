@@ -24,7 +24,7 @@ public class PersistenciaCategoria {
      */ 
     public EntityManager administrarEntidades() {
         
-        Map<String, String> properties = new HashMap<String, String>();
+        Map<String, String> properties = new HashMap<>();
         properties.put("javax.persistence.jdbc.user", "pregunton");
         properties.put("javax.persistence.jdbc.password", "PR3GUNT0N");
         EntityManagerFactory emf = javax.persistence.Persistence
@@ -42,29 +42,26 @@ public class PersistenciaCategoria {
     public List<String> recuperarCategoriasSet(List<Integer> idCategoria) {
         
         EntityManager em = administrarEntidades();
-        List<String> categorias = new ArrayList<String>();
+        List<String> categorias = new ArrayList<>();
         try {
             
-            Query queryCategoria = null;
+            Query queryCategoria;
             for(int i = 0; i < idCategoria.size(); i++) {
                 
                 queryCategoria = em.createQuery("SELECT c.categoria "
                     + "FROM Categoria c "
-                    + "WHERE c.idcategoria = \"" 
-                    + idCategoria.get(i) + "\"");
-                categorias.add((i + 1) + ".- "+ 
-                        queryCategoria.getResultList().get(0).toString());
+                    + "WHERE c.idcategoria = " 
+                    + idCategoria.get(i));
+                
+                categorias.add((i + 1) + ".- " + queryCategoria.getResultList().get(0).toString());
             }
     
         } catch (NullPointerException e) {
             
             Logger.getLogger(PersistenciaCategoria.class.getName())
                     .log(Level.SEVERE, null, e);
-        } finally {
-    
-            return categorias;
         }
-        
+        return categorias;
     }
     
     /**
@@ -74,7 +71,7 @@ public class PersistenciaCategoria {
     public List<String> recuperarCategorias() {
 
         EntityManager em = administrarEntidades();
-        List<String> categorias = new ArrayList<String>();
+        List<String> categorias = new ArrayList<>();
         try {
 
             Query queryCategoria = em.createQuery("SELECT c.categoria " +
@@ -84,11 +81,8 @@ public class PersistenciaCategoria {
 
             Logger.getLogger(PersistenciaCategoria.class.getName())
                     .log(Level.SEVERE, null, e);
-        } finally {
-
-            return categorias;
         }
-
+        return categorias;
     }
     
     /**
@@ -100,22 +94,23 @@ public class PersistenciaCategoria {
     public int recuperarIdCategoria(String categoria) {
         
         EntityManager em = administrarEntidades();
-        List<Integer> categorias = new ArrayList<Integer>();
+        List<Integer> categorias;
+        int idCategoria = 0;
         try {
             
             Query queryCategoria = em.createQuery("SELECT c.idcategoria "
                     + "FROM Categoria c WHERE c.categoria = \"" 
                     + categoria + "\"");
             categorias = queryCategoria.getResultList();
-    
+            if(!categorias.isEmpty()) {
+                
+                idCategoria = categorias.get(0);
+            }
         } catch (NullPointerException e) {
             
             Logger.getLogger(PersistenciaCategoria.class.getName())
                     .log(Level.SEVERE, null, e);
-        } finally {
-    
-            return categorias.get(0);
         }
-        
+        return idCategoria;
     }
 }
