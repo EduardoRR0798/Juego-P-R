@@ -1,15 +1,12 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package juegopreguntantas;
 
-import entity.Cuentainvitado;
 import persistencia.PersistenciaCuentaUsuario;
 import entity.Cuentausuario;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
@@ -17,6 +14,8 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -67,11 +66,17 @@ public class RegistrarUsuarioController implements Initializable {
     
     /**
      * Initializes the controller class.
+     * @param url
+     * @param rb
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
-    }    
+        limitarCampos(txtNombreUsuario, 26);
+        limitarCampos(pfPassword, 26);
+        limitarCampos(txtCorreoElectronico, 60);
+        excluirEspacios();
+    }   
   
     /**
      * Este metodo regresa a la pantalla de login.
@@ -113,39 +118,56 @@ public class RegistrarUsuarioController implements Initializable {
      */
     @FXML
     private void registrar(ActionEvent event) {
-        
-        PersistenciaCuentaUsuario persistencia = new PersistenciaCuentaUsuario();
+
+        PersistenciaCuentaUsuario persistencia
+                = new PersistenciaCuentaUsuario();
         String nombre = txtNombreUsuario.getText().trim();
-        String contrasenia = pfPassword.getText().trim();
+        String contraseniaNueva = 
+                hacerHashAContrasenia(pfPassword.getText().trim());
         String email = txtCorreoElectronico.getText().trim();
-        if(validarCampos() == true){
-            
-            if(verificarRegistroUsuario() == true) {
-                
+        if (validarCampos()) {
+
+            if (verificarRegistroUsuario()) {
+
+                Cuentausuario usuario = new Cuentausuario();
+                usuario.setNombreusuario(nombre);
+                usuario.setContrasenia(contraseniaNueva);
+                usuario.setCorreoelectronico(email);
+                txtNombreUsuario.clear();
+                pfPassword.clear();
                 try {
-                    
-                    Cuentausuario usuario = new Cuentausuario();
-                    usuario.setNombreusuario(nombre);
-                    usuario.setContrasenia(contrasenia);
-                    usuario.setCorreoelectronico(email);
-                    persistencia.registrarCuentaUsuario(usuario);
-                    enviarConfirmacion();
-                    txtNombreUsuario.clear();
-                    pfPassword.clear();
-                } catch (MessagingException ex) {
-                    
-                    Logger.getLogger(RegistrarUsuarioController.class.getName())
-                            .log(Level.SEVERE, null, ex);
+
+                    String deCorreo = "juego.preguntantas@gmail.com";
+                    final String contrasenia = "pr3gunt0n";
+                    Properties properties = crearProperties();
+                    Authenticator auth = new Authenticator() {
+
+                        @Override
+                        public PasswordAuthentication 
+                            getPasswordAuthentication() {
+
+                            return new PasswordAuthentication(deCorreo,
+                                    contrasenia);
+                        }
+                    };
+                    Session sesion = Session.getInstance(properties, auth);
+                    Message mensaje = crearContenidoRegistro(sesion,
+                            usuario);
+                    mostrarRegistroExito(mensaje, usuario);
+                    volverALogin();
+                } finally {
+
+                    txtCorreoElectronico.clear();
                 }
-            } 
-            
+            }
+
         } else {
-            
+
             lMensaje.setText(java.util.ResourceBundle.getBundle(
                     "juegopreguntantas/lang/lang")
                     .getString("string_llenarCampos"));
         }
-      
+
     }
     
     /**
@@ -183,7 +205,31 @@ public class RegistrarUsuarioController implements Initializable {
         return permiso;
     }
     
-
+    /**
+     * Este metodo verifica si alguno de los dos metodos verificadores 
+     * obtienen true.
+     * @return true si el usuario se puede registrar, false si no puede.
+     */
+    private boolean verificarRegistroUsuario() {
+        
+        boolean permiso = true;
+        if(!verificarRegistrosNombre()) {
+            
+            lMensaje.setText(java.util.ResourceBundle.getBundle(
+                    "juegopreguntantas/lang/lang")
+                    .getString("string_NombreExistente"));
+            permiso = false;
+        }
+        if(!verificarRegistrosEmail()) {
+            
+            lMensaje.setText(java.util.ResourceBundle.getBundle(
+                    "juegopreguntantas/lang/lang")
+                    .getString("string_emailExistente"));
+            permiso = false;
+        }
+        return permiso;
+    }
+    
     /**
      * Este metodo verifica que no exista ese nombre en la base de datos.
      * @return true si no existe, false si existe.
@@ -203,7 +249,6 @@ public class RegistrarUsuarioController implements Initializable {
         return permiso;
     }
     
-
     /**
      * Este metodo verifica que el correo electronico no exista en la 
      * base de datos.
@@ -226,32 +271,6 @@ public class RegistrarUsuarioController implements Initializable {
     }
     
     /**
-     * Este metodo verifica si alguno de los dos metodos verificadores 
-     * obtienen true.
-     * @return true si el usuario se puede registrar, false si no puede.
-     */
-    private boolean verificarRegistroUsuario() {
-        
-        boolean permiso = true;
-        if(verificarRegistrosNombre() != true) {
-            
-            lMensaje.setText(java.util.ResourceBundle.getBundle(
-                    "juegopreguntantas/lang/lang")
-                    .getString("string_NombreExistente"));
-            permiso = false;
-        }
-        
-        if(verificarRegistrosEmail() != true) {
-            
-            lMensaje.setText(java.util.ResourceBundle.getBundle(
-                    "juegopreguntantas/lang/lang")
-                    .getString("string_emailExistente"));
-            permiso = false;
-        }
-        return permiso;
-    }
-    
-    /**
      * Este metodo es para enviar una confirmacion por correo electronico del 
      * usuario que se registro.
      */
@@ -262,7 +281,7 @@ public class RegistrarUsuarioController implements Initializable {
             try {
                 
                 String correo = 
-                        txtCorreoElectronico.getText().replaceAll("\\S", "");
+                        txtCorreoElectronico.getText().trim();
                 PersistenciaCuentaInvitado invitadoBD =
                         new PersistenciaCuentaInvitado();
                 if (invitadoBD.comprobarCorreo(correo.toUpperCase())) {
@@ -272,16 +291,18 @@ public class RegistrarUsuarioController implements Initializable {
                             .getString("string_emailExistente"));
                 } else {
 
-                    Cuentainvitado nuevoInvitado = new Cuentainvitado();
-                    nuevoInvitado.setNombre(txtNombreUsuario.getText());
-                    nuevoInvitado.setCorreoelectronico(
+                    Cuentausuario nuevoUsuario = new Cuentausuario();
+                    nuevoUsuario.setNombreusuario(txtNombreUsuario.getText());
+                    nuevoUsuario.setCorreoelectronico(
                             txtCorreoElectronico.getText());
-                    nuevoInvitado.setCodigo(pfPassword.getText());
+                    nuevoUsuario.setContrasenia(pfPassword.getText());
+                    
                     String deCorreo = "juego.preguntantas@gmail.com";
-
                     final String contrasenia = "pr3gunt0n";
                     Properties properties = crearProperties();
                     Authenticator auth = new Authenticator() {
+                        
+                        @Override
                         public PasswordAuthentication 
                             getPasswordAuthentication() {
 
@@ -290,9 +311,9 @@ public class RegistrarUsuarioController implements Initializable {
                         }
                     };
                     Session sesion = Session.getInstance(properties, auth);
-                    Message mensaje = crearContenidoInvitacion(sesion
-                            , nuevoInvitado);
-                    mostrarInvitadoExito(mensaje, nuevoInvitado);
+                    Message mensaje = crearContenidoRegistro(sesion
+                            ,nuevoUsuario);
+                    mostrarRegistroExito(mensaje, nuevoUsuario);
                 }
             } finally {
                 
@@ -325,29 +346,33 @@ public class RegistrarUsuarioController implements Initializable {
      * @param nuevoInvitado Cuenta de invitado con los datos para el mensaje
      * @return El mensaje que se enviara por correo
      */    
-    private Message crearContenidoInvitacion(Session sesion, 
-            Cuentainvitado nuevoInvitado) {
+    private Message crearContenidoRegistro(Session sesion, 
+            Cuentausuario nuevousuario) {
         
         Message mensaje = new MimeMessage(sesion);
         try {
             
-            InternetAddress[] address = {new InternetAddress(
-                    nuevoInvitado.getCorreoelectronico())};
+            InternetAddress[] address = {
+                new InternetAddress(nuevousuario.getCorreoelectronico())};
             mensaje.setRecipients(Message.RecipientType.TO, address);
             mensaje.setSubject(java.util.ResourceBundle.getBundle(
                     "juegopreguntantas/lang/lang")
                     .getString("string_registro"));
+            
             String saludo = java.text.MessageFormat.format(
                     java.util.ResourceBundle.getBundle(
                             "juegopreguntantas/lang/lang")
                             .getString("string_holaUsuario")
-                    , new Object[] {txtNombreUsuario.getText()});
+                    , new Object[] {
+                        txtNombreUsuario.getText()});
+            
             String cuerpo = java.util.ResourceBundle.getBundle(
                     "juegopreguntantas/lang/lang")
                     .getString("string_registroExitoso")
                     + java.util.ResourceBundle.getBundle(
                             "juegopreguntantas/lang/lang")
                             .getString("string_formaExitosa");
+            
             String contenidoCorreo = saludo + cuerpo;
             mensaje.setSentDate(new Date());
             mensaje.setText(contenidoCorreo);
@@ -368,12 +393,12 @@ public class RegistrarUsuarioController implements Initializable {
      * @param mensaje Message que se va a enviar por correo
      * @param nuevoInvitado Cuenta de invitado que se guardara en BD
      */ 
-    private void mostrarInvitadoExito(Message mensaje, 
-            Cuentainvitado nuevoInvitado) {
+    private void mostrarRegistroExito(Message mensaje, 
+            Cuentausuario nuevoUsuario) {
         
-        PersistenciaCuentaInvitado invitadoBD = 
-                new PersistenciaCuentaInvitado();
-        if (invitadoBD.crearInvitado(nuevoInvitado)) {
+        PersistenciaCuentaUsuario usuarioBD = 
+                new PersistenciaCuentaUsuario();
+        if (usuarioBD.crearUsuario(nuevoUsuario)) {
 
             try {
                 
@@ -394,13 +419,127 @@ public class RegistrarUsuarioController implements Initializable {
                 
                 Logger.getLogger(EnviarInvitacionController.class.getName())
                         .log(Level.SEVERE, null, ex);
-                invitadoBD.eliminarInvitado(nuevoInvitado);
+                usuarioBD.eliminarUsuario(nuevoUsuario);
+                mostrarRegistroFracaso();
             }
         } else {
             
-            lMensaje.setText(java.util.ResourceBundle.getBundle(
-                    "juegopreguntantas/lang/lang")
-                    .getString("string_fracaso"));
+            mostrarRegistroFracaso();
         }
     }
+    
+    /**
+     * Este metodo es para mostrar una ventana en caso de fracaso al registrar.
+     */ 
+    private void mostrarRegistroFracaso() {
+        
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(null);
+        alert.setContentText("Se ha perdido conexión con el servidor"
+                + ", prueba de nuevo");
+        alert.showAndWait();
+    }
+    
+    /**
+     * Este metodo impide que el campo de texto sea mayor a un numero de 
+     * caracteres fijo.
+     * @param tf textField a limitar
+     * @param maximo numero maximo de caracteres permitidos.
+     */
+    private void limitarCampos(javafx.scene.control.TextField tf, int maximo) {
+        tf.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(final ObservableValue<? extends String> ov, 
+                    final String oldValue, final String newValue) {
+                if (tf.getText().length() > maximo) {
+                    String s = tf.getText().substring(0, maximo);
+                    tf.setText(s);
+                }
+            }
+        });
+    }
+    
+    /**
+     * Este metodo sirve para volver a la pantalla de Login.
+     */
+    private void volverALogin() {
+            
+        Locale.setDefault(new Locale(idioma));
+        ResourceBundle resourceBundle = ResourceBundle.getBundle("juegopreguntantas.lang/lang");
+        
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("VentanaLogIn.fxml"));
+        loader.setResources(resourceBundle);
+        try {
+            
+            Parent logIn = loader.load();
+            VentanaLogInController controller = loader.getController();
+            controller.setIdioma(idioma);
+            
+            Scene scene = new Scene(logIn);
+            Stage stage = new Stage();
+            
+            stage.setScene(scene);
+            stage.show();
+
+            btnRegistrar.getScene().getWindow().hide();
+        } catch (IOException ex) {
+            
+            Logger.getLogger(ResponderPreguntaController.class.getName())
+                    .log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    /**
+     * Este metodo limita niega la posibilidad de escribir espacios en un 
+     * TextField.
+     */
+    private void excluirEspacios() {
+        txtNombreUsuario.textProperty().addListener(
+                (observable, old_value, new_value) -> {
+                    if (new_value.contains(" ")) {
+                        txtNombreUsuario.setText(old_value);
+                    }
+                });
+        txtCorreoElectronico.textProperty().addListener(
+                (observable, old_value, new_value) -> {
+                    if (new_value.contains(" ")) {
+                        txtCorreoElectronico.setText(old_value);
+                    }
+                });
+        pfPassword.textProperty().addListener(
+                (observable, old_value, new_value) -> {
+                    if (new_value.contains(" ")) {
+                        pfPassword.setText(old_value);
+                    }
+                });
+    }
+    
+    /**
+     * Este metodo convierte la contrasenia ingresada por el usuario en una 
+     * cadena hash.
+     * @return el codigo hash de la contrasenia.
+     */
+    private String hacerHashAContrasenia(String contrasenia) {
+        
+        String contraseniaHash = null;
+        try {
+            
+            MessageDigest md = MessageDigest.getInstance("SHA-512");
+            byte[] messageDigest = md.digest(contrasenia.getBytes());
+            BigInteger codigo = new BigInteger(1, messageDigest);
+            contraseniaHash = codigo.toString(16);
+            while (contraseniaHash.length() < 32) { 
+                
+                contraseniaHash = "0" + contraseniaHash; 
+            }
+            
+        } catch (NoSuchAlgorithmException ex) {
+            Logger.getLogger(RegistrarUsuarioController.class.getName())
+                    .log(Level.SEVERE, null, ex);
+        }
+        return contraseniaHash;
+    }
+    
 }

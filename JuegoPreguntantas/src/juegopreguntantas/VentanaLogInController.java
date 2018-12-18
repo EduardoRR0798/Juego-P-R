@@ -1,19 +1,20 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package juegopreguntantas;
 
 import persistencia.PersistenciaCuentaUsuario;
 import entity.Cuentainvitado;
 import entity.Cuentausuario;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -23,6 +24,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
@@ -64,26 +67,36 @@ public class VentanaLogInController implements Initializable {
     @FXML
     private Label lMensaje;
     
-    private Object cuenta; 
-    private ObservableList idiomas = 
+    private final ObservableList idiomas = 
             FXCollections.observableArrayList("Español", "English");
+    private Object cuenta; 
     private String idioma = "es";
     
     /**
      * Initializes the controller class.
+     * @param url
+     * @param rb
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        
-            cbCambiarIdioma.setItems(idiomas);
-        
-    }    
+           
+        cbCambiarIdioma.setItems(idiomas);
+        limitarCampos(tfUser, 26);
+        limitarCampos(pfPassword,26);
+        excluirEspacios();     
+
+    }
     
+    /**
+     * Este metodo lleva a la ventana del menu principal.
+     * @param event clic en el boton Ingresar.
+     * @throws IOException error al abrir ventana.
+     */
     @FXML
     private void ingresar(ActionEvent event) throws IOException {
-        
-        if (validarCampos() == true && validarAcceso() == true) {
-            
+        System.out.println("Hola");
+        if (validarCampos() && validarAcceso()) {
+            System.out.println("Accesando");
             Locale.setDefault(new Locale(idioma));
             ResourceBundle resourceBundle = ResourceBundle.getBundle(
                     "juegopreguntantas.lang/lang");          
@@ -159,14 +172,14 @@ public class VentanaLogInController implements Initializable {
     private boolean validarCampos() {
         
         boolean validador = true;
-        if(tfUser.getText().equals(null)) {
+        if(Objects.equals(tfUser.getText().trim(), "")) {
             
             validador = false;
             lMensaje.setText(java.util.ResourceBundle.getBundle(
                     "juegopreguntantas/lang/lang").getString(
                             "string_llenarCampos"));
         }
-        if(pfPassword.getText().equals(null)) {
+        if(Objects.equals(pfPassword.getText().trim(), "")) {
             
             validador = false;
             lMensaje.setText(java.util.ResourceBundle.getBundle(
@@ -184,32 +197,39 @@ public class VentanaLogInController implements Initializable {
     private boolean validarIngresoUsuario() {
         
         boolean ingresoExitoso = false;
-        String usuarioR = tfUser.getText().replaceAll("\\s", "");
-        String contrasenia = pfPassword.getText().replaceAll("\\s", "");
-        PersistenciaCuentaUsuario persistencia = 
-                new PersistenciaCuentaUsuario();
-        Cuentausuario usuario = persistencia.getCuentaUsuarioNombre(usuarioR
-                .toUpperCase());
-        if (usuario != null) {
+        String usuarioR = tfUser.getText().trim();
+        String contrasenia = hacerHashAContrasenia(pfPassword.getText().trim());
+        PersistenciaCuentaUsuario usuarioBD = new PersistenciaCuentaUsuario();
+        try {
             
-            if (contrasenia.equals(usuario.getContrasenia())) {
-                
-                cuenta = usuario;
-                ingresoExitoso = true;
-                lMensaje.setText(java.util.ResourceBundle.getBundle(
-                        "juegopreguntantas/lang/lang")
-                        .getString("string_iniciandoSesion"));
+            Cuentausuario usuario = usuarioBD.getCuentaUsuarioNombre(usuarioR
+                    .toUpperCase());
+            if (usuario != null) {
+
+                if (contrasenia.equals(usuario.getContrasenia())) {
+
+                    cuenta = usuario;
+                    ingresoExitoso = true;
+                    lMensaje.setText(java.util.ResourceBundle.getBundle(
+                            "juegopreguntantas/lang/lang")
+                            .getString("string_iniciandoSesion"));
+                } else {
+
+                    lMensaje.setText(java.util.ResourceBundle.getBundle(
+                            "juegopreguntantas/lang/lang")
+                            .getString("string_incorrectos"));
+                }
             } else {
-                
+
                 lMensaje.setText(java.util.ResourceBundle.getBundle(
                         "juegopreguntantas/lang/lang")
-                        .getString("string_incorrectos"));
+                        .getString("string_noEncontrado"));
             }
-        } else {
+        } catch (Exception ex) {
             
-            lMensaje.setText(java.util.ResourceBundle.getBundle(
-                    "juegopreguntantas/lang/lang")
-                    .getString("string_noEncontrado"));
+            mostrarMensajeError();
+            Logger.getLogger(VentanaLogInController.class.getName())
+                    .log(Level.SEVERE, null, ex);
         }
         return ingresoExitoso;   
     }
@@ -223,36 +243,41 @@ public class VentanaLogInController implements Initializable {
     private boolean validarIngresoInvitado() {
         
         boolean ingresoExitoso = false;
-        String usuario = tfUser.getText().replaceAll("\\s", "");
-        String contrasenia = pfPassword.getText().replaceAll("\\s", "");
-        PersistenciaCuentaInvitado persistencia = 
-                new PersistenciaCuentaInvitado();
-        Cuentainvitado invitado = 
-                persistencia.getCuentaInvitado(usuario.toUpperCase());
-        
-        if(invitado != null) {
-            
-            if (contrasenia.equals(invitado.getCodigo())) {
-                
-                ingresoExitoso = true;
-                cuenta = invitado;
-                lMensaje.setText(java.util.ResourceBundle.getBundle(
-                        "juegopreguntantas/lang/lang")
-                        .getString("string_iniciandoSesion"));
-            } else {
-                
-                lMensaje.setText(java.util.ResourceBundle.getBundle(
-                        "juegopreguntantas/lang/lang")
-                        .getString("string_incorrectos"));
-            }
+        String usuario = tfUser.getText().trim();
+        String contrasenia = pfPassword.getText().trim();
+        try {
+            PersistenciaCuentaInvitado persistencia
+                    = new PersistenciaCuentaInvitado();
+            Cuentainvitado invitado
+                    = persistencia.getCuentaInvitado(usuario.toUpperCase());
 
-        } else {
+            if (invitado != null) {
+
+                if (contrasenia.equals(invitado.getCodigo())) {
+
+                    ingresoExitoso = true;
+                    cuenta = invitado;
+                    lMensaje.setText(java.util.ResourceBundle.getBundle(
+                            "juegopreguntantas/lang/lang")
+                            .getString("string_iniciandoSesion"));
+                } else {
+
+                    lMensaje.setText(java.util.ResourceBundle.getBundle(
+                            "juegopreguntantas/lang/lang")
+                            .getString("string_incorrectos"));
+                }
+            } else {
+
+                lMensaje.setText(java.util.ResourceBundle.getBundle(
+                        "juegopreguntantas/lang/lang")
+                        .getString("string_noEncontrado"));
+            }
+        } catch (Exception ex) {
             
-            lMensaje.setText(java.util.ResourceBundle.getBundle(
-                    "juegopreguntantas/lang/lang")
-                    .getString("string_noEncontrado"));
+            Logger.getLogger(VentanaLogInController.class.getName())
+                    .log(Level.SEVERE, null, ex);
+            mostrarMensajeError();
         }
-        
         return ingresoExitoso;
     }
     
@@ -267,18 +292,19 @@ public class VentanaLogInController implements Initializable {
         
         if(chbInvitado.isSelected()) {
             
-            if(validarIngresoInvitado() == true) {
+            if(validarIngresoInvitado()) {
+                
                 ingresoExitoso = true;
             }
         
         } else {
             
-            if(validarIngresoUsuario() == true) {
+            if(validarIngresoUsuario()) {
+                
                 ingresoExitoso = true;
             }
             
         }
-        
         return ingresoExitoso;
     }
     
@@ -289,16 +315,16 @@ public class VentanaLogInController implements Initializable {
     @FXML
     private void cambiarIdioma(ActionEvent event) {
         
-        String idioma;
+        String idiomaLogin;
         if(cbCambiarIdioma.getSelectionModel().getSelectedItem()
                 .equals("English")) {
             
-            idioma = "en";
+            idiomaLogin = "en";
         } else {
             
-            idioma = "es";
+            idiomaLogin = "es";
         }
-        abrirLogin(idioma, event);
+        abrirLogin(idiomaLogin, event);
     }
     
     /**
@@ -343,4 +369,88 @@ public class VentanaLogInController implements Initializable {
     public void setIdioma(String idioma) {
         this.idioma = idioma;
     }
+    
+    /**
+     * Este metodo muestra un mensaje de error en caso de fallo.
+     */
+    private void mostrarMensajeError() {
+        
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setHeaderText("Error");
+        alert.setTitle("Erro de conexion.");
+        alert.setContentText("Se ha perdido la conexion con la base de datos.");
+    }
+    
+    /**
+     * Este metodo sirve para que los textFiel nieguen la entrada a espacios.
+     */
+    private void excluirEspacios() {
+        
+        tfUser.textProperty().addListener(
+                (observable, old_value, new_value) -> {
+                    
+                    if (new_value.contains(" ")) {
+                        
+                        tfUser.setText(old_value);
+                    }
+                });
+        pfPassword.textProperty().addListener(
+                (observable, old_value, new_value) -> {
+                    
+                    if (new_value.contains(" ")) {
+                        
+                        pfPassword.setText(old_value);
+                    }
+                });        
+    }
+    
+    /**
+     * Este metodo impide que el campo de texto sea mayor a un numero de 
+     * caracteres fijo.
+     * @param tf textField a limitar
+     * @param maximo numero maximo de caracteres permitidos.
+     */
+    private void limitarCampos(javafx.scene.control.TextField tf, int maximo) {
+        
+        tf.textProperty().addListener(new ChangeListener<String>() {
+            
+            @Override
+            public void changed(final ObservableValue<? extends String> ov, 
+                    final String oldValue, final String newValue) {
+                
+                if (tf.getText().length() > maximo) {
+                    
+                    String s = tf.getText().substring(0, maximo);
+                    tf.setText(s);
+                }
+            }
+        });
+    }
+    
+    /**
+     * Este metodo convierte la contrasenia ingresada por el usuario en una 
+     * cadena hash.
+     * @return el codigo hash de la contrasenia.
+     */
+    private String hacerHashAContrasenia(String contrasenia) {
+        
+        String contraseniaHash = null;
+        try {
+            
+            MessageDigest md = MessageDigest.getInstance("SHA-512");
+            byte[] messageDigest = md.digest(contrasenia.getBytes());
+            BigInteger codigo = new BigInteger(1, messageDigest);
+            contraseniaHash = codigo.toString(16);
+            while (contraseniaHash.length() < 32) { 
+                
+                contraseniaHash = "0" + contraseniaHash; 
+            }
+            
+        } catch (NoSuchAlgorithmException ex) {
+            Logger.getLogger(VentanaLogInController.class.getName())
+                    .log(Level.SEVERE, null, ex);
+        }
+        return contraseniaHash;
+    }
+    
 }

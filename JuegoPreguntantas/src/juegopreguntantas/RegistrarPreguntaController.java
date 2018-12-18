@@ -1,6 +1,7 @@
 package juegopreguntantas;
 
 import entity.Cuentausuario;
+import entity.Pregunta;
 import entity.Respuesta;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -13,6 +14,8 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -24,6 +27,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -76,7 +80,7 @@ public class RegistrarPreguntaController implements Initializable {
     @FXML
     private TextField txtRespuesta4;
     @FXML
-    private ChoiceBox<Integer> cbNoPregunta;
+    private Label lblNoPregunta;
     @FXML
     private Button btnAgregarPregunta;
     @FXML
@@ -84,7 +88,7 @@ public class RegistrarPreguntaController implements Initializable {
     @FXML
     private Button btnEliminarSet;
     @FXML
-    private ChoiceBox<Integer> cbNoSet;
+    private Label lblNoSet;
     @FXML
     private Button btnRegistrar;
     @FXML
@@ -92,10 +96,17 @@ public class RegistrarPreguntaController implements Initializable {
     
     private Cuentausuario cuenta;
     private String idioma;
+    List<Pregunta> preguntas = new ArrayList<>();
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         
+        excluirEspacios();
+        limitarCampos(txtPregunta, 80);
+        limitarCampos(txtRespuesta1, 30);
+        limitarCampos(txtRespuesta2, 30);
+        limitarCampos(txtRespuesta3, 30);
+        limitarCampos(txtRespuesta4, 30);
     }    
     
     /**
@@ -137,21 +148,18 @@ public class RegistrarPreguntaController implements Initializable {
     @FXML
     private void registrarSet(ActionEvent event) {
         
-        if ((cbNoPregunta.getItems().size() > 1) && 
+        if ((Integer.parseInt(lblNoPregunta.getText()) > 1) && 
                 !cbCategoriaSet.getSelectionModel().isEmpty()) {
 
             PersistenciaSetpregunta setPreguntaBD = new PersistenciaSetpregunta();
-            PersistenciaPregunta preguntaBD = new PersistenciaPregunta();
-            if (!setPreguntaBD.crearSetPregunta(cbCategoriaSet.
-                    getSelectionModel().getSelectedItem(), cuenta)) {
+            if (setPreguntaBD.crearSetPregunta(cbCategoriaSet.
+                    getSelectionModel().getSelectedItem(), cuenta, preguntas)) {
 
-                mostrarCreacionFracaso();
+                int noUltimoSet = Integer.parseInt(lblNoSet.getText()) + 1;
+                lblNoSet.setText(Integer.toString(noUltimoSet));
             } else {
-
-                preguntaBD.guardarSetPregunta(cbNoPregunta.getItems().size());
-                int noUltimoSet = cbNoSet.getItems().size() + 1;
-                cbNoSet.getItems().add(noUltimoSet);
-                cbNoSet.setValue(noUltimoSet);
+                                
+                mostrarCreacionFracaso();
             }
         }
 
@@ -168,55 +176,50 @@ public class RegistrarPreguntaController implements Initializable {
         List<String> paths = listaPaths();
         List<Respuesta> respuestas = listaRespuesta(paths);
         PersistenciaPregunta preguntaBD = new PersistenciaPregunta();
+        Pregunta nuevaPregunta = new Pregunta();
         boolean exito = false;
         if (!respuestas.isEmpty()) {
-            
-            if (txtPregunta.getText().isEmpty()) {
-
-                if (!preguntaBD.crearPregunta(paths.get(0), 2, respuestas)) {
-
-                    mostrarCreacionFracaso();
-                } else {
-                    
-                    guardarImagen(paths.get(0), btnPregunta);
-                    exito = true;
-                }
+                        
+            if (txtPregunta.getText().isEmpty() && 
+                    !btnPregunta.getText().equals("+")) {
                 
-            } else if (btnPregunta.getText().equals("+")) {
-
-                if (!preguntaBD.crearPregunta(txtPregunta.getText(), 1,
-                        respuestas)) {
-
-                    mostrarCreacionFracaso();
-                } else {
-                    
-                    txtPregunta.clear();
-                    exito = true;
-                }
+                nuevaPregunta.setRespuestaCollection(respuestas);
+                nuevaPregunta.setPregunta(paths.get(0));
+                nuevaPregunta.setTipoPregunta(2);
+                preguntas.add(nuevaPregunta);
+                guardarImagen(paths.get(0), btnPregunta);
+                exito = true;
+            } else if (btnPregunta.getText().equals("+") && 
+                    !txtPregunta.getText().isEmpty()) {
                 
+                nuevaPregunta.setRespuestaCollection(respuestas);
+                nuevaPregunta.setPregunta("¿" + txtPregunta.getText() + "?");
+                nuevaPregunta.setTipoPregunta(1);
+                preguntas.add(nuevaPregunta);
+                txtPregunta.clear();
+                exito = true;
             } 
             
             if (exito == true){
                 
                 if(respuestas.get(0).getTipoRespuesta() == 1) {
-                    
+                                        
                     txtRespuesta1.clear();
                     txtRespuesta2.clear();
                     txtRespuesta3.clear();
                     txtRespuesta4.clear();
-                    limpiarBotones();
                 } else {
                     
                     guardarImagen(paths.get(1), btnRespuesta1);
-                    guardarImagen(paths.get(2), btnRespuesta1);
-                    guardarImagen(paths.get(3), btnRespuesta2);
+                    guardarImagen(paths.get(2), btnRespuesta2);
+                    guardarImagen(paths.get(3), btnRespuesta3);
                     guardarImagen(paths.get(4), btnRespuesta4);
-                    limpiarBotones();
                 }
-                  
-                int noUltimaPregunta = cbNoPregunta.getItems().size() + 1;
-                cbNoPregunta.getItems().add(noUltimaPregunta);
-                cbNoPregunta.setValue(noUltimaPregunta);
+                
+                limpiarBotones();
+                int noUltimaPregunta = Integer.
+                        parseInt(lblNoPregunta.getText()) + 1;
+                lblNoPregunta.setText(Integer.toString(noUltimaPregunta));
             }
             
         }
@@ -358,20 +361,16 @@ public class RegistrarPreguntaController implements Initializable {
 
         if (imagenRespuesta.equals(btnRespuesta1)) {
 
-            txtRespuesta1.setDisable(true);
-            txtRespuesta1.clear();
+            bloquearCampos(true);
         } else if (imagenRespuesta.equals(btnRespuesta2)) {
             
-            txtRespuesta2.setDisable(true);
-            txtRespuesta2.clear();
+            bloquearCampos(true);
         } else if (imagenRespuesta.equals(btnRespuesta3)) {
 
-            txtRespuesta3.setDisable(true);
-            txtRespuesta3.clear();
+            bloquearCampos(true);
         } else if (imagenRespuesta.equals(btnRespuesta4)) {
             
-            txtRespuesta4.setDisable(true);
-            txtRespuesta4.clear();
+            bloquearCampos(true);
         } else if (imagenRespuesta.equals(btnPregunta)) {
             
             txtPregunta.setDisable(true);
@@ -380,19 +379,34 @@ public class RegistrarPreguntaController implements Initializable {
     }
     
     /**
+     * Este metodo sirve para bloquear los campos de texto cuando se fija una 
+     * imagen como respuesta.
+     */
+    private void bloquearCampos(boolean activacion) {
+        
+        txtRespuesta1.setDisable(activacion);
+        txtRespuesta1.clear();
+        txtRespuesta2.setDisable(activacion);
+        txtRespuesta2.clear();
+        txtRespuesta3.setDisable(activacion);
+        txtRespuesta3.clear();
+        txtRespuesta4.setDisable(activacion);
+        txtRespuesta4.clear();
+    }
+    /**
      * Este metodo es para guardar en una lista las rutas o paths para las 
      * imagenes que se hayan subido como respuesta
      * @return Lista con las rutas de las imagenes
      */
     private List<String> listaPaths(){
         
-        List<String> paths = new ArrayList<String>();
-        int noSet = cbNoSet.getItems().size();
+        List<String> paths = new ArrayList<>();
+        int noSet = Integer.parseInt(lblNoSet.getText());
         paths.add(".\\imagenes\\" + noSet +"\\imagenPregunta.png");
-        paths.add(".\\imagenes\\" + noSet +"\\imagenRespuesta1.png");
-        paths.add(".\\imagenes\\" + noSet +"\\imagenRespuesta2.png");
-        paths.add(".\\imagenes\\" + noSet +"\\imagenRespuesta3.png");
-        paths.add(".\\imagenes\\" + noSet +"\\imagenRespuesta4.png");
+        for(int i = 1; i < 5; i++){
+            
+            paths.add(".\\imagenes\\" + noSet + "\\imagenRespuesta" + i + ".png");
+        }
         return paths;
     }
     
@@ -403,7 +417,7 @@ public class RegistrarPreguntaController implements Initializable {
      */
     private List<Respuesta> listaRespuesta(List<String> path){
         
-        List<Respuesta> respuestas = new ArrayList<Respuesta>();
+        List<Respuesta> respuestas = new ArrayList<>();
         boolean respuestasLleno = false;
         if (!cbRespuestaCorrecta.getSelectionModel().isEmpty()) {
             
@@ -527,18 +541,6 @@ public class RegistrarPreguntaController implements Initializable {
     }
     
     /**
-     * Metodo que para mostrar un valor base a los elementos que dicene el 
-     * numero de pregunta y set de pregunta
-     */
-    public void mostrarDatosBase(){
-        
-        cbNoSet.getItems().add(1);
-        cbNoSet.setValue(cbNoSet.getItems().get(0));
-        cbNoPregunta.getItems().add(1);
-        cbNoPregunta.setValue(cbNoPregunta.getItems().get(0));
-    }
-    
-    /**
      * Metodo que recibe el objeto de cuenta de usuario o invitado del 
      * Controlador de la pantalla que la invocó
      * @param usuario Cuenta de usuario registrado
@@ -548,7 +550,42 @@ public class RegistrarPreguntaController implements Initializable {
         
         this.idioma = idioma;
         this.cuenta = (Cuentausuario)usuario;
-        mostrarDatosBase();
+    }
+    
+    /**
+     * Este metodo sirve para que los textFiel nieguen la entrada a espacios.
+     */
+    private void excluirEspacios() {
+
+        txtPregunta.textProperty().addListener(
+                (observable, old_value, new_value) -> {
+
+                    if (new_value.contains("¿") || new_value.contains("?")) {
+
+                        txtPregunta.setText(old_value);
+                    }
+                });
+    }
+
+    /**
+     * Este metodo impide que el campo de texto sea mayor a un numero de
+     * caracteres fijo.
+     *
+     * @param txtField textField a limitar
+     * @param maximo numero maximo de caracteres permitidos.
+     */
+    public void limitarCampos(javafx.scene.control.TextField txtField, 
+            int maximo) {
+        txtField.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(final ObservableValue<? extends String> ov, 
+                    final String oldValue, final String newValue) {
+                if (txtField.getText().length() > maximo) {
+                    String s = txtField.getText().substring(0, maximo);
+                    txtField.setText(s);
+                }
+            }
+        });
     }
     
     /**

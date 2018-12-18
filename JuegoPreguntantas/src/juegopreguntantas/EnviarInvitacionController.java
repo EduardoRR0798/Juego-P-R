@@ -28,7 +28,6 @@ import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
-import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import persistencia.PersistenciaCuentaInvitado;
@@ -101,22 +100,22 @@ public class EnviarInvitacionController implements Initializable {
             
             try {
                 
-                PersistenciaCuentaInvitado invitadoBD = 
-                        new PersistenciaCuentaInvitado();
+                PersistenciaCuentaInvitado invitadoBD = new PersistenciaCuentaInvitado();
                 if (invitadoBD.comprobarCorreo(txtCorreoElectronico.getText())) {
                     mostrarCorreoRepetido();
                 } else {
 
                     Cuentainvitado nuevoInvitado = new Cuentainvitado();
                     nuevoInvitado.setNombre(invitadoBD.crearNombre());
-                    nuevoInvitado
-                            .setCorreoelectronico(txtCorreoElectronico.getText());
+                    nuevoInvitado.setCorreoelectronico(txtCorreoElectronico.getText());
                     nuevoInvitado.setCodigo(invitadoBD.crearCodigo());
                     String deCorreo = "juego.preguntantas@gmail.com";
 
                     final String contrasenia = "pr3gunt0n";
                     Properties properties = crearProperties();
                     Authenticator auth = new Authenticator() {
+                        
+                        @Override
                         public PasswordAuthentication getPasswordAuthentication() {
 
                             return new PasswordAuthentication(deCorreo
@@ -150,7 +149,7 @@ public class EnviarInvitacionController implements Initializable {
     
     /**
      * Este metodo es para hacer todos los put que necesitan las properties
-     * @return El properties para la sesion
+     * @return El el properties para la sesion
      */
     private Properties crearProperties() {
         
@@ -204,8 +203,7 @@ public class EnviarInvitacionController implements Initializable {
      * @param mensaje Message que se va a enviar por correo
      * @param nuevoInvitado Cuenta de invitado que se guardara en BD
      */ 
-    private void mostrarInvitadoExito(Message mensaje, Cuentainvitado 
-            nuevoInvitado) {
+    private void mostrarInvitadoExito(Message mensaje, Cuentainvitado nuevoInvitado) {
         
         PersistenciaCuentaInvitado invitadoBD = new PersistenciaCuentaInvitado();
         if (invitadoBD.crearInvitado(nuevoInvitado)) {

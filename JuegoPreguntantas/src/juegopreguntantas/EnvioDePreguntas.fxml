@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #355C7D;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="juegopreguntantas.EnvioDePreguntasController">
+   <children>
+      <ProgressBar fx:id="pbProcesoEnvio" layoutX="85.0" layoutY="200.0" prefHeight="18.0" prefWidth="431.0" style="-fx-background-color: #F8B195;" />
+      <Label layoutX="193.0" layoutY="87.0" text="%lbl_enviandoDatos" textFill="WHITE">
+         <font>
+            <Font size="24.0" />
+         </font>
+      </Label>
+      <Button fx:id="btnIniciar" disable="true" layoutX="274.0" layoutY="308.0" mnemonicParsing="false" onAction="#iniciar" style="-fx-background-color: #F67280;" text="%btn_iniciar" visible="false" />
+   </children>
+</AnchorPane>

@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package juegopreguntantas;
 
 import java.util.Locale;
@@ -13,21 +8,25 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-/**
- *
- * @author Eduar
- */
+/******************************************************************/ 
+/* @version 1.0                                                   */ 
+/* @author Eduardo Rosas Rivera                                   */ 
+/* @since 28/11/2018                                              */
+/* Nombre de la clase JuegoPreguntantas                           */
+/******************************************************************/
 public class JuegoPreguntantas extends Application {
     
     @Override
     public void start(Stage stage) throws Exception {
+        
         Locale.setDefault(new Locale("es"));
-
-        ResourceBundle resourceBundle = ResourceBundle.getBundle("juegopreguntantas.lang/lang");
-        Parent root = FXMLLoader.load(getClass().getResource("VentanaLogIn.fxml"), resourceBundle);
+        ResourceBundle resourceBundle = 
+                ResourceBundle.getBundle("juegopreguntantas.lang/lang");
+        Parent root = 
+                FXMLLoader.load(getClass().getResource("VentanaLogIn.fxml"),
+                        resourceBundle);
         
         Scene scene = new Scene(root);
-        VentanaLogInController vlc = new VentanaLogInController();
         stage.setScene(scene);
         stage.show();
     }
@@ -38,6 +37,5 @@ public class JuegoPreguntantas extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-    
     
 }
