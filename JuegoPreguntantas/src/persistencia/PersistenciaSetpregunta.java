@@ -70,16 +70,18 @@ public class PersistenciaSetpregunta {
     /**
      * Este metodo es para recuperar un set de preguntas por el usuario creador
      * @param usuario Cuenta del usuario que esta usando el juego
-     * @return Un set de preguntas
+     * @return una lista de los sets de preguntas del usuario.
      */
-    public Setpregunta recuperarSetPregunta(Cuentausuario usuario) {
+    public List<Setpregunta> recuperarSetPregunta(Cuentausuario usuario) {
+        
         EntityManager em = administrarEntidades();
         Query query = em.createQuery("SELECT s "
                 + "FROM Setpregunta s "
-                + "WHERE s.idcuentausuario.idcuentausuario = \"" 
-                + usuario.getIdcuentausuario() + "\"");
+                + "WHERE s.idcuentausuario.idcuentausuario = " 
+                + usuario.getIdcuentausuario());
         List<Setpregunta> setsPregunta = query.getResultList();
-        return setsPregunta.get(0);
+        
+        return setsPregunta;
     }
     
     /**
@@ -151,4 +153,22 @@ public class PersistenciaSetpregunta {
         int indice = idSetPregunta.size() - 1;
         return idSetPregunta.get(indice);
     }
+    
+    /**
+     * Este metodo recupera todos los sets de pregunta que concuerden con un
+     * mismo id de una categoria.
+     * @param idCategoria id de la categoria de interes.
+     * @return una lista de setpregunta con la misma id categoria.
+     */
+    public List<Setpregunta> recuperarSetCategoria(int idCategoria) {
+
+        List<Setpregunta> setsPregunta;
+        EntityManager em = administrarEntidades();
+        Query query;
+        query = em.createQuery("SELECT s FROM Setpregunta s WHERE s.idcategoria = " + idCategoria);
+        setsPregunta = query.getResultList();
+        return setsPregunta;
+    }
+    
+    
 }
