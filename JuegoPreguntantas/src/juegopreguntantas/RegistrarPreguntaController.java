@@ -96,7 +96,7 @@ public class RegistrarPreguntaController implements Initializable {
     
     private Cuentausuario cuenta;
     private String idioma;
-    List<Pregunta> preguntas = new ArrayList<>();
+    List<Pregunta> preguntas = new ArrayList<Pregunta>();
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -148,15 +148,19 @@ public class RegistrarPreguntaController implements Initializable {
     @FXML
     private void registrarSet(ActionEvent event) {
         
-        if ((Integer.parseInt(lblNoPregunta.getText()) > 1) && 
+        if ((Integer.parseInt(lblNoPregunta.getText()) > 0) && 
                 !cbCategoriaSet.getSelectionModel().isEmpty()) {
 
             PersistenciaSetpregunta setPreguntaBD = new PersistenciaSetpregunta();
+            PersistenciaPregunta preguntaBD = new PersistenciaPregunta();
             if (setPreguntaBD.crearSetPregunta(cbCategoriaSet.
                     getSelectionModel().getSelectedItem(), cuenta, preguntas)) {
 
                 int noUltimoSet = Integer.parseInt(lblNoSet.getText()) + 1;
                 lblNoSet.setText(Integer.toString(noUltimoSet));
+                preguntas.clear();
+                lblNoPregunta.setText("00");
+                mostrarCreacionExito();
             } else {
                                 
                 mostrarCreacionFracaso();
@@ -214,6 +218,10 @@ public class RegistrarPreguntaController implements Initializable {
                     guardarImagen(paths.get(2), btnRespuesta2);
                     guardarImagen(paths.get(3), btnRespuesta3);
                     guardarImagen(paths.get(4), btnRespuesta4);
+                    System.out.println(paths.get(1));
+                    System.out.println(paths.get(2));
+                    System.out.println(paths.get(3));
+                    System.out.println(paths.get(4));
                 }
                 
                 limpiarBotones();
@@ -361,16 +369,20 @@ public class RegistrarPreguntaController implements Initializable {
 
         if (imagenRespuesta.equals(btnRespuesta1)) {
 
-            bloquearCampos(true);
+            txtRespuesta1.setDisable(true);
+            txtRespuesta1.clear();
         } else if (imagenRespuesta.equals(btnRespuesta2)) {
             
-            bloquearCampos(true);
+            txtRespuesta2.setDisable(true);
+            txtRespuesta2.clear();
         } else if (imagenRespuesta.equals(btnRespuesta3)) {
 
-            bloquearCampos(true);
+            txtRespuesta3.setDisable(true);
+            txtRespuesta3.clear();
         } else if (imagenRespuesta.equals(btnRespuesta4)) {
             
-            bloquearCampos(true);
+            txtRespuesta4.setDisable(true);
+            txtRespuesta4.clear();
         } else if (imagenRespuesta.equals(btnPregunta)) {
             
             txtPregunta.setDisable(true);
@@ -379,33 +391,21 @@ public class RegistrarPreguntaController implements Initializable {
     }
     
     /**
-     * Este metodo sirve para bloquear los campos de texto cuando se fija una 
-     * imagen como respuesta.
-     */
-    private void bloquearCampos(boolean activacion) {
-        
-        txtRespuesta1.setDisable(activacion);
-        txtRespuesta1.clear();
-        txtRespuesta2.setDisable(activacion);
-        txtRespuesta2.clear();
-        txtRespuesta3.setDisable(activacion);
-        txtRespuesta3.clear();
-        txtRespuesta4.setDisable(activacion);
-        txtRespuesta4.clear();
-    }
-    /**
      * Este metodo es para guardar en una lista las rutas o paths para las 
      * imagenes que se hayan subido como respuesta
      * @return Lista con las rutas de las imagenes
      */
     private List<String> listaPaths(){
         
-        List<String> paths = new ArrayList<>();
-        int noSet = Integer.parseInt(lblNoSet.getText());
-        paths.add(".\\imagenes\\" + noSet +"\\imagenPregunta.png");
+        List<String> paths = new ArrayList<String>();
+        PersistenciaSetpregunta setPreguntaBD = new PersistenciaSetpregunta();
+        int noSet = setPreguntaBD.recuperarUltimaId() + 1;
+        paths.add(".\\imagenes\\" + noSet + "\\" + lblNoPregunta.getText() + 
+                "\\imagenPregunta.png");
         for(int i = 1; i < 5; i++){
             
-            paths.add(".\\imagenes\\" + noSet + "\\imagenRespuesta" + i + ".png");
+            paths.add(".\\imagenes\\" + noSet + "\\" + lblNoPregunta.getText() + 
+                    "\\imagenRespuesta" + i + ".png");
         }
         return paths;
     }
@@ -417,7 +417,7 @@ public class RegistrarPreguntaController implements Initializable {
      */
     private List<Respuesta> listaRespuesta(List<String> path){
         
-        List<Respuesta> respuestas = new ArrayList<>();
+        List<Respuesta> respuestas = new ArrayList<Respuesta>();
         boolean respuestasLleno = false;
         if (!cbRespuestaCorrecta.getSelectionModel().isEmpty()) {
             
@@ -598,6 +598,15 @@ public class RegistrarPreguntaController implements Initializable {
         alert.setHeaderText(null);
         alert.setContentText("Se ha perdido conexión con el servidor"
                 + ", prueba de nuevo");
+        alert.showAndWait();
+    }
+
+    private void mostrarCreacionExito() {
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Exito");
+        alert.setHeaderText(null);
+        alert.setContentText("Set creado con exito");
         alert.showAndWait();
     }
 
