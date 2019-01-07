@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.paint.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.chart.*?>
 <?import javafx.scene.text.*?>
@@ -59,7 +60,7 @@
             <Font size="18.0" />
          </font>
       </Label>
-      <Label fx:id="lblCategoria" layoutX="381.0" layoutY="86.0" AnchorPane.leftAnchor="381.0" AnchorPane.rightAnchor="189.0" />
+      <Label fx:id="lblCategoria" layoutX="381.0" layoutY="86.0" textFill="WHITE" AnchorPane.leftAnchor="381.0" AnchorPane.rightAnchor="189.0" />
       <Label fx:id="lblPregunta" contentDisplay="CENTER" layoutX="380.0" layoutY="108.0" prefHeight="106.0" prefWidth="549.0" textAlignment="CENTER" textFill="WHITE" AnchorPane.leftAnchor="220.0" AnchorPane.rightAnchor="20.0">
          <font>
             <Font size="18.0" />
@@ -81,14 +82,14 @@
          <font>
             <Font size="14.0" />
          </font></CheckBox>
-      <Pane fx:id="pPanelGrafica" layoutX="201.0" layoutY="3.0" prefHeight="415.0" prefWidth="450.0" style="-fx-background-color: #355C7D;" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="200.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <Pane fx:id="pPanelGrafica" layoutX="201.0" layoutY="68.0" prefHeight="532.0" prefWidth="589.0" style="-fx-background-color: #355C7D;" visible="false" AnchorPane.bottomAnchor="2.0" AnchorPane.leftAnchor="200.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="68.0">
          <children>
-            <BarChart fx:id="bcGraficaPuntaje" animated="false" layoutX="3.0" layoutY="35.0" prefHeight="492.0" prefWidth="550.0" title="%lbl.jugadores_unidos">
+            <BarChart fx:id="bcGraficaPuntaje" animated="false" layoutX="3.0" layoutY="-68.0" prefHeight="602.0" prefWidth="550.0" title="%bar_puntajes">
               <xAxis>
-                <CategoryAxis fx:id="caJugadores" animated="false" side="BOTTOM" tickLabelFill="WHITE" />
+                <CategoryAxis fx:id="caJugadores" animated="false" label="%bar_jugadores" side="BOTTOM" tickLabelFill="WHITE" />
               </xAxis>
               <yAxis>
-                <NumberAxis fx:id="caPuntos" animated="false" side="LEFT" tickLabelFill="WHITE" />
+                <NumberAxis fx:id="caPuntos" animated="false" label="%bar_puntos" side="LEFT" tickLabelFill="WHITE" />
               </yAxis>
                <padding>
                   <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />

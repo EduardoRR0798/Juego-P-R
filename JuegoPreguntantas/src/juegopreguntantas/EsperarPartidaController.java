@@ -1,12 +1,7 @@
 package juegopreguntantas;
 
-import clasesutilidad.JugadorConectadoEnvio;
-import entity.Cuentainvitado;
-import entity.Cuentausuario;
 import entity.Partida;
 import entity.Setpregunta;
-import io.socket.client.IO;
-import io.socket.client.Socket;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -27,18 +22,16 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.stage.Stage;
-import org.json.JSONException;
-import org.json.JSONObject;
 import persistencia.PersistenciaCategoria;
 import persistencia.PersistenciaPartida;
 import persistencia.PersistenciaSetpregunta;
 
-/******************************************************************/ 
-/* @version 1.0                                                   */ 
-/* @author Puxka Acosta Domínguez y Eduardo Rosas Rivera          */ 
-/* @since 07/11/2018                                              */
-/* Nombre de la clase EsperarPartidaController                    */
-/******************************************************************/
+/****************************************************************** 
+ * @version 1.0                                                   * 
+ * @author Puxka Acosta Domínguez y Eduardo Rosas Rivera          * 
+ * @since 06/11/2018                                              *
+ * Nombre de la clase EsperarPartidaController                    *
+ *****************************************************************/
 public class EsperarPartidaController implements Initializable {
 
     @FXML
@@ -50,16 +43,13 @@ public class EsperarPartidaController implements Initializable {
     @FXML
     private Button btnUnirse;
     
-    private final Socket socket;
     private Object cuenta;
     private String idioma;    
-    private Cuentausuario usuario;
-    private Cuentainvitado invitado;
-    private JugadorConectadoEnvio conectado;
+    private static final String RECURSO = "juegopreguntantas.lang/lang";
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        
+        //No es necesario hacer algo.
     }
     
     /**
@@ -67,18 +57,7 @@ public class EsperarPartidaController implements Initializable {
      * @throws URISyntaxException 
      */
     public EsperarPartidaController() throws URISyntaxException {
-        
-        ResourceBundle propiedadesCliente = ResourceBundle.getBundle(
-                "utilidades.conexiones");
-        String ipServidor = propiedadesCliente.getString(
-                "key.ipServidor");
-        socket  = IO.socket("http://" + ipServidor + ":5000");
-        socket.on(Socket.EVENT_CONNECT, (Object... os) -> {
-            
-            System.out.println("Conectado..");
-        });
-        
-        socket.connect();
+        //Vacio para instanciacion.
     }
     
     /**
@@ -87,33 +66,12 @@ public class EsperarPartidaController implements Initializable {
      */
     @FXML
     private void unirse(ActionEvent event) {
-        
-        if(validarCampos()) {
-            
-            try {
+      
+        if (validarCampos()) {
 
-                conectado = new JugadorConectadoEnvio();
-                if (cuenta instanceof Cuentausuario) {
-
-                    conectado.setNombre(usuario.getNombreusuario());
-                } else {
-
-                    conectado.setNombre(invitado.getNombre());
-                }
-
-                JSONObject nuevoConectado = new JSONObject();
-                nuevoConectado.put("idSocket", socket.id());
-                nuevoConectado.put("nombre", conectado.getNombre());
-                socket.emit("registrarPregunton", nuevoConectado);
-                abrirVentanaJugadoresConectados();
-                btnCancelar.getScene().getWindow().hide();
-            } catch (JSONException ex) {
-
-                Logger.getLogger(EsperarJugadoresController.class.getName())
-                        .log(Level.SEVERE, null, ex);
-            }
+            abrirVentanaJugadoresConectados();
+            btnCancelar.getScene().getWindow().hide();
         }
-        
     }
     
     /**
@@ -128,7 +86,7 @@ public class EsperarPartidaController implements Initializable {
             
             Locale.setDefault(new Locale(idioma));
             ResourceBundle resourceBundle = ResourceBundle
-                    .getBundle("juegopreguntantas.lang/lang");
+                    .getBundle(RECURSO);
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass()
                     .getResource("MenuPrincipal.fxml"));
@@ -173,7 +131,7 @@ public class EsperarPartidaController implements Initializable {
      */
     @FXML
     private void mostrarPartidas(ActionEvent event) {
-        
+
         PersistenciaPartida partidaBD = new PersistenciaPartida();
         PersistenciaSetpregunta setPreguntaBD = new PersistenciaSetpregunta();
         PersistenciaCategoria categoriaBD = new PersistenciaCategoria();
@@ -181,16 +139,15 @@ public class EsperarPartidaController implements Initializable {
         List<Setpregunta> sets = setPreguntaBD.recuperarSetCategoria(id);
         ObservableList<Partida> partidas = FXCollections.observableArrayList();
         List<Partida> par;
-        for(int i = 0; i < sets.size(); i++) {
-            
+        for (int i = 0; i < sets.size(); i++) {
+
             par = partidaBD.recuperarPartida(sets.get(i));
-            for(int j = 0; j < par.size(); j++) {
-                
+            for (int j = 0; j < par.size(); j++) {
+
                 partidas.add(par.get(j));
             }
         }
-            cbPartidas.setItems(partidas);
-        
+        cbPartidas.setItems(partidas);
     }
     
     /**
@@ -199,9 +156,6 @@ public class EsperarPartidaController implements Initializable {
      */
     public void mostrarCategorias(){
         
-        PersistenciaSetpregunta setPreguntaBD = new PersistenciaSetpregunta();
-        List<String> categorias = setPreguntaBD
-                .recuperarCategorias((Cuentausuario) cuenta);
         PersistenciaCategoria cate = new PersistenciaCategoria();
         
         List<String> categoriasMostrar =  cate.recuperarCategorias();
@@ -223,23 +177,19 @@ public class EsperarPartidaController implements Initializable {
         
         this.idioma = idioma;
         this.cuenta = cuenta;
-        if(cuenta instanceof Cuentausuario) {
-            
-            usuario = (Cuentausuario) cuenta;
-        } else {
-            
-            invitado = (Cuentainvitado) invitado;
-        }
         
         mostrarCategorias();
     }
     
+    /**
+     * Este metodo es para abrir la ventana de jugadores conectados.
+     */
     public void abrirVentanaJugadoresConectados() {
         
         try {
             Locale.setDefault(new Locale(idioma));
             ResourceBundle resourceBundle
-                    = ResourceBundle.getBundle("juegopreguntantas.lang/lang");
+                    = ResourceBundle.getBundle(RECURSO);
 
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass().getResource("EsperarJugadores.fxml"));

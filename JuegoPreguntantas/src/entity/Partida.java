@@ -15,11 +15,19 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlRootElement;
 
+/****************************************************************** 
+ * @version 1.0                                                   * 
+ * @author Puxka Acosta Domínguez y Eduardo Rosas Rivera          * 
+ * @since 26/10/2018                                              *
+ * Nombre de la clase Partida                                     *
+ *****************************************************************/
 @Entity
 @Table(name = "partida")
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Partida.findAll", query = "SELECT p FROM Partida p")
+    , @NamedQuery(name = "Partida.findBySet", query = "SELECT p.nombre FROM Partida p WHERE p.idsetpregunta.idsetpregunta = :idsetpregunta")
+    , @NamedQuery(name = "Partida.findByIdset", query = "SELECT p FROM Partida p WHERE p.idsetpregunta.idsetpregunta = :idsetpregunta")
     , @NamedQuery(name = "Partida.findByIdpartida", query = "SELECT p FROM Partida p WHERE p.idpartida = :idpartida")
     , @NamedQuery(name = "Partida.findByNombre", query = "SELECT p FROM Partida p WHERE p.nombre = :nombre")})
 public class Partida implements Serializable {
@@ -78,7 +86,7 @@ public class Partida implements Serializable {
 
     @Override
     public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
+        
         if (!(object instanceof Partida)) {
             return false;
         }

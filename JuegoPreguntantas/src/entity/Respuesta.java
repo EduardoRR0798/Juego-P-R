@@ -1,15 +1,13 @@
 package entity;
 
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.awt.image.WritableRaster;
-import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -24,13 +22,20 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlRootElement;
 
+/****************************************************************** 
+ * @version 1.0                                                   * 
+ * @author Puxka Acosta Domínguez y Eduardo Rosas Rivera          * 
+ * @since 26/10/2018                                              *
+ * Nombre de la clase Respuesta                                   *
+ *****************************************************************/
 @Entity
 @Table(name = "respuesta")
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Respuesta.findAll", query = "SELECT r FROM Respuesta r")
+    , @NamedQuery(name = "Respuesta.findByIdpregunta", query = "SELECT r FROM Respuesta r WHERE r.idpregunta.idpregunta = :idpregunta")
     , @NamedQuery(name = "Respuesta.findByIdrespuesta", query = "SELECT r FROM Respuesta r WHERE r.idrespuesta = :idrespuesta")
-    , @NamedQuery(name = "Respuesta.findByRespuesta", query = "SELECT r FROM Respuesta r WHERE r.respuesta = :respuesta")
+    , @NamedQuery(name = "Respuesta.findByRespuesta", query = "SELECT r FROM Respuesta r WHERE r.respuestaContenido = :respuesta")
     , @NamedQuery(name = "Respuesta.findByPuntaje", query = "SELECT r FROM Respuesta r WHERE r.puntaje = :puntaje")
     , @NamedQuery(name = "Respuesta.findByTipoRespuesta", query = "SELECT r FROM Respuesta r WHERE r.tipoRespuesta = :tipoRespuesta")})
 public class Respuesta implements Serializable {
@@ -42,7 +47,7 @@ public class Respuesta implements Serializable {
     @Column(name = "idrespuesta")
     private Integer idrespuesta;
     @Column(name = "respuesta")
-    private String respuesta;
+    private String respuestaContenido;
     @Column(name = "puntaje")
     private Integer puntaje;
     @Column(name = "tipoRespuesta")
@@ -69,11 +74,11 @@ public class Respuesta implements Serializable {
     }
 
     public String getRespuesta() {
-        return respuesta;
+        return respuestaContenido;
     }
 
     public void setRespuesta(String respuesta) {
-        this.respuesta = respuesta;
+        this.respuestaContenido = respuesta;
     }
 
     public Integer getPuntaje() {
@@ -113,15 +118,12 @@ public class Respuesta implements Serializable {
 
     @Override
     public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
+        
         if (!(object instanceof Respuesta)) {
             return false;
         }
         Respuesta other = (Respuesta) object;
-        if ((this.idrespuesta == null && other.idrespuesta != null) || (this.idrespuesta != null && !this.idrespuesta.equals(other.idrespuesta))) {
-            return false;
-        }
-        return true;
+        return ((this.idrespuesta == null && other.idrespuesta != null) || (this.idrespuesta != null && !this.idrespuesta.equals(other.idrespuesta)));
     }
 
     @Override
@@ -149,20 +151,17 @@ public class Respuesta implements Serializable {
      */
     public byte[] crearArregloImagen() {
         
-        DataBufferByte data = null;
+        byte[] imagenBytes = null;
         try {
-            
-            File imgPath = new File(respuesta);
-            BufferedImage bufferedImage = ImageIO.read(imgPath);
-
-            WritableRaster raster = bufferedImage.getRaster();
-            data = (DataBufferByte) raster.getDataBuffer();
+            Path path = Paths.get(respuestaContenido);
+            byte[] contenido = Files.readAllBytes(path);
+            imagen = contenido;
         } catch (IOException ex) {
             
-            Logger.getLogger(Pregunta.class.getName())
+            Logger.getLogger(Respuesta.class.getName())
                     .log(Level.SEVERE, null, ex);
         }
-        return ( data.getData() );
+        return imagenBytes;
     }
     
 }

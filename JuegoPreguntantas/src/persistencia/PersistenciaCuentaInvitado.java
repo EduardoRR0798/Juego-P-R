@@ -1,9 +1,7 @@
 package persistencia;
   
 import entity.Cuentainvitado;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -15,27 +13,13 @@ import javax.persistence.Query;
 
 /******************************************************************/ 
 /* @version 1.0                                                   */ 
-/* @author Puxka Acosta Domínguez Eduardo Rosas Rivera            */ 
+/* @author Puxka Acosta Domínguez y Eduardo Rosas Rivera          */ 
 /* @since 07/11/2018                                              */
 /* Nombre de la clase PersistenciaCuentaInvitado                  */
 /******************************************************************/
-public class PersistenciaCuentaInvitado {
+public class PersistenciaCuentaInvitado extends Persistencia {
     
-    /**
-     * Este metodo es para trabajar con las entidades de la base de datos 
-     * @return El EntityManager 
-     */ 
-    public EntityManager administrarEntidades() {
-        
-        Map<String, String> properties = new HashMap<>();
-        properties.put("javax.persistence.jdbc.user", "pregunton");
-        properties.put("javax.persistence.jdbc.password", "PR3GUNT0N");
-        EntityManagerFactory emf = javax.persistence.Persistence
-                .createEntityManagerFactory("JuegoPreguntantasPU", properties);
-        EntityManager em = emf.createEntityManager();
-        em.getTransaction().begin();
-        return em;
-    }
+    private static final String PERSISTENCIA = "JuegoPreguntantasPU";
     
     /**
      * Este metodo es para crear una cuenta de invitado en la base de datos 
@@ -70,13 +54,12 @@ public class PersistenciaCuentaInvitado {
     public String crearNombre() {
         
         EntityManager em = administrarEntidades();
-        Query query = em.createQuery("SELECT MAX(c.idcuentainvitado) "
-                + "FROM Cuentainvitado c");
-        List<Integer> idInvitado = query.getResultList();
         String nombre = null;
-        try{
+        
+        try {
             
-            nombre = "Pregunton" + (idInvitado.get(0) + 1);
+            int id = (int) em.createNamedQuery("Cuentainvitado.findMaximo").getFirstResult();
+            nombre = "Pregunton" + (id + 1);
         } catch(NullPointerException e) {
             
             Logger.getLogger(PersistenciaCuentaInvitado.class.getName())
@@ -114,12 +97,11 @@ public class PersistenciaCuentaInvitado {
     public boolean comprobarCorreo(String correoElectronico) {
         
         EntityManager em = administrarEntidades();
-        Query query = em.createQuery("SELECT c.correoelectronico "
-                + "FROM Cuentainvitado c WHERE UPPER(c.correoelectronico) = \"" 
-                + correoElectronico + "\"");
+        Query query = em.createNamedQuery(
+                "Cuentainvitado.findAllByCorreoelectronico")
+                .setParameter("correoelectronico", correoElectronico);
         List<String> correoRepetido = query.getResultList();
-        boolean datoRepetido = !correoRepetido.isEmpty();
-        return datoRepetido;
+        return !correoRepetido.isEmpty();
     }
     
     /**
@@ -131,9 +113,8 @@ public class PersistenciaCuentaInvitado {
     public boolean comprobarCodigo(String codigo) {
         
         EntityManager em = administrarEntidades();
-        Query query = em.createQuery("SELECT c.codigo "
-                + "FROM Cuentainvitado c WHERE c.codigo = \"" 
-                + codigo + "\"");
+        Query query = em.createNamedQuery("Cuentainvitado.findAllByCodigo")
+                .setParameter("codigo", codigo);
         List<String> codigoRepetido = query.getResultList();
         boolean datoRepetido = !codigoRepetido.isEmpty();
         return datoRepetido;
@@ -161,9 +142,11 @@ public class PersistenciaCuentaInvitado {
     /**
      * Este metodo es para eliminar una cuenta de invitado en la base de datos 
      * @param invitado Cuenta de invitado a eliminar
+     * @return true si se realizo exitosamente, false sino.
      */
-    public void eliminarInvitado(Cuentainvitado invitado) {
+    public boolean eliminarInvitado(Cuentainvitado invitado) {
         
+        boolean exito = false;
         EntityManager em = administrarEntidades();
         try {
 
@@ -174,6 +157,7 @@ public class PersistenciaCuentaInvitado {
 
             em.remove(invitado);
             em.getTransaction().commit();
+            exito = true;
         } catch (Exception e) {
             
             Logger.getLogger(PersistenciaCuentaInvitado.class.getName())
@@ -183,12 +167,15 @@ public class PersistenciaCuentaInvitado {
             
             em.close();
         }
+        return exito;
     }
   
       /**
      * Constructor de la clase.
      */
-    public PersistenciaCuentaInvitado() {}
+    public PersistenciaCuentaInvitado() {
+    //vacio para instanciacion
+    }
     
     /**
      * Metodo que registra una Cuentainvitado en la base de datos.
@@ -207,7 +194,7 @@ public class PersistenciaCuentaInvitado {
     public void persist(Object object) {
         
         EntityManagerFactory emf = javax.persistence.Persistence.
-                createEntityManagerFactory("JuegoPreguntantasPU");
+                createEntityManagerFactory(PERSISTENCIA);
         EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
         try {
@@ -233,7 +220,7 @@ public class PersistenciaCuentaInvitado {
     public void destroyCuentaInvitado(long id) {
         
         EntityManagerFactory emf = javax.persistence.Persistence.
-                createEntityManagerFactory("JuegoPreguntantasPU");
+                createEntityManagerFactory(PERSISTENCIA);
         EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
         try {
@@ -263,22 +250,21 @@ public class PersistenciaCuentaInvitado {
     public Cuentainvitado getCuentaInvitado(String nombreinvitado) {
         
         EntityManagerFactory emf = javax.persistence.Persistence.
-                createEntityManagerFactory("JuegoPreguntantasPU");
+                createEntityManagerFactory(PERSISTENCIA);
         EntityManager em = emf.createEntityManager();
-        List<Cuentainvitado> invitados = null;
         Cuentainvitado invitado = new Cuentainvitado();
         try {
             
-            invitados = (List<Cuentainvitado>) em.createQuery("SELECT c FROM "
-                    + "Cuentainvitado c WHERE UPPER(c.nombre) = \"" + 
-                    nombreinvitado +"\"").getSingleResult();
+            invitado = em.createNamedQuery(
+                    "Cuentainvitado.findByNombre", Cuentainvitado.class)
+                    .setParameter("nombre", nombreinvitado).getSingleResult();
         } catch (NoResultException noResult) {
-            
-            invitados.add(invitado);
+                
+                invitado = null;
         } finally {
             
             em.close();
         }
-        return invitados.get(0);
+        return invitado;
     }
 }

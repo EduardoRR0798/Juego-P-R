@@ -17,11 +17,22 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+/****************************************************************** 
+ * @version 1.0                                                   * 
+ * @author Puxka Acosta Domínguez y Eduardo Rosas Rivera          * 
+ * @since 26/10/2018                                              *
+ * Nombre de la clase Setpregunta                                 *
+ *****************************************************************/
 @Entity
 @Table(name = "setpregunta")
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Setpregunta.findAll", query = "SELECT s FROM Setpregunta s")
+    , @NamedQuery(name = "Setpregunta.findIdByIdCuentaUsuario", query = "SELECT s.idcategoria FROM Setpregunta s WHERE s.idcuentausuario.idcuentausuario = :idcuentausuario")
+    , @NamedQuery(name = "Setpregunta.findAllByIdCuentaUsuario", query = "SELECT s FROM Setpregunta s WHERE s.idcuentausuario.idcuentausuario = :idcuentausuario")
+    , @NamedQuery(name = "Setpregunta.findAllByIdsetpregunta", query = "SELECT s FROM Setpregunta s WHERE s.idsetpregunta = :idsetpregunta")
+    , @NamedQuery(name = "Setpregunta.findAllByIdcategoria", query = "SELECT s FROM Setpregunta s WHERE s.idcategoria = :idcategoria")
+    , @NamedQuery(name = "Setpregunta.findMaxIdsetpregunta", query = "SELECT MAX(s.idsetpregunta) FROM Setpregunta s")
     , @NamedQuery(name = "Setpregunta.findByIdsetpregunta", query = "SELECT s FROM Setpregunta s WHERE s.idsetpregunta = :idsetpregunta")
     , @NamedQuery(name = "Setpregunta.findByIdcategoria", query = "SELECT s FROM Setpregunta s WHERE s.idcategoria = :idcategoria")})
 public class Setpregunta implements Serializable {
@@ -89,7 +100,7 @@ public class Setpregunta implements Serializable {
 
     @Override
     public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
+        
         if (!(object instanceof Setpregunta)) {
             return false;
         }

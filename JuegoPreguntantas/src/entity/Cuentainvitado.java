@@ -12,11 +12,21 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 
+/****************************************************************** 
+ * @version 1.0                                                   * 
+ * @author Puxka Acosta Domínguez y Eduardo Rosas Rivera          * 
+ * @since 26/10/2018                                              *
+ * Nombre de la clase CuentaInvitado                              *
+ *****************************************************************/
 @Entity
 @Table(name = "cuentainvitado")
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Cuentainvitado.findAll", query = "SELECT c FROM Cuentainvitado c")
+    , @NamedQuery(name = "Cuentainvitado.findMaximo", query = "SELECT MAX(c.idcuentainvitado) FROM Cuentainvitado c")
+    , @NamedQuery(name = "Cuentainvitado.findAllByCorreoelectronico", query = "SELECT c.correoelectronico FROM Cuentainvitado c WHERE UPPER(c.correoelectronico) = :correoelectronico")   
+    , @NamedQuery(name = "Cuentainvitado.findAllByNombre", query = "SELECT c.nombreusuario FROM Cuentausuario c WHERE c.nombreusuario = :nombre")
+    , @NamedQuery(name = "Cuentainvitado.findAllByCodigo", query = "SELECT c.codigo FROM Cuentainvitado c WHERE c.codigo = :codigo")
     , @NamedQuery(name = "Cuentainvitado.findByIdcuentainvitado", query = "SELECT c FROM Cuentainvitado c WHERE c.idcuentainvitado = :idcuentainvitado")
     , @NamedQuery(name = "Cuentainvitado.findByNombre", query = "SELECT c FROM Cuentainvitado c WHERE c.nombre = :nombre")
     , @NamedQuery(name = "Cuentainvitado.findByCorreoelectronico", query = "SELECT c FROM Cuentainvitado c WHERE c.correoelectronico = :correoelectronico")
@@ -84,7 +94,7 @@ public class Cuentainvitado implements Serializable {
 
     @Override
     public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
+        
         if (!(object instanceof Cuentainvitado)) {
             return false;
         }

@@ -1,16 +1,14 @@
 package entity;
 
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.awt.image.WritableRaster;
-import java.io.File;
-import java.io.IOException;
+import java.io.IOException; 
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -25,13 +23,19 @@ import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+/****************************************************************** 
+ * @version 1.0                                                   * 
+ * @author Puxka Acosta Domínguez y Eduardo Rosas Rivera          * 
+ * @since 26/10/2018                                              *
+ * Nombre de la clase Pregunta                                    *
+ *****************************************************************/
 @Entity
 @Table(name = "pregunta")
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Pregunta.findAll", query = "SELECT p FROM Pregunta p")
     , @NamedQuery(name = "Pregunta.findByIdpregunta", query = "SELECT p FROM Pregunta p WHERE p.idpregunta = :idpregunta")
-    , @NamedQuery(name = "Pregunta.findByPregunta", query = "SELECT p FROM Pregunta p WHERE p.pregunta = :pregunta")
+    , @NamedQuery(name = "Pregunta.findByPregunta", query = "SELECT p FROM Pregunta p WHERE p.preguntaContenido = :pregunta")
     , @NamedQuery(name = "Pregunta.findByIdsetpregunta", query = "SELECT p FROM Pregunta p WHERE p.idsetpregunta = :idsetpregunta")})
 public class Pregunta implements Serializable {
 
@@ -42,7 +46,7 @@ public class Pregunta implements Serializable {
     @Column(name = "idpregunta")
     private Integer idpregunta;
     @Column(name = "pregunta")
-    private String pregunta;
+    private String preguntaContenido;
     @Column(name = "tipoPregunta")
     private Integer tipoPregunta;
     @Column(name = "idsetpregunta")
@@ -70,11 +74,11 @@ public class Pregunta implements Serializable {
     }
 
     public String getPregunta() {
-        return pregunta;
+        return preguntaContenido;
     }
 
     public void setPregunta(String pregunta) {
-        this.pregunta = pregunta;
+        this.preguntaContenido = pregunta;
     }
     
     public Integer getTipoPregunta() {
@@ -126,15 +130,12 @@ public class Pregunta implements Serializable {
 
     @Override
     public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
+        
         if (!(object instanceof Pregunta)) {
             return false;
         }
         Pregunta other = (Pregunta) object;
-        if ((this.idpregunta == null && other.idpregunta != null) || (this.idpregunta != null && !this.idpregunta.equals(other.idpregunta))) {
-            return false;
-        }
-        return true;
+        return ((this.idpregunta == null && other.idpregunta != null) || (this.idpregunta != null && !this.idpregunta.equals(other.idpregunta)));
     }
 
     @Override
@@ -162,19 +163,16 @@ public class Pregunta implements Serializable {
      */
     public byte[] crearArregloImagen() {
         
-        DataBufferByte data = null;
+        byte[] imagenPregunta = null;
         try {
-            
-            File imgPath = new File(pregunta);
-            BufferedImage bufferedImage = ImageIO.read(imgPath);
-
-            WritableRaster raster = bufferedImage.getRaster();
-            data = (DataBufferByte) raster.getDataBuffer();
+            Path path = Paths.get(preguntaContenido);
+            byte[] contenido = Files.readAllBytes(path);
+            imagen = contenido;
         } catch (IOException ex) {
             
             Logger.getLogger(Pregunta.class.getName())
                     .log(Level.SEVERE, null, ex);
         }
-        return ( data.getData() );
+        return imagenPregunta;
     }
 }

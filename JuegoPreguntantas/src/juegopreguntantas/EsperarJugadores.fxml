@@ -26,7 +26,7 @@
             <Insets left="70.0" right="70.0" />
          </GridPane.margin>
       </ListView>
-      <Button fx:id="btnIniciar" mnemonicParsing="false" onAction="#iniciar" prefWidth="99.0" style="-fx-background-color: #F8B195;" text="%btn.iniciar" GridPane.halignment="RIGHT" GridPane.rowIndex="2">
+      <Button fx:id="btnIniciar" disable="true" mnemonicParsing="false" onAction="#iniciar" prefWidth="99.0" style="-fx-background-color: #F8B195;" text="%btn.iniciar" visible="false" GridPane.halignment="RIGHT" GridPane.rowIndex="2">
          <GridPane.margin>
             <Insets right="20.0" />
          </GridPane.margin>

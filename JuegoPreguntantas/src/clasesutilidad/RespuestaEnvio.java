@@ -2,12 +2,12 @@ package clasesutilidad;
 
 import java.io.Serializable;
 
-/******************************************************************/ 
-/* @version 1.0                                                   */ 
-/* @author Eduardo Rosas Rivera                                   */ 
-/* @since 10/11/2018                                              */
-/* Nombre de la clase RespuestaEnvio                              */
-/******************************************************************/ 
+/****************************************************************** 
+ * @version 1.0                                                   * 
+ * @author Eduardo Rosas Rivera                                   * 
+ * @since 10/11/2018                                              *
+ * Nombre de la clase RespuestaEnvio                              *
+ *****************************************************************/ 
 public class RespuestaEnvio implements Serializable{
     
     private String respuesta;
@@ -20,7 +20,7 @@ public class RespuestaEnvio implements Serializable{
      * Constructor de la clase.
      */
     public RespuestaEnvio() {
-        
+        //Vacio para invocacion.
     }
 
     /**

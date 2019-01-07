@@ -4,17 +4,12 @@ import persistencia.PersistenciaCuentaUsuario;
 import entity.Cuentainvitado;
 import entity.Cuentausuario;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.net.URL;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -35,13 +30,14 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import persistencia.PersistenciaCuentaInvitado;
+import utilidades.UtilidadCadenas;
 
-/******************************************************************/ 
-/* @version 1.0                                                   */ 
-/* @author Eduardo Rosas Rivera                                   */ 
-/* @since 28/11/2018                                              */
-/* Nombre de la clase VentanaLogInController                      */
-/******************************************************************/
+/****************************************************************** 
+ * @version 1.0                                                   * 
+ * @author Eduardo Rosas Rivera                                   * 
+ * @since 26/10/2018                                              *
+ * Nombre de la clase VentanaLogInController                      *
+ *****************************************************************/
 public class VentanaLogInController implements Initializable {
 
     @FXML
@@ -67,6 +63,7 @@ public class VentanaLogInController implements Initializable {
     @FXML
     private Label lMensaje;
     
+    private static final String RECURSO = "juegopreguntantas.lang/lang";
     private final ObservableList idiomas = 
             FXCollections.observableArrayList("Español", "English");
     private Object cuenta; 
@@ -79,12 +76,13 @@ public class VentanaLogInController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-           
+        
+        UtilidadCadenas cadena = new UtilidadCadenas();
         cbCambiarIdioma.setItems(idiomas);
-        limitarCampos(tfUser, 26);
-        limitarCampos(pfPassword,26);
-        excluirEspacios();     
-
+        cadena.limitarCampos(tfUser, 26);
+        cadena.limitarCampos(pfPassword,36);
+        cadena.excluirEspacios(tfUser); 
+        cadena.excluirEspacios(pfPassword);//tfUser|pfPassword
     }
     
     /**
@@ -94,12 +92,12 @@ public class VentanaLogInController implements Initializable {
      */
     @FXML
     private void ingresar(ActionEvent event) throws IOException {
-        System.out.println("Hola");
+
         if (validarCampos() && validarAcceso()) {
-            System.out.println("Accesando");
+
             Locale.setDefault(new Locale(idioma));
             ResourceBundle resourceBundle = ResourceBundle.getBundle(
-                    "juegopreguntantas.lang/lang");          
+                    RECURSO);          
             
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass().getResource("MenuPrincipal.fxml"));
@@ -111,7 +109,7 @@ public class VentanaLogInController implements Initializable {
             
             Scene scene = new Scene(menu);
             Stage stage = new Stage();
-            
+            stage.setTitle("Menu principal");
             stage.setScene(scene);
             stage.show();
 
@@ -129,7 +127,7 @@ public class VentanaLogInController implements Initializable {
         
         Locale.setDefault(new Locale(idioma));
         ResourceBundle resourceBundle = ResourceBundle.getBundle(
-                "juegopreguntantas.lang/lang");
+                RECURSO);
 
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("RegistrarUsuario.fxml"));
@@ -143,7 +141,7 @@ public class VentanaLogInController implements Initializable {
             
             Scene scene = new Scene(registro);
             Stage stage = new Stage();
-            
+            stage.setTitle("Registro de usuario");
             stage.setScene(scene);
             stage.show();
 
@@ -175,16 +173,14 @@ public class VentanaLogInController implements Initializable {
         if(Objects.equals(tfUser.getText().trim(), "")) {
             
             validador = false;
-            lMensaje.setText(java.util.ResourceBundle.getBundle(
-                    "juegopreguntantas/lang/lang").getString(
-                            "string_llenarCampos"));
+            lMensaje.setText(java.util.ResourceBundle.getBundle(RECURSO)
+                    .getString("string_llenarCampos"));
         }
         if(Objects.equals(pfPassword.getText().trim(), "")) {
             
             validador = false;
-            lMensaje.setText(java.util.ResourceBundle.getBundle(
-                    "juegopreguntantas/lang/lang").getString(
-                            "string_llenarCampos"));
+            lMensaje.setText(java.util.ResourceBundle.getBundle(RECURSO)
+                    .getString("string_llenarCampos"));
         }
         return validador;
     }
@@ -198,7 +194,9 @@ public class VentanaLogInController implements Initializable {
         
         boolean ingresoExitoso = false;
         String usuarioR = tfUser.getText().trim();
-        String contrasenia = hacerHashAContrasenia(pfPassword.getText().trim());
+        UtilidadCadenas cadena = new UtilidadCadenas();
+        String contrasenia = 
+                cadena.hacerHashAContrasenia(pfPassword.getText().trim());
         PersistenciaCuentaUsuario usuarioBD = new PersistenciaCuentaUsuario();
         try {
             
@@ -210,19 +208,16 @@ public class VentanaLogInController implements Initializable {
 
                     cuenta = usuario;
                     ingresoExitoso = true;
-                    lMensaje.setText(java.util.ResourceBundle.getBundle(
-                            "juegopreguntantas/lang/lang")
+                    lMensaje.setText(java.util.ResourceBundle.getBundle(RECURSO)
                             .getString("string_iniciandoSesion"));
                 } else {
 
-                    lMensaje.setText(java.util.ResourceBundle.getBundle(
-                            "juegopreguntantas/lang/lang")
+                    lMensaje.setText(java.util.ResourceBundle.getBundle(RECURSO)
                             .getString("string_incorrectos"));
                 }
             } else {
 
-                lMensaje.setText(java.util.ResourceBundle.getBundle(
-                        "juegopreguntantas/lang/lang")
+                lMensaje.setText(java.util.ResourceBundle.getBundle(RECURSO)
                         .getString("string_noEncontrado"));
             }
         } catch (Exception ex) {
@@ -258,18 +253,18 @@ public class VentanaLogInController implements Initializable {
                     ingresoExitoso = true;
                     cuenta = invitado;
                     lMensaje.setText(java.util.ResourceBundle.getBundle(
-                            "juegopreguntantas/lang/lang")
+                            RECURSO)
                             .getString("string_iniciandoSesion"));
                 } else {
 
                     lMensaje.setText(java.util.ResourceBundle.getBundle(
-                            "juegopreguntantas/lang/lang")
+                            RECURSO)
                             .getString("string_incorrectos"));
                 }
             } else {
 
                 lMensaje.setText(java.util.ResourceBundle.getBundle(
-                        "juegopreguntantas/lang/lang")
+                        RECURSO)
                         .getString("string_noEncontrado"));
             }
         } catch (Exception ex) {
@@ -336,7 +331,7 @@ public class VentanaLogInController implements Initializable {
         
         Locale.setDefault(new Locale(idioma));
         ResourceBundle resourceBundle = 
-                ResourceBundle.getBundle("juegopreguntantas.lang/lang");
+                ResourceBundle.getBundle(RECURSO);
         
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("VentanaLogIn.fxml"));
@@ -379,78 +374,6 @@ public class VentanaLogInController implements Initializable {
         alert.setHeaderText("Error");
         alert.setTitle("Erro de conexion.");
         alert.setContentText("Se ha perdido la conexion con la base de datos.");
-    }
-    
-    /**
-     * Este metodo sirve para que los textFiel nieguen la entrada a espacios.
-     */
-    private void excluirEspacios() {
-        
-        tfUser.textProperty().addListener(
-                (observable, old_value, new_value) -> {
-                    
-                    if (new_value.contains(" ")) {
-                        
-                        tfUser.setText(old_value);
-                    }
-                });
-        pfPassword.textProperty().addListener(
-                (observable, old_value, new_value) -> {
-                    
-                    if (new_value.contains(" ")) {
-                        
-                        pfPassword.setText(old_value);
-                    }
-                });        
-    }
-    
-    /**
-     * Este metodo impide que el campo de texto sea mayor a un numero de 
-     * caracteres fijo.
-     * @param tf textField a limitar
-     * @param maximo numero maximo de caracteres permitidos.
-     */
-    private void limitarCampos(javafx.scene.control.TextField tf, int maximo) {
-        
-        tf.textProperty().addListener(new ChangeListener<String>() {
-            
-            @Override
-            public void changed(final ObservableValue<? extends String> ov, 
-                    final String oldValue, final String newValue) {
-                
-                if (tf.getText().length() > maximo) {
-                    
-                    String s = tf.getText().substring(0, maximo);
-                    tf.setText(s);
-                }
-            }
-        });
-    }
-    
-    /**
-     * Este metodo convierte la contrasenia ingresada por el usuario en una 
-     * cadena hash.
-     * @return el codigo hash de la contrasenia.
-     */
-    private String hacerHashAContrasenia(String contrasenia) {
-        
-        String contraseniaHash = null;
-        try {
-            
-            MessageDigest md = MessageDigest.getInstance("SHA-512");
-            byte[] messageDigest = md.digest(contrasenia.getBytes());
-            BigInteger codigo = new BigInteger(1, messageDigest);
-            contraseniaHash = codigo.toString(16);
-            while (contraseniaHash.length() < 32) { 
-                
-                contraseniaHash = "0" + contraseniaHash; 
-            }
-            
-        } catch (NoSuchAlgorithmException ex) {
-            Logger.getLogger(VentanaLogInController.class.getName())
-                    .log(Level.SEVERE, null, ex);
-        }
-        return contraseniaHash;
     }
     
 }

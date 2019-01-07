@@ -4,38 +4,19 @@ import entity.Cuentausuario;
 import entity.Pregunta;
 import entity.Setpregunta;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 
-/******************************************************************/ 
-/* @version 1.0                                                   */ 
-/* @author Puxka Acosta Domínguez                                 */ 
-/* @since 10/11/2018                                              */
-/* Nombre de la clase PersistenciaSetpregunta                     */
-/******************************************************************/
-public class PersistenciaSetpregunta {
-    
-    /**
-     * Este metodo es para trabajar con las entidades de la base de datos 
-     * @return El EntityManager 
-     */ 
-    public EntityManager administrarEntidades() {
-        
-        Map<String, String> properties = new HashMap<String, String>();
-        properties.put("javax.persistence.jdbc.user", "pregunton");
-        properties.put("javax.persistence.jdbc.password", "PR3GUNT0N");
-        EntityManagerFactory emf = javax.persistence.Persistence
-                .createEntityManagerFactory("JuegoPreguntantasPU", properties);
-        EntityManager em = emf.createEntityManager();
-        em.getTransaction().begin();
-        return em;
-    }
+/****************************************************************** 
+ * @version 1.0                                                   * 
+ * @author Puxka Acosta Domínguez y Eduardo Rosas Rivera          * 
+ * @since 12/11/2018                                              *
+ * Nombre de la clase PersistenciaSetpregunta                     *
+ *****************************************************************/
+public class PersistenciaSetpregunta extends Persistencia {
     
     /**
      * Este metodo es para recuperar las categorias de los set de preguntas que 
@@ -47,41 +28,36 @@ public class PersistenciaSetpregunta {
         
         EntityManager em = administrarEntidades();
         PersistenciaCategoria categoriasSet = new PersistenciaCategoria();
-        List<String> categorias = new ArrayList<String>();
+        List<String> categorias = new ArrayList<>();
         try {
             
-            Query queryId = em.createQuery("SELECT s.idcategoria "
-                    + "FROM Setpregunta s "
-                    + "WHERE s.idcuentausuario.idcuentausuario = \"" 
-                    + usuario.getIdcuentausuario() + "\"");
-            List<Integer> idCategoria = queryId.getResultList();
+            Query query = em.createNamedQuery("Setpregunta.findIdByIdCuentaUsuario", 
+                Setpregunta.class).setParameter("idcuentausuario", 
+                        usuario.getIdcuentausuario());
+            List<Integer> idCategoria = query.getResultList();
             categorias = categoriasSet.recuperarCategoriasSet(idCategoria);
         } catch (NullPointerException e) {
             
             Logger.getLogger(PersistenciaSetpregunta.class.getName())
                     .log(Level.SEVERE, null, e);
         } finally {
-    
-            return categorias;
+            em.close();
         }
-        
+        return categorias;
     }
     
     /**
-     * Este metodo es para recuperar un set de preguntas por el usuario creador
+     * Este metodo es para recuperar los set de preguntas del usuario creador
      * @param usuario Cuenta del usuario que esta usando el juego
      * @return una lista de los sets de preguntas del usuario.
      */
     public List<Setpregunta> recuperarSetPregunta(Cuentausuario usuario) {
         
         EntityManager em = administrarEntidades();
-        Query query = em.createQuery("SELECT s "
-                + "FROM Setpregunta s "
-                + "WHERE s.idcuentausuario.idcuentausuario = " 
-                + usuario.getIdcuentausuario());
-        List<Setpregunta> setsPregunta = query.getResultList();
-        
-        return setsPregunta;
+        Query query = em.createNamedQuery("Setpregunta.findAllByIdCuentaUsuario", 
+                Setpregunta.class).setParameter("idcuentausuario", 
+                        usuario.getIdcuentausuario());
+        return query.getResultList();
     }
     
     /**
@@ -92,10 +68,10 @@ public class PersistenciaSetpregunta {
     public Setpregunta recuperarSetPregunta(String categoria) {
         EntityManager em = administrarEntidades();
         String[] idSetPregunta = categoria.split(".- ");
-        Query querySetPregunta = em.createQuery("SELECT s "
-                + "FROM Setpregunta s WHERE s.idsetpregunta = \""
-                + idSetPregunta[0] + "\"");
-        List<Setpregunta> setPregunta = querySetPregunta.getResultList();
+        Query query = em.createNamedQuery("Setpregunta.findAllByIdsetpregunta", 
+                Setpregunta.class).setParameter("idsetpregunta", 
+                        Integer.parseInt(idSetPregunta[0]));
+        List<Setpregunta> setPregunta = query.getResultList();
         return setPregunta.get(0);
     }
     
@@ -134,10 +110,10 @@ public class PersistenciaSetpregunta {
             Logger.getLogger(PersistenciaSetpregunta.class.getName())
                     .log(Level.SEVERE, null, e);
         } finally {
-    
-            return exito;
+            
+            em.close();
         }
-        
+        return exito;
     }
     
     /**
@@ -147,11 +123,17 @@ public class PersistenciaSetpregunta {
     public int recuperarUltimaId(){
         
         EntityManager em = administrarEntidades();
-        Query query = em.createQuery("SELECT s.idsetpregunta "
-                + "FROM Setpregunta s ORDER BY s.idsetpregunta");
-        List<Integer> idSetPregunta = query.getResultList();
-        int indice = idSetPregunta.size() - 1;
-        return idSetPregunta.get(indice);
+        int indice;
+        try {
+            
+            Query query = em.createNamedQuery("Setpregunta.findMaxIdsetpregunta", 
+                Setpregunta.class);
+            indice = (int) query.getSingleResult();
+        } catch(NullPointerException e) {
+            
+            indice = 0;
+        }
+        return indice;
     }
     
     /**
@@ -161,14 +143,14 @@ public class PersistenciaSetpregunta {
      * @return una lista de setpregunta con la misma id categoria.
      */
     public List<Setpregunta> recuperarSetCategoria(int idCategoria) {
-
+        
         List<Setpregunta> setsPregunta;
         EntityManager em = administrarEntidades();
-        Query query;
-        query = em.createQuery("SELECT s FROM Setpregunta s WHERE s.idcategoria = " + idCategoria);
+        Query query = em.createNamedQuery("Setpregunta.findAllByIdcategoria", 
+                Setpregunta.class).setParameter("idcategoria", idCategoria);
         setsPregunta = query.getResultList();
+        em.close();
         return setsPregunta;
     }
-    
     
 }

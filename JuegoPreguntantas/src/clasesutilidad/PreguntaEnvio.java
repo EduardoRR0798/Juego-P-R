@@ -1,22 +1,14 @@
 package clasesutilidad;
 
-import entity.Pregunta;
-import java.io.BufferedOutputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-/******************************************************************/ 
-/* @version 1.0                                                   */ 
-/* @author Eduardo Rosas Rivera                                   */ 
-/* @since 10/12/2018                                              */
-/* Nombre de la clase PreguntaEnvio                               */
-/******************************************************************/
+/****************************************************************** 
+ * @version 1.0                                                   * 
+ * @author Eduardo Rosas Rivera                                   * 
+ * @since 10/12/2018                                              *
+ * Nombre de la clase PreguntaEnvio                               *
+ *****************************************************************/ 
 public class PreguntaEnvio implements Serializable{
     
     private String pregunta;
@@ -24,11 +16,12 @@ public class PreguntaEnvio implements Serializable{
     private String imagen;
     private List<RespuestaEnvio> respuestas;
     private byte[] imagenByte;
+    
     /**
-     * Constructor de la clase.
+     * Constructor vacio de la clase.
      */
     public PreguntaEnvio() {
-         
+        //Vacio para invocacion.
     }
 
     /**

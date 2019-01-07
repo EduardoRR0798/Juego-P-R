@@ -31,13 +31,14 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import persistencia.PersistenciaCuentaInvitado;
+import utilidades.UtilidadCadenas;
 
-/******************************************************************/ 
-/* @version 1.0                                                   */ 
-/* @author Puxka Acosta Domínguez                                 */ 
-/* @since 07/11/2018                                              */
-/* Nombre de la clase EnviarInvitacionController                  */
-/******************************************************************/
+/****************************************************************** 
+ * @version 1.0                                                   * 
+ * @author Puxka Acosta Domínguez                                 * 
+ * @since 7/11/2018                                               *
+ * Nombre de la clase EnviarInvitacionController                  *
+ *****************************************************************/
 public class EnviarInvitacionController implements Initializable {
 
     @FXML
@@ -53,6 +54,9 @@ public class EnviarInvitacionController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         
+        UtilidadCadenas cadena = new UtilidadCadenas();
+        cadena.excluirEspacios(txtCorreoElectronico);
+        cadena.limitarCampos(txtCorreoElectronico, 35);
     }
     
     /**
@@ -95,7 +99,7 @@ public class EnviarInvitacionController implements Initializable {
      */
     @FXML
     private void enviarInvitacion(ActionEvent event) throws MessagingException {
-
+        
         if (!txtCorreoElectronico.getText().isEmpty()) {
             
             try {
@@ -126,11 +130,15 @@ public class EnviarInvitacionController implements Initializable {
                     Message mensaje = crearContenidoInvitacion(sesion
                             , nuevoInvitado);
                     mostrarInvitadoExito(mensaje, nuevoInvitado);
+                    volverAlMenu();
                 }
             } finally {
                 
                 txtCorreoElectronico.clear();
             }
+        } else {
+            
+            mostrarCorreoVacio();
         }
     }
     
@@ -199,6 +207,50 @@ public class EnviarInvitacionController implements Initializable {
     }
     
     /**
+     * Este metodo sirve para mostrar una ventana en caso de intentar enviar una
+     * invitación sin introducir un correo
+     */
+    private void mostrarCorreoVacio() {
+
+        Alert alert = new Alert(AlertType.WARNING);
+        alert.setTitle("Revisa");
+        alert.setHeaderText(null);
+        alert.setContentText("Introduce un correo primero");
+        alert.showAndWait();                
+    }
+    
+    /**
+     * Este metodo es para regresar al menú principal una vez enviada una 
+     * invitación
+     */
+    public void volverAlMenu(){
+        
+        try {
+
+            Locale.setDefault(new Locale(idioma));
+            ResourceBundle resourceBundle = ResourceBundle
+                    .getBundle("juegopreguntantas.lang/lang");
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass()
+                    .getResource("MenuPrincipal.fxml"));
+            loader.setResources(resourceBundle);
+            Parent esperaJugadores = loader.load();
+            MenuPrincipalController controller = loader.getController();
+            controller.recibirParametros(cuenta, idioma);
+            Scene scene = new Scene(esperaJugadores);
+            Stage stage = new Stage();
+            stage.setTitle("Menu principal");
+            stage.setScene(scene);
+            stage.show();
+            btnEnviarInvitacion.getScene().getWindow().hide();
+        } catch (IOException e) {
+
+            Logger.getLogger(EnviarInvitacionController.class.getName())
+                    .log(Level.SEVERE, null, e);
+        }
+    }
+    
+    /**
      * Este metodo es para mostrar una ventana en caso de exito
      * @param mensaje Message que se va a enviar por correo
      * @param nuevoInvitado Cuenta de invitado que se guardara en BD
@@ -236,8 +288,8 @@ public class EnviarInvitacionController implements Initializable {
         Alert alert = new Alert(AlertType.ERROR);
         alert.setTitle("Error");
         alert.setHeaderText(null);
-        alert.setContentText("Se ha perdido conexión con el servidor"
-                + ", prueba de nuevo");
+        alert.setContentText("No se pudo enviar la invitacion, checa el correo "
+                + "introducido o la conexion y vuelve a intentar");
         alert.showAndWait();
     }
     

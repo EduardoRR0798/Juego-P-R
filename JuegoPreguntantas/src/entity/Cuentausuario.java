@@ -15,6 +15,12 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+/****************************************************************** 
+ * @version 1.0                                                   * 
+ * @author Puxka Acosta Domínguez y Eduardo Rosas Rivera          * 
+ * @since 26/10/2018                                              *
+ * Nombre de la clase Cuentausuario                               *
+ *****************************************************************/
 @Entity
 @Table(name = "cuentausuario")
 @XmlRootElement
@@ -98,7 +104,7 @@ public class Cuentausuario implements Serializable {
 
     @Override
     public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
+        
         if (!(object instanceof Cuentausuario)) {
             return false;
         }

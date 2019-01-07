@@ -12,13 +12,22 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 
+/****************************************************************** 
+ * @version 1.0                                                   * 
+ * @author Puxka Acosta Domínguez y Eduardo Rosas Rivera          * 
+ * @since 26/10/2018                                              *
+ * Nombre de la clase Categoria                                   *
+ *****************************************************************/ 
 @Entity
 @Table(name = "categoria")
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Categoria.findAll", query = "SELECT c FROM Categoria c")
+    , @NamedQuery(name = "Categoria.findAllCategoria", query = "SELECT c.nombre FROM Categoria c")
+    , @NamedQuery(name = "Categoria.findCategoriaById", query = "SELECT c.nombre FROM Categoria c WHERE c.idcategoria = :idcategoria")
+    , @NamedQuery(name = "Categoria.findIdByCategoria", query = "SELECT c.idcategoria FROM Categoria c WHERE c.nombre = :categoria")
     , @NamedQuery(name = "Categoria.findByIdcategoria", query = "SELECT c FROM Categoria c WHERE c.idcategoria = :idcategoria")
-    , @NamedQuery(name = "Categoria.findByCategoria", query = "SELECT c FROM Categoria c WHERE c.categoria = :categoria")})
+    , @NamedQuery(name = "Categoria.findByCategoria", query = "SELECT c FROM Categoria c WHERE c.nombre = :categoria")})
 public class Categoria implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -28,7 +37,7 @@ public class Categoria implements Serializable {
     @Column(name = "idcategoria")
     private Integer idcategoria;
     @Column(name = "categoria")
-    private String categoria;
+    private String nombre;
 
     public Categoria() {
     }
@@ -45,12 +54,12 @@ public class Categoria implements Serializable {
         this.idcategoria = idcategoria;
     }
 
-    public String getCategoria() {
-        return categoria;
+    public String getNombre() {
+        return nombre;
     }
 
-    public void setCategoria(String categoria) {
-        this.categoria = categoria;
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
 
     @Override
@@ -62,15 +71,12 @@ public class Categoria implements Serializable {
 
     @Override
     public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
+        
         if (!(object instanceof Categoria)) {
             return false;
         }
         Categoria other = (Categoria) object;
-        if ((this.idcategoria == null && other.idcategoria != null) || (this.idcategoria != null && !this.idcategoria.equals(other.idcategoria))) {
-            return false;
-        }
-        return true;
+        return (this.idcategoria == null && other.idcategoria != null) || (this.idcategoria != null && !this.idcategoria.equals(other.idcategoria));
     }
 
     @Override

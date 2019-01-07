@@ -3,38 +3,19 @@ package persistencia;
 import entity.Pregunta;
 import entity.Respuesta;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 
-/******************************************************************/ 
-/* @version 1.0                                                   */ 
-/* @author Puxka Acosta Domínguez y Eduardo Rosas Rivera          */ 
-/* @since 17/11/2018                                              */
-/* Nombre de la clase PersistenciaPregunta                        */
-/******************************************************************/
-public class PersistenciaPregunta {
-    
-    /**
-     * Este metodo es para trabajar con las entidades de la base de datos 
-     * @return El EntityManager 
-     */ 
-    public EntityManager administrarEntidades() {
-        
-        Map<String, String> properties = new HashMap<>();
-        properties.put("javax.persistence.jdbc.user", "pregunton");
-        properties.put("javax.persistence.jdbc.password", "PR3GUNT0N");
-        EntityManagerFactory emf = javax.persistence.Persistence
-                .createEntityManagerFactory("JuegoPreguntantasPU", properties);
-        EntityManager em = emf.createEntityManager();
-        em.getTransaction().begin();
-        return em;
-    }
+/****************************************************************** 
+ * @version 1.0                                                   * 
+ * @author Puxka Acosta Domínguez y Eduardo Rosas Rivera          * 
+ * @since 17/11/2018                                              *
+ * Nombre de la clase PersistenciaPregunta                        *
+ *****************************************************************/
+public class PersistenciaPregunta extends Persistencia {
     
     /**
      * Este metodo es para crear una pregunta en la base de datos 
@@ -76,8 +57,8 @@ public class PersistenciaPregunta {
         EntityManager em = administrarEntidades();
         PersistenciaSetpregunta setPreguntaBD = new PersistenciaSetpregunta();
         int idSetPregunta = setPreguntaBD.recuperarUltimaId();
-        Query queryPregunta = em.createQuery("SELECT p FROM Pregunta p");
-        List<Pregunta> preguntas = queryPregunta.getResultList();
+        Query query = em.createNamedQuery("Pregunta.findAll", Pregunta.class);
+        List<Pregunta> preguntas = query.getResultList();
         int indice = preguntas.size() - 1;
         int limite = preguntas.size() - numPreguntas; 
         for (int i = indice; i > limite; i--) {
@@ -97,10 +78,9 @@ public class PersistenciaPregunta {
     public List<Pregunta> recuperarPregunta(int idSetPregunta) {
         
         EntityManager em = administrarEntidades();
-        Query query = em.createQuery("SELECT p FROM Pregunta p " +
-                  "WHERE p.idsetpregunta = " + idSetPregunta);
-        List<Pregunta> preguntas = query.getResultList();
-        return preguntas;
+        Query query = em.createNamedQuery("Pregunta.findByIdsetpregunta", 
+                Pregunta.class).setParameter("idsetpregunta", idSetPregunta);
+        return query.getResultList();
     }
     
     /**
@@ -112,8 +92,8 @@ public class PersistenciaPregunta {
     public List<Pregunta> recuperarPreguntaConRespuestas(int idSetPregunta) {
         
         EntityManager em = administrarEntidades();
-        Query query = em.createQuery("SELECT p FROM Pregunta p WHERE "
-                + "p.idsetpregunta = " + idSetPregunta);
+        Query query = em.createNamedQuery("Pregunta.findByIdsetpregunta", 
+                Pregunta.class).setParameter("idsetpregunta", idSetPregunta);
         List<Pregunta> preguntas = query.getResultList();
         for(int i = 0; i < preguntas.size(); i++) {
             

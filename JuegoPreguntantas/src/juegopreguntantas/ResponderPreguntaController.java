@@ -1,10 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package juegopreguntantas;
 
+import clasesutilidad.JugadorConectadoEnvio;
 import entity.Cuentainvitado;
 import entity.Cuentausuario;
 import java.io.File;
@@ -23,8 +19,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.BarChart;
-import javafx.scene.chart.CategoryAxis;
-import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
@@ -43,14 +37,13 @@ import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
 import java.io.BufferedOutputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -58,13 +51,17 @@ import javafx.scene.Scene;
 import javafx.scene.chart.XYChart;
 import javafx.stage.Stage;
 import javax.xml.bind.DatatypeConverter;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import utilidades.UtilidadCadenas;
 
-/******************************************************************/ 
-/* @version 1.0                                                   */ 
-/* @author Eduardo Rosas Rivera                                   */ 
-/* @since 28/11/2018                                              */
-/* Nombre de la clase ResponderPreguntaController                 */
-/******************************************************************/
+/******************************************************************
+ * @version 1.0                                                   *
+ * @author Eduardo Rosas Rivera                                   * 
+ * @since 28/11/2018                                              *
+ * Nombre de la clase ResponderPreguntaController                 *
+ *****************************************************************/
 public class ResponderPreguntaController implements Initializable {
 
     @FXML
@@ -127,35 +124,25 @@ public class ResponderPreguntaController implements Initializable {
     private ProgressBar pbEspera;
     
     private static final Integer TIEMPORESPUESTA = 15;
-    private static final Integer TIEMPOGBARRAS = 5;
-    private final PuntajeEnvio puntaje = new PuntajeEnvio(0);
-    private final PuntajeEnvio puntajeTotal = new PuntajeEnvio(0);
+    private static final Integer TIEMPOGRAFICA = 10;
     private final ArrayList<String> mensajesChat = new ArrayList<>();
-    private final CategoryAxis caJugadores = new CategoryAxis();
-    private final NumberAxis caPuntos = new NumberAxis();
-    private final ObservableList<String> jugadores = 
-            FXCollections.observableArrayList();
     private final Socket socket;
-    private final List<PuntajeEnvio> puntosTotalContrario = new ArrayList<>();
-    private final XYChart.Series barraPropia = new XYChart.Series<>();
-    private final XYChart.Series barraContrarios = new XYChart.Series<>();
     private Object cuenta;
     private String idioma;
     private Cuentausuario usuario;
     private Cuentainvitado invitado;
     private int tiempoRestante;
-    private int tiempoGrafica;
+    private int tiempoTotalGrafica;
     private List<PreguntaEnvio> preguntas = new ArrayList<>();
     private List<RespuestaEnvio> respuestas = new ArrayList<>();
-    private PuntajeEnvio puntajeContrario = new PuntajeEnvio();
-    private List<PuntajeEnvio> puntosContrario = new ArrayList<>();
-    private List<Integer> tiempoRespuestas = new ArrayList<>();
-    private int noJugadores = 0;
-    private int noJugadoresRespuesta = 0;
     private Timer timer;
     private Timer timerGraph;
     private PreguntaEnvio preguntaActual;
     private boolean activacion = true;
+    private final ObservableList<JugadorConectadoEnvio> participantes = 
+            FXCollections.observableArrayList();
+    private int contador = 0;
+    private boolean creador;
     
     /**
      * Initializes the controller class.
@@ -165,14 +152,11 @@ public class ResponderPreguntaController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         
-        caJugadores.setLabel("Jugadores");
-        caPuntos.setLabel("Puntos");
-        barraPropia.setName("Tu");
-        barraContrarios.setName("Los otros");
-        bcGraficaPuntaje.setTitle("tabla puntos");
+        socket.emit("recuperarPreguntones");
         activarPanelGanador(false);
         activarRespuestaEscrita(false);
-        limitarCampos(tfMensaje, 70);
+        UtilidadCadenas cadena = new UtilidadCadenas();
+        cadena.limitarCampos(tfMensaje, 70);
     }    
     
     /**
@@ -183,20 +167,19 @@ public class ResponderPreguntaController implements Initializable {
         
         ResourceBundle propiedadesCliente = ResourceBundle.getBundle(
                 "utilidades.conexiones");
-        String ipServidor = propiedadesCliente.getString(
-                "key.ipServidor");
+        String ipServidor = propiedadesCliente.getString("key.ipServidor");
         socket  = IO.socket("http://" + ipServidor + ":4000");
         socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
+            
             @Override
-
-            public void call(Object... os) {
-                noJugadores++;
-                socket.emit("nuevoUsuario");
+            public void call(Object... os) { 
+                //No es necesario hacer algo.
             }
         }).on("reciboMensaje", new Emitter.Listener(){
             @Override
 
             public void call(Object... os) {
+                
                 String mensajeRecibido = (String) os[0];
                 mostrarMensaje(mensajeRecibido);
             }
@@ -206,102 +189,54 @@ public class ResponderPreguntaController implements Initializable {
             public void call(Object... os) {
 
                 String preguntaRecibida = (String) os[0];
-                Gson preguntaGson = new Gson();
-
-                PreguntaEnvio nueva
-                        = preguntaGson.fromJson(preguntaRecibida,
-                                PreguntaEnvio.class);
-                for (int i = 0; i < nueva.getRespuestas().size(); i++) {
-
-                    if (nueva.getRespuestas().get(i).getTipoRespuesta() == 2) {
-
-                        nueva.getRespuestas().get(i).setImagenByte(
-                                DatatypeConverter.parseBase64Binary(
-                                    nueva.getRespuestas().get(i).getImagen()));
-                    }
-                }
-                preguntas.add(nueva);
+                Platform.runLater(() -> recibirPregunta(preguntaRecibida));
             }
 
-        }).on("tiempoRespuesta", new Emitter.Listener() {
-            @Override
-
-            public void call(Object... os) {
-                int tiempoCompetidor = (int) os[0];
-                tiempoRespuestas.add(tiempoCompetidor);
-            }
-        }).on("agregarUsuario", new Emitter.Listener(){
-            @Override
-
-            public void call(Object... os) {
-                noJugadores++;
-                socket.emit("agregarMiUsuario");
-            }
-        }).on("agregarSuUsuario", new Emitter.Listener(){
-            @Override
-
-            public void call(Object... os) {
-                noJugadores++;
-            }
-        }).on("aumentarNoResp", new Emitter.Listener(){
-            @Override
-
-            public void call(Object... os) {
-                noJugadoresRespuesta++;
-            }
-        }).on("calcularPrimeroResp", new Emitter.Listener(){
-            @Override
-
-            public void call(Object... os) {
-                determinarPrimerRespuesta();
-            }
-        }).on("puntajeContrario", new Emitter.Listener(){
-            @Override
-
-            public void call(Object... os) {
-                puntajeContrario.setPuntaje((int) os[0]);
-                puntajeContrario.setUsuario((String) os[1]);
-                puntosContrario.add(puntajeContrario);
-            }
-        }).on("agregarTotalContrario", new Emitter.Listener(){
-            @Override
-
-            public void call(Object... os) {
-                PuntajeEnvio puntajeTotalContrario = new PuntajeEnvio();
-                puntajeTotalContrario.setPuntaje((int) os[0]);
-                puntajeTotalContrario.setUsuario((String) os[1]);
-                agregarTotalContrarios(puntajeTotalContrario);
-                finalizarPregunta();
-            }
-        }).on("nuevoPuntaje", new Emitter.Listener(){
-            @Override
-
-            public void call(Object... os) {
-                puntajeContrario.setUsuario((String) os[0]);
-                puntajeContrario.setPuntaje(puntajeContrario.
-                                getPuntaje() + 1);
-                
-            }
-        }).on("agregarPuntajeTotal", new Emitter.Listener(){
-            @Override
-
-            public void call(Object... os) {
-                agregarPuntajeTotal();
-            }
         }).on("inicioPartida", new Emitter.Listener() {
 
             @Override
             public void call(Object... os) {
+                if(!creador) {
 
-                Platform.runLater(() -> {
+                    Platform.runLater(() -> {
+
+                        activacion = true;
+                        desactivarPanelEspera(activacion);
+                        verificarPregunta();
+                    });
+                }
+                
+            }
+        }).on("recuperoPreguntones", new Emitter.Listener() {
+            @Override
+            public void call(Object... os) {
+                
+                JSONArray recuperados = (JSONArray) os[0];
+                Platform.runLater(() -> recuperarPreguntones(recuperados));
+            }
+        }).on("recibirRespuesta", new Emitter.Listener() {
+            
+            @Override
+            public void call(Object... os) {
+                
+                String respuesta = (String) os[0];
+                Platform.runLater(() -> recibirRespuesta(respuesta));
+            }
+        }).on("finalizoPartida", new Emitter.Listener() {
+            
+            @Override
+            public void call(Object... os) {
+                
+                if(creador) {
                     
-                    activacion = true;
-                    desactivarPanelEspera(activacion);
-                    verificarPregunta();
-                });
+                    Platform.runLater(() -> {
+                        
+                        activarPanelGanador(true);
+                        creador = false;
+                    });
+                }
             }
         });
-        
         socket.connect();
     }
     
@@ -309,9 +244,8 @@ public class ResponderPreguntaController implements Initializable {
      * Este metodo es para disminuir la lista de preguntas
      */
     private void disminuirPreguntas() {
-
+        
         preguntas.remove(0);
-        vaciarBarras();
         verificarPregunta();
     }
     
@@ -323,13 +257,14 @@ public class ResponderPreguntaController implements Initializable {
         
         if(preguntas.isEmpty()) {
             
+            socket.emit("finalizarPartida");
             activarPanelGanador(true);
         } else {
             
             preguntaActual = preguntas.get(0);
             Platform.runLater(() -> lblNumeroPregunta.setText(Integer.toString(
                     Integer.parseInt(lblNumeroPregunta.getText()) + 1)));
-            respuestas = (List<RespuestaEnvio>) preguntaActual.getRespuestas();
+            respuestas = preguntaActual.getRespuestas();
             definirTipoPregunta();
         }
     }
@@ -342,8 +277,10 @@ public class ResponderPreguntaController implements Initializable {
 
         if (preguntaActual.getTipoPregunta() == 1) {
 
-            Platform.runLater(() -> lblPregunta.setText(preguntaActual.
-                    getPregunta()));
+            Platform.runLater(() -> 
+                    lblPregunta.setText(preguntaActual.getPregunta()));
+            imgPregunta.setVisible(false);
+            imgPregunta.setDisable(true);
         } else {
 
             try {
@@ -372,7 +309,7 @@ public class ResponderPreguntaController implements Initializable {
      * asi activa los imageView, de otra forma, activa los checkBox.
      */
     private void definirTipoRespuesta() {
-        
+
         if(respuestas.get(0).getTipoRespuesta() == 2) {
 
             activarRespuestaImagen(true);
@@ -431,14 +368,15 @@ public class ResponderPreguntaController implements Initializable {
             imgD.setImage(imageD);
             contarRegresivamente();
         } catch (IOException ex) {
-            Logger.getLogger(ResponderPreguntaController.class.getName()).log(Level.SEVERE, null, ex);
+            
+            Logger.getLogger(ResponderPreguntaController.class.getName())
+                    .log(Level.SEVERE, null, ex);
         }
     }
 
     /**
      * Este metodo habilita los imageView cuando se trata de una pregunta con
      * una respuesta de imagenes.
-     *
      * @param permiso true si deben ser visibles y activos, false si no.
      */
     private void activarRespuestaImagen(boolean permiso) {
@@ -457,7 +395,7 @@ public class ResponderPreguntaController implements Initializable {
      * Este metodo fija el texto de la pregunta y las respuestas.
      */
     private void fijarTextos() {
-        
+
         chbOpcionA.setSelected(false);
         chbOpcionB.setSelected(false);
         chbOpcionC.setSelected(false);
@@ -476,11 +414,10 @@ public class ResponderPreguntaController implements Initializable {
     /**
      * Este metodo habilita los checkBox cuando se trata de una pregunta con
      * respuestas escritas.
-     *
      * @param permiso true si deben ser visibles y activos, false si no.
      */
     private void activarRespuestaEscrita(boolean permiso) {
-        
+
         chbOpcionA.setDisable(!permiso);
         chbOpcionA.setVisible(permiso);
         chbOpcionB.setDisable(!permiso);
@@ -494,7 +431,6 @@ public class ResponderPreguntaController implements Initializable {
 
     /**
      * Este metodo sirve para enviar un mensaje en el chat.
-     *
      * @param event Clic en el boton Enviar.
      */
     @FXML
@@ -516,7 +452,7 @@ public class ResponderPreguntaController implements Initializable {
             socket.emit("envioMensaje", mensajeEnviado);
             mostrarMensaje(mensajeEnviado);
         }
- 
+
     }
     
     /**
@@ -527,61 +463,44 @@ public class ResponderPreguntaController implements Initializable {
     private void mostrarMensaje(String mensaje) {
         
         mensajesChat.add(mensaje);
-        String chatContenido = "";
+        String chatContenido;
+        StringBuilder sb = new StringBuilder();
+        
         for(int i = 0; i < mensajesChat.size(); i++){
             
-            chatContenido = chatContenido + mensajesChat.get(i) + "\n";
+            sb.append(mensajesChat.get(i)).append("\n");
         }
+        chatContenido = sb.toString();
         txtChat.setText(chatContenido);
         
     }
     
     @FXML
     private void seleccionarA(MouseEvent event) {
-        
+    
         bloquearRespuestas();
         asignarPuntaje(respuestas.get(0));
     }
 
     @FXML
     private void seleccionarB(MouseEvent event) {
-        
+    
         bloquearRespuestas();
         asignarPuntaje(respuestas.get(1));
     }
 
     @FXML
     private void seleccionarC(MouseEvent event) {
-        
+    
         bloquearRespuestas();
         asignarPuntaje(respuestas.get(2));
     }
 
     @FXML
     private void seleccionarD(MouseEvent event) {
-        
+    
         bloquearRespuestas();
         asignarPuntaje(respuestas.get(3));
-    }
-    
-        /**
-     * Metodo que recibe el objeto de cuenta de usuario o invitado del
-     * Controlador de la pantalla de Login.
-     * @param cuenta Cuenta de invitado o usuario registrado.
-     * @param idioma idioma del properties.
-     */
-    public void recibirParametros(Object cuenta, String idioma) {
-        
-        Locale.setDefault(new Locale(idioma));
-        this.idioma = idioma;
-        this.cuenta = cuenta;
-        if(cuenta instanceof Cuentausuario) {
-            
-            this.usuario = (Cuentausuario) cuenta;
-        } else {
-            
-            this.invitado = (Cuentainvitado) cuenta; 
-        }
     }
     
     /**
@@ -599,7 +518,7 @@ public class ResponderPreguntaController implements Initializable {
         lblGanador.setVisible(visibilidad);
         lblAnunciador.setVisible(visibilidad);
         lblBuenJuego.setVisible(visibilidad);
-        if(visibilidad){
+        if(visibilidad) {
             
             mostrarNombreGanador();
         }
@@ -611,19 +530,34 @@ public class ResponderPreguntaController implements Initializable {
      */
     public void mostrarNombreGanador() {
         
-        String nombre = puntajeTotal.getUsuario();
-        for(int i = 0; i < puntosTotalContrario.size(); i++){
+        ArrayList<Integer> puntajes = new ArrayList<>();
+        for(int i = 0; i < participantes.size(); i++) {
             
-            if (puntajeTotal.getPuntaje() < puntosTotalContrario.get(i).getPuntaje()) {
+            puntajes.add(participantes.get(i).getPuntaje());
+        }
+        List<String> ganador = new ArrayList<>();
+        Collections.max(puntajes);
+        for(int j = 0; j < participantes.size(); j++) {
                 
-                nombre = puntosTotalContrario.get(i).getUsuario();
-            } else if (puntajeTotal.getPuntaje() == puntosTotalContrario.get(i).getPuntaje()){
+            if(puntajes.get(puntajes.size() - 1) == participantes.get(j).getPuntaje()) {
                 
-                nombre = nombre + " y " + puntosTotalContrario.get(i).getUsuario();
+                ganador.add(participantes.get(j).getNombre());
             }
         }
-        String nombreGanador = nombre;
-        Platform.runLater(() -> lblGanador.setText(nombreGanador));
+        StringBuilder sb = new StringBuilder();
+        String winner;
+        if(ganador.size() > 1) {
+            
+            for(int e = 0; e < ganador.size(); e++) {    
+                
+                sb.append(ganador.get(e)).append(", ");
+            }
+            winner = sb.toString();
+        } else {
+            winner = ganador.get(0);
+        }
+        final String ganadorText = winner;
+        Platform.runLater(() -> lblGanador.setText(ganadorText));
     }
     
     /**
@@ -662,10 +596,12 @@ public class ResponderPreguntaController implements Initializable {
     
     /**
      * Este metodo es para asignar el puntaje segun la respuesta elegida
-     * @param respuestaSel La respuesta elegida.
+     * @param respuestaSeleccionada respuesta seleccionada.
      */
-    public void asignarPuntaje(RespuestaEnvio respuestaSel){//resultados esperados para el que primero respondio
-        puntaje.setPuntaje(respuestaSel.getPuntaje());
+    public void asignarPuntaje(RespuestaEnvio respuestaSeleccionada){
+        
+        PuntajeEnvio puntajeE = new PuntajeEnvio();
+        puntajeE.setPuntaje(respuestaSeleccionada.getPuntaje());
         String nombre;
         if(cuenta instanceof Cuentausuario) {
             
@@ -674,92 +610,11 @@ public class ResponderPreguntaController implements Initializable {
             
             nombre = invitado.getNombre();
         }
-        puntaje.setUsuario(nombre);
-        socket.emit("tiempoRespCorrecto", tiempoRestante);
-        noJugadoresRespuesta++;
-        socket.emit("jugadorResp");
-        socket.emit("puntajeObtenido", puntaje.getPuntaje(), puntaje.getUsuario());
-        if (noJugadoresRespuesta == noJugadores) {
-            
-            socket.emit("determinarPrimero");
-            determinarPrimerRespuesta();
-            socket.emit("agregarPuntosTotal");
-            agregarPuntajeTotal();
-        }
-    }
-    
-    /**
-     * Este metodo es para determinar quien obitene el punto extra por responder
-     * correctamente primero
-     */
-    public void determinarPrimerRespuesta() {
-        
-        if (puntaje.getPuntaje() > 0) {
-
-            boolean primero = false;
-            for (int i = 0; i < tiempoRespuestas.size(); i++) {
-
-                if (puntosContrario.get(i).getPuntaje() > 0) {
-
-                    primero = tiempoRestante > tiempoRespuestas.get(i);
-                }
-
-            }
-
-            if (primero == true) {
-                
-                puntaje.setPuntaje(puntaje.getPuntaje() + 1);
-                socket.emit("actualizarPuntaje", puntaje.getUsuario());
-            }
-        }
-        
-    }
-
-    /**
-     * Este metodo es para parar el tiempo de responder de la pregunta y 
-     * continuar a la gráfica
-     */
-    private void finalizarPregunta() {
-        
-        Platform.runLater(() -> lbPuntajeNum.setText(Integer.toString(
-                puntajeTotal.getPuntaje())));
-        puntosContrario.clear();
-        tiempoRespuestas.clear();
+        puntajeE.setUsuario(nombre);
+        Gson puntajeEnvio = new Gson();
+        String out = puntajeEnvio.toJson(puntajeE);
+        socket.emit("enviarRespuesta", out);
         timer.cancel();
-        activarPanelGrafica(true);
-    }
-    
-    /**
-     * Este metodo es para agregar el puntaje de la respuesta a el puntaje en
-     * general
-     */
-    private void agregarPuntajeTotal() {
-        
-        puntajeTotal.setPuntaje(puntajeTotal.getPuntaje() + 
-                puntaje.getPuntaje());
-        puntajeTotal.setUsuario(puntaje.getUsuario());
-        socket.emit("puntosTotalContrario", puntajeTotal.getPuntaje(), puntajeTotal.getUsuario());
-    }
-    
-    public void agregarTotalContrarios(PuntajeEnvio totalPuntos) {//checar totalPuntos, puntajeTotal, puntosTotalContrario, si ya imprimio el Entro aqui----
-        
-        if (!puntosTotalContrario.isEmpty()) {
-            
-            for (int i = 0; i < puntosTotalContrario.size(); i++) {
-
-                if ((totalPuntos.getUsuario()).
-                        equals(puntosTotalContrario.get(i).getUsuario())) {
-
-                    puntosTotalContrario.get(i).setPuntaje(
-                            totalPuntos.getPuntaje());
-                }
-
-            }
-            
-        } else {
-            
-            puntosTotalContrario.add(totalPuntos);
-        }
     }
     
     /**
@@ -767,41 +622,15 @@ public class ResponderPreguntaController implements Initializable {
      * momento de llamar la gráfica
      */
     private void crearGrafica() {
-        
-        contarRegresGrafica();
-        barraPropia.getData().add(new XYChart.Data(puntaje.getUsuario(), 
-                puntajeTotal.getPuntaje()));
-        for(int i= 0; i < puntosTotalContrario.size(); i++){
+
+        XYChart.Series datosGrafica = new XYChart.Series();
+        for(int i = 0; i < participantes.size(); i++) {
             
-            barraContrarios.getData().add(new XYChart.Data(puntosTotalContrario.
-                    get(i).getUsuario(), 
-                    puntosTotalContrario.get(i).getPuntaje()));///7777777777777777777777777777777777777777777
+            datosGrafica.getData().add(new XYChart.Data(
+                    participantes.get(i).getNombre(), 
+                    participantes.get(i).getPuntaje()));
         }
-        
-        if(noJugadores < 2){
-            
-            Platform.runLater(() -> bcGraficaPuntaje.getData().
-                    addAll(barraPropia));
-        } else {
-            
-            Platform.runLater(() -> bcGraficaPuntaje.getData().
-                    addAll(barraPropia, barraContrarios));
-        }
-        
-        noJugadoresRespuesta = 0;
-    }
-    
-    /**
-     * Este metodo es para reestablecer las barras de la gráfica
-     */
-    private void vaciarBarras() {
-        
-        Platform.runLater(() -> bcGraficaPuntaje.getData().clear());
-        Platform.runLater(() -> barraPropia.getData().clear());
-        if(!barraContrarios.getData().isEmpty()){
-            
-            Platform.runLater(() -> barraContrarios.getData().remove(0));
-        }
+        bcGraficaPuntaje.getData().setAll(datosGrafica);
     }
     
     /**
@@ -820,19 +649,16 @@ public class ResponderPreguntaController implements Initializable {
 
                 if (tiempoRestante > 0) {
 
-                    Platform.runLater(() -> {
-                        lblTiempo.setText(
-                                Integer.toString(tiempoRestante));
-                    });
+                    Platform.runLater(() -> lblTiempo.setText(
+                            Integer.toString(tiempoRestante)));
                     tiempoRestante--;
                 } else {
-
+                    
                     timer.cancel();
                     RespuestaEnvio sinSeleccion = new RespuestaEnvio();
                     sinSeleccion.setPuntaje(-1);
                     asignarPuntaje(sinSeleccion);
                 }
-                
             }
         }, 1000, 1000); 
     }
@@ -840,63 +666,27 @@ public class ResponderPreguntaController implements Initializable {
     /**
      * Este metodo lleva la cuenta regresiva de mostrar la gráfica.
      */
-    private void contarRegresGrafica() {
+    private void contarRegresivamenteGrafica() {
         
         timerGraph = new Timer();
-        tiempoGrafica = TIEMPOGBARRAS;
+        tiempoTotalGrafica = TIEMPOGRAFICA;
         timerGraph.schedule(new TimerTask() {
             
             @Override
             public void run() {
 
-                if (tiempoGrafica > 0) {
-                    
-                    tiempoGrafica--;
-                } else {
+                if (tiempoTotalGrafica > 0) {
 
+                    Platform.runLater(() -> activarPanelGrafica(true));
+                    tiempoTotalGrafica--;
+                } else {
+                    
                     timerGraph.cancel();
                     activarPanelGrafica(false);
                     disminuirPreguntas();
                 }
-                
             }
-        }, 1000, 1000); 
-    }
-
-    private void inicializarPregunta() {
-        
-        /*PersistenciaPregunta preguntaBD = new PersistenciaPregunta();
-        PersistenciaRespuesta respuestaBD = new PersistenciaRespuesta();
-        preguntas = preguntaBD.recuperarPregunta(idSetPregunta);
-        respuestas = respuestaBD.recuperarRespuesta(preguntas);
-        preguntaActual = preguntas.get(0);*/
-    }
-    
-    /**
-     * Este metodo sirve para enviar el puntaje obtenido por cada partida.
-     * @param puntaje 
-     */
-    private void enviarPuntaje(int puntaje) {
-        
-        PuntajeEnvio penvio = new PuntajeEnvio();
-        socket.emit("envioPuntaje", penvio);
-    }
-    
-    /**
-     * Este metodo impide que el campo de texto sea mayor a un numero de 
-     * caracteres fijo.
-     * @param tf textField a limitar
-     * @param maximo numero maximo de caracteres permitidos.
-     */
-    private void limitarCampos(javafx.scene.control.TextField tf, int maximo) {
-        tf.textProperty().addListener((final ObservableValue<? 
-                extends String> ov, final String oldValue, 
-                final String newValue) -> {
-            if (tf.getText().length() > maximo) {
-                String s = tf.getText().substring(0, maximo);
-                tf.setText(s);
-            }
-        });
+        }, 1000, 1000);
     }
     
     @FXML
@@ -921,7 +711,7 @@ public class ResponderPreguntaController implements Initializable {
             
             stage.setScene(scene);
             stage.show();
-
+            socket.disconnect();
             ((Node) (event.getSource())).getScene().getWindow().hide();
         } catch (IOException ex) {
             
@@ -938,25 +728,14 @@ public class ResponderPreguntaController implements Initializable {
      */
     private void crearImagen(String ruta, byte[] imagen) throws IOException {
 
-        OutputStream out = null;
-
-        try {
+        try(OutputStream out = 
+                new BufferedOutputStream(new FileOutputStream(ruta))) {
             
-            out = new BufferedOutputStream(new FileOutputStream(ruta));
             out.write(imagen);
-        } catch (FileNotFoundException ex) {
-            
-            Logger.getLogger(ResponderPreguntaController.class.getName())
-                    .log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             
             Logger.getLogger(ResponderPreguntaController.class.getName())
                     .log(Level.SEVERE, null, ex);
-        } finally {
-            
-            if (out != null) {
-                out.close();
-            }
         }
     }
     
@@ -970,5 +749,157 @@ public class ResponderPreguntaController implements Initializable {
         pbEspera.setVisible(!activacion);
         pnlEspera.setDisable(activacion);
         return activacion;
+    }
+    
+    /**
+     * Este metodo sirve para cambiar el puntaje del label.
+     */
+    private void cambiarPuntaje() {
+        
+        String nombreUsuario;
+        if(cuenta instanceof Cuentausuario) {
+            
+            nombreUsuario = usuario.getNombreusuario();
+        } else {
+            
+            nombreUsuario = invitado.getNombre();
+        }
+        for(int i = 0; i < participantes.size(); i++) {
+            
+            if(nombreUsuario.equals(participantes.get(i).getNombre())) {
+                
+                String puntajeNuevo = Integer.toString(participantes.get(i)
+                        .getPuntaje());
+                final String puntajeFinal = puntajeNuevo;
+                Platform.runLater(() -> lbPuntajeNum.setText(puntajeFinal));
+            }
+        }
+    }
+    /**
+     * Este metodo recibe una pregunta del objeto JSON.
+     * @param preguntaRecibida Pregunta recibida en string
+     */
+    private void recibirPregunta(String preguntaRecibida) {
+
+        Gson preguntaGson = new Gson();
+
+        PreguntaEnvio nueva
+                = preguntaGson.fromJson(preguntaRecibida,
+                        PreguntaEnvio.class);
+        if (nueva.getTipoPregunta() == 2) {
+
+            nueva.setImagenByte(DatatypeConverter.parseBase64Binary(nueva.getImagen()));
+        }
+        for (int i = 0; i < nueva.getRespuestas().size(); i++) {
+
+            if (nueva.getRespuestas().get(i).getTipoRespuesta() == 2) {
+
+                nueva.getRespuestas().get(i).setImagenByte(
+                        DatatypeConverter.parseBase64Binary(
+                                nueva.getRespuestas().get(i).getImagen()));
+            }
+        }
+        preguntas.add(nueva);
+    }
+    
+    /**
+     * Este metodo recupera la lista de juegadores del sevidor.
+     * @param recuperados JSONArray recuperado.
+     */
+    private void recuperarPreguntones(JSONArray recuperados) {
+
+        for (int i = 0; i < recuperados.length(); i++) {
+
+            try {
+
+                JSONObject jugador = (JSONObject) recuperados.get(i);
+                String nombre = jugador.getString("nombre");
+                JugadorConectadoEnvio nuevo
+                        = new JugadorConectadoEnvio();
+                nuevo.setNombre(nombre);
+                nuevo.setPuntaje(0);
+
+                Platform.runLater(() -> participantes.add(nuevo));
+
+            } catch (JSONException ex) {
+
+                Logger.getLogger(ResponderPreguntaController.class
+                        .getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+    
+    /**
+     * Este metodo sirve para recibir una respuesta y anadirla a la lista.
+     * @param respuesta respuesta recuperada en string.
+     */
+    private void recibirRespuesta(String respuesta) {
+
+        Gson recibida = new Gson();
+        PuntajeEnvio nuevoPuntaje
+                = recibida.fromJson(respuesta, PuntajeEnvio.class);
+        int indice = 0;
+        for (int i = 0; i < participantes.size(); i++) {
+
+            if (participantes.get(i).getNombre().equals(nuevoPuntaje.getUsuario())) {
+
+                indice = i;
+            }
+        }
+        if (nuevoPuntaje.getPuntaje() == 1) {
+
+            if (contador == 0) {
+
+                participantes.get(indice).sumarPuntos(2);
+            } else {
+
+                participantes.get(indice).sumarPuntos(1);
+            }
+        } else {
+
+            participantes.get(indice).sumarPuntos(nuevoPuntaje.getPuntaje());
+        }
+        cambiarPuntaje();
+        contador++;
+        if (contador == participantes.size()) {
+
+            if (!creador) {
+
+                contarRegresivamenteGrafica();
+            } else {
+
+                crearGrafica();
+            }
+            contador = 0;
+        }
+    }
+    /**
+     * Metodo que recibe el objeto de cuenta de usuario o invitado del
+     * Controlador de la pantalla de Login.
+     * @param cuenta Cuenta de invitado o usuario registrado.
+     * @param idioma idioma del properties.
+     * @param creador metodo que valida si el jugador es el creador o no.
+     */
+    public void recibirParametros(Object cuenta, String idioma, boolean creador) {
+        
+        Locale.setDefault(new Locale(idioma));
+        this.idioma = idioma;
+        this.cuenta = cuenta;
+        this.creador = creador;
+        if (creador) {
+
+            activacion = false;
+            desactivarPanelEspera(true);
+            activarPanelGrafica(true);
+            socket.emit("vaciarLista");
+        }
+        
+        if (cuenta instanceof Cuentausuario) {
+
+            this.usuario = (Cuentausuario) cuenta;
+        } else {
+
+            this.invitado = (Cuentainvitado) cuenta;
+        }
     }
 }

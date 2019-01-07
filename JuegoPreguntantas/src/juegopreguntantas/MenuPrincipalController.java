@@ -20,12 +20,12 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
-/******************************************************************/ 
-/* @version 1.0                                                   */ 
-/* @author Eduardo Rosas Rivera                                   */ 
-/* @since 29/10/2018                                              */
-/* Nombre de la clase MenuPrincipalController                     */
-/******************************************************************/
+/****************************************************************** 
+ * @version 1.0                                                   * 
+ * @author Eduardo Rosas Rivera                                   * 
+ * @since 29/10/2018                                              *
+ * Nombre de la clase MenuPrincipalController                     *
+ *****************************************************************/
 public class MenuPrincipalController implements Initializable {
 
     @FXML
@@ -41,6 +41,7 @@ public class MenuPrincipalController implements Initializable {
     @FXML
     private Button btnInvitar;
     
+    private static final String RECURSO = "juegopreguntantas.lang/lang";
     private Object cuenta;
     private Cuentausuario usuario;
     private Cuentainvitado invitado;
@@ -50,7 +51,7 @@ public class MenuPrincipalController implements Initializable {
      * Constructor de la clase. 
      */
     public MenuPrincipalController() {
-        
+        //Vacio para instanciacion
     }
     
     /**
@@ -73,7 +74,7 @@ public class MenuPrincipalController implements Initializable {
 
             Locale.setDefault(new Locale(idioma));
             ResourceBundle resourceBundle = ResourceBundle
-                    .getBundle("juegopreguntantas.lang/lang");
+                    .getBundle(RECURSO);
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass()
                     .getResource("RegistrarPregunta.fxml"));
@@ -105,7 +106,7 @@ public class MenuPrincipalController implements Initializable {
 
             Locale.setDefault(new Locale(idioma));
             ResourceBundle resourceBundle = ResourceBundle
-                    .getBundle("juegopreguntantas.lang/lang");
+                    .getBundle(RECURSO);
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass()
                     .getResource("EsperarPartida.fxml"));
@@ -137,7 +138,7 @@ public class MenuPrincipalController implements Initializable {
             
             Locale.setDefault(new Locale(idioma));
             ResourceBundle resourceBundle = ResourceBundle
-                    .getBundle("juegopreguntantas.lang/lang");
+                    .getBundle(RECURSO);
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass()
                     .getResource("InicioPartida.fxml"));
@@ -167,8 +168,7 @@ public class MenuPrincipalController implements Initializable {
     private void invitar(ActionEvent event) {
         
         Locale.setDefault(new Locale(idioma));
-        ResourceBundle resourceBundle = ResourceBundle.getBundle(
-                "juegopreguntantas.lang/lang");
+        ResourceBundle resourceBundle = ResourceBundle.getBundle(RECURSO);
 
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("EnviarInvitacion.fxml"));
@@ -204,7 +204,7 @@ public class MenuPrincipalController implements Initializable {
         
         Locale.setDefault(new Locale(idioma));
         ResourceBundle resourceBundle = 
-                ResourceBundle.getBundle("juegopreguntantas.lang/lang");
+                ResourceBundle.getBundle(RECURSO);
         
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("VentanaLogIn.fxml"));

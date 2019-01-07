@@ -4,37 +4,19 @@ import entity.Pregunta;
 import entity.Respuesta;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 
-/******************************************************************/ 
-/* @version 1.0                                                   */ 
-/* @author Puxka Acosta Domínguez                                 */ 
-/* @since 17/11/2018                                              */
-/* Nombre de la clase PersistenRespuesta                          */
-/******************************************************************/
-public class PersistenciaRespuesta {
-    
-    /**
-     * Este metodo es para trabajar con las entidades de la base de datos 
-     * @return El EntityManager 
-     */ 
-    public EntityManager administrarEntidades() {
-        
-        
-        Map<String, String> properties = new HashMap<>();
-        properties.put("javax.persistence.jdbc.user", "pregunton");
-        properties.put("javax.persistence.jdbc.password", "PR3GUNT0N");
-        EntityManagerFactory emf = javax.persistence.Persistence
-                .createEntityManagerFactory("JuegoPreguntantasPU", properties);
-        EntityManager em = emf.createEntityManager();
-        em.getTransaction().begin();
-        return em;
-    }
+/****************************************************************** 
+ * @version 1.0                                                   * 
+ * @author Puxka Acosta Domínguez y Eduardo Rosas Rivera          * 
+ * @since 12/11/2018                                              *
+ * Nombre de la clase PersistenciaRespuesta                       *
+ *****************************************************************/
+public class PersistenciaRespuesta extends Persistencia {
     
     /**
      * Este metodo es para crear una pregunta en la base de datos 
@@ -61,6 +43,8 @@ public class PersistenciaRespuesta {
             exito = true;
         } catch (Exception e) {
             
+            Logger.getLogger(PersistenciaRespuesta.class.getName())
+                    .log(Level.SEVERE, null, e);
         }
         return exito;
     }
@@ -77,18 +61,15 @@ public class PersistenciaRespuesta {
         Query query;
         EntityManager em = administrarEntidades();
         for (int i = 0; i < preguntas.size(); i++) {
-
-            query = em.createQuery("SELECT r FROM Respuesta r "
-                    + "WHERE r.idpregunta.idpregunta = \""
-                    + preguntas.get(i).getIdpregunta() + "\"");
+            query = em.createNamedQuery("Respuesta.findByIdpregunta", 
+                    Respuesta.class).setParameter("idpregunta", 
+                            preguntas.get(i).getIdpregunta());
             resultadoConsulta = query.getResultList();
             for (int j = 0; j < resultadoConsulta.size(); j++) {
 
                 respuestas.add(resultadoConsulta.get(j));
             }
-
         }
-        
         return respuestas;
     }
     
@@ -101,8 +82,8 @@ public class PersistenciaRespuesta {
         
         EntityManager em = administrarEntidades();
         List<Respuesta> respuestas;
-        Query query = em.createQuery("SELECT r FROM Respuesta r WHERE "
-                + "r.idpregunta.idpregunta = " + idPregunta);
+        Query query = em.createNamedQuery("Respuesta.findByIdpregunta", 
+                Respuesta.class).setParameter("idpregunta", idPregunta);
         respuestas = query.getResultList();
         
         return respuestas;

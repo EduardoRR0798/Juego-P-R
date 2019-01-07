@@ -3,12 +3,15 @@ package juegopreguntantas;
 import clasesutilidad.JugadorConectadoEnvio;
 import entity.Cuentainvitado;
 import entity.Cuentausuario;
+import entity.Partida;
+import entity.Setpregunta;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -31,12 +34,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import persistencia.PersistenciaPartida;
 
-/******************************************************************/ 
-/* @version 1.0                                                   */ 
-/* @author Puxka Acosta Domínguez y Eduardo Rosas Rivera          */ 
-/* @since 06/11/2018                                              */
-/* Nombre de la clase EsperarJugadoresController                  */
-/******************************************************************/ 
+/****************************************************************** 
+ * @version 1.0                                                   * 
+ * @author Puxka Acosta Domínguez y Eduardo Rosas Rivera          * 
+ * @since 06/11/2018                                              *
+ * Nombre de la clase EsperarJugadoresController                  *
+ *****************************************************************/
 public class EsperarJugadoresController implements Initializable {
     
     @FXML
@@ -51,18 +54,17 @@ public class EsperarJugadoresController implements Initializable {
     private Cuentausuario usuario;
     private Cuentainvitado invitado;
     private String idioma;
-    private JugadorConectadoEnvio conectado;
     private ObservableList<JugadorConectadoEnvio> conectados = 
             FXCollections.observableArrayList();
     ObservableList<JugadorConectadoEnvio> conectadosCopia = 
             FXCollections.observableArrayList();
     private int entrada;
-    
+    private static final String RECURSO = "juegopreguntantas.lang/lang";
+            
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         
         listJugadores.setItems(conectados);
-        socket.emit("recuperarPreguntones");
     }
     
     /**
@@ -80,11 +82,9 @@ public class EsperarJugadoresController implements Initializable {
 
             @Override
             public void call(Object... os) {
-
-                System.out.println("Conectado y Esperando...");
-
+                //No es necesario hacer algo.
             }
-        }).on("recuperarPreguntones", new Emitter.Listener() {
+        }).on("recuperoPreguntones", new Emitter.Listener() {
 
             @Override
             public void call(Object... os) {
@@ -96,10 +96,7 @@ public class EsperarJugadoresController implements Initializable {
                     conectadosCopia.get(i).getNombre();
                 }
 
-                Platform.runLater(() -> {
-
-                    conectados.removeAll(conectadosCopia);
-                });
+                Platform.runLater(() -> conectados.clear());
 
                 for (int i = 0; i < arregloRecuperado.length(); i++) {
 
@@ -114,7 +111,13 @@ public class EsperarJugadoresController implements Initializable {
                         Platform.runLater(() -> {
 
                             agregarConectado(conectado);
-
+                            btnCancelar.setDisable(true);
+                            if(entrada > -1) {
+                                
+                                btnIniciar.setVisible(true);
+                                btnIniciar.setDisable(false);
+                            }
+                            
                         });
 
                     } catch (JSONException ex) {
@@ -123,19 +126,19 @@ public class EsperarJugadoresController implements Initializable {
                                 .getName()).log(Level.SEVERE, null, ex);
                     }
                 }
-                for (int i = 0; i < conectados.size(); i++) {
-
-                    System.out.println(conectados.get(i).getNombre());
-                }
             }
         }).on("inicioPartida", new Emitter.Listener() {
 
             @Override
             public void call(Object... os) {
+                
                 if (entrada == -1) {
+                    
                     Platform.runLater(() -> {
 
                         abrirVentanaResponderPregunta();
+                        socket.disconnect();
+                        btnCancelar.getScene().getWindow().hide();
                     });
                 }
             }
@@ -152,12 +155,14 @@ public class EsperarJugadoresController implements Initializable {
      */
     @FXML
     private void cancelar(ActionEvent event) {
-
+        
+        eliminarPartida();
+        socket.emit("vaciarLista");
         try {
 
             Locale.setDefault(new Locale(idioma));
             ResourceBundle resourceBundle = ResourceBundle
-                    .getBundle("juegopreguntantas.lang/lang");
+                    .getBundle(RECURSO);
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass()
                     .getResource("InicioPartida.fxml"));
@@ -170,6 +175,7 @@ public class EsperarJugadoresController implements Initializable {
             stage.setTitle("Inicio de partida");
             stage.setScene(scene);
             stage.show();
+            socket.disconnect();
             ((Node) (event.getSource())).getScene().getWindow().hide();
         } catch (IOException e) {
 
@@ -186,18 +192,19 @@ public class EsperarJugadoresController implements Initializable {
     private void iniciar(ActionEvent event) {
         
         socket.emit("iniciarPartida");
+        eliminarPartida();
         try {
 
             Locale.setDefault(new Locale(idioma));
             ResourceBundle resourceBundle = ResourceBundle
-                    .getBundle("juegopreguntantas.lang/lang");
+                    .getBundle(RECURSO);
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass()
                     .getResource("EnvioDePreguntas.fxml"));
             loader.setResources(resourceBundle);
             Parent esperaJugadores = loader.load();
             EnvioDePreguntasController controller = loader.getController();
-            controller.recibirParametros(usuario, idioma, entrada, conectados);
+            controller.recibirParametros(usuario, idioma, entrada);
             Scene scene = new Scene(esperaJugadores);
             Stage stage = new Stage();
             stage.setTitle("Inicio de partida");
@@ -216,7 +223,7 @@ public class EsperarJugadoresController implements Initializable {
      * Controlador de la pantalla que la invocó
      * @param cuenta objeto de la cuenta.
      * @param idioma Idioma del properties
-     * @param entrada si es 1 entra como jugador, si es 2 entra como monitor.
+     * @param entrada si es -1 entra como jugador, si es 2 entra como monitor.
      */
     public void recibirParametros(Object cuenta, String idioma, int entrada){
         
@@ -236,8 +243,8 @@ public class EsperarJugadoresController implements Initializable {
             
             btnCancelar.setDisable(true);
             btnCancelar.setVisible(false);
-            btnIniciar.setDisable(true);
-            btnIniciar.setVisible(false);
+            unirseAPartida();
+            socket.emit("recuperarPreguntones");
         }
     }
     
@@ -253,16 +260,55 @@ public class EsperarJugadoresController implements Initializable {
     }
     
     /**
-     * Este metodo convierte aun jugador en un objeto tipo JSONObject y lo emite
-     * para que aparezca en la lista de jugadores conectados en todas las
-     * pantallas.
+     * Este metodo elimina la partida iniciada de la base de datos para que deje
+     * de aparecer como disponibles para otros usuarios.
      */
-    private void enviarConectado() {
+    private void eliminarPartida() {
+        
+        PersistenciaPartida partidaBD = new PersistenciaPartida();
+        Setpregunta nuevoSet = new Setpregunta();
+        nuevoSet.setIdsetpregunta(entrada);
+        List<Partida> partidas = partidaBD.recuperarPartida(nuevoSet);
+        int id = partidas.get(0).getIdpartida();
+        partidaBD.destroyPartida(id);
+    }
+    
+    /**
+     * Este metodo abre la ventana de responder pregunta.
+     */
+    private void abrirVentanaResponderPregunta() {
         
         try {
+
+            Locale.setDefault(new Locale(idioma));
+            ResourceBundle resourceBundle = ResourceBundle.getBundle(RECURSO);
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass()
+                    .getResource("ResponderPregunta.fxml"));
+            loader.setResources(resourceBundle);
+            Parent esperaJugadores = loader.load();
+            ResponderPreguntaController controller = loader.getController();
+            controller.recibirParametros(cuenta, idioma, false);
+            Scene scene = new Scene(esperaJugadores);
+            Stage stage = new Stage();
+            stage.setTitle("ResponderPregunta");
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
             
-            conectado = new JugadorConectadoEnvio();
-            if(cuenta instanceof Cuentausuario) {
+            Logger.getLogger(EsperarJugadoresController.class.getName())
+                    .log(Level.SEVERE, null, e);
+        }
+    }
+    
+    /**
+     * Este metodo registra un usuario en una lista de nodejs.
+     */
+    private void unirseAPartida() {
+        
+        try {
+            JugadorConectadoEnvio conectado = new JugadorConectadoEnvio();
+            if (cuenta instanceof Cuentausuario) {
                 
                 conectado.setNombre(usuario.getNombreusuario());
             } else {
@@ -274,46 +320,9 @@ public class EsperarJugadoresController implements Initializable {
             nuevoConectado.put("idSocket", socket.id());
             nuevoConectado.put("nombre", conectado.getNombre());
             socket.emit("registrarPregunton", nuevoConectado);
-            conectados.add(conectado);
         } catch (JSONException ex) {
-            
             Logger.getLogger(EsperarJugadoresController.class.getName())
                     .log(Level.SEVERE, null, ex);
-        }
-    }
-    
-    /**
-     * Este metodo elimina la partida iniciada de la base de datos para que deje
-     * de aparecer como disponibles para otros usuarios.
-     */
-    private void eliminarPartida() {
-        
-        PersistenciaPartida partida = new PersistenciaPartida();
-    }
-    
-    private void abrirVentanaResponderPregunta() {
-        
-        try {
-
-            Locale.setDefault(new Locale(idioma));
-            ResourceBundle resourceBundle = ResourceBundle
-                    .getBundle("juegopreguntantas.lang/lang");
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(getClass()
-                    .getResource("ResponderPregunta.fxml"));
-            loader.setResources(resourceBundle);
-            Parent esperaJugadores = loader.load();
-            ResponderPreguntaController controller = loader.getController();
-            controller.recibirParametros(usuario, idioma);
-            Scene scene = new Scene(esperaJugadores);
-            Stage stage = new Stage();
-            stage.setTitle("ResponderPregunta");
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
-            
-            Logger.getLogger(EsperarJugadoresController.class.getName())
-                    .log(Level.SEVERE, null, e);
         }
     }
 }

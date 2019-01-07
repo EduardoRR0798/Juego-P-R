@@ -1,6 +1,5 @@
 package juegopreguntantas;
 
-import clasesutilidad.JugadorConectadoEnvio;
 import clasesutilidad.PreguntaEnvio;
 import clasesutilidad.RespuestaEnvio;
 import com.google.gson.Gson;
@@ -22,7 +21,6 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -35,12 +33,12 @@ import javafx.stage.Stage;
 import persistencia.PersistenciaPregunta;
 import javax.xml.bind.DatatypeConverter;
 
-/******************************************************************/ 
-/* @version 1.0                                                   */ 
-/* @author Eduardo Rosas Rivera                                   */ 
-/* @since 12/12/2018                                              */
-/* Nombre de la clase EnvioDePreguntasController                  */
-/******************************************************************/ 
+/****************************************************************** 
+ * @version 1.0                                                   * 
+ * @author Eduardo Rosas Rivera                                   * 
+ * @since 12/12/2018                                              *
+ * Nombre de la clase EnvioDePreguntasController                  *
+ *****************************************************************/ 
 public class EnvioDePreguntasController implements Initializable {
 
     @FXML
@@ -52,8 +50,6 @@ public class EnvioDePreguntasController implements Initializable {
     private Cuentausuario usuario;
     private String idioma;
     private List<Pregunta> preguntas;
-    private int idSetPregunta;
-    private List<JugadorConectadoEnvio> conectados;
     
     /**
      * Initializes the controller class.
@@ -62,7 +58,7 @@ public class EnvioDePreguntasController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        
+        //No es necesario hacer algo
     }    
     
     /**
@@ -79,9 +75,8 @@ public class EnvioDePreguntasController implements Initializable {
         socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
 
             @Override
-
             public void call(Object... os) {
-                
+                //No es necesario hacer algo.
             }
         });
         socket.connect();
@@ -94,13 +89,9 @@ public class EnvioDePreguntasController implements Initializable {
     @FXML
     private void iniciar(ActionEvent event) {
         
-        Platform.runLater(() -> {
-
-            abrirVentanaResponderPregunta();
-        });
+        abrirVentanaResponderPregunta();
         socket.emit("iniciarPartida"); 
-        //PersistenciaPartida partidaBD = new PersistenciaPartida();
-        //partidaBD.eliminarPartida(idSetPregunta);
+        socket.disconnect();
         btnIniciar.getScene().getWindow().hide();
     }
     
@@ -109,15 +100,12 @@ public class EnvioDePreguntasController implements Initializable {
      * @param usuario Cuentausuario que inicio la partida.
      * @param idioma idioma en que se abrira la ventana.
      * @param idSetPregunta id del set de preguntas a recuperar.
-     * @param conectados lista de jugadores conectados en la pantalla anterior.
      */
     public void recibirParametros(Cuentausuario usuario, String idioma, 
-            int idSetPregunta, List<JugadorConectadoEnvio> conectados) {
+            int idSetPregunta) {
         
         this.usuario = usuario;
         this.idioma = idioma;
-        this.idSetPregunta = idSetPregunta;
-        this.conectados = conectados;
         recuperarPreguntas(idSetPregunta);
         enviarPreguntas();
     }
@@ -129,8 +117,9 @@ public class EnvioDePreguntasController implements Initializable {
     private void recuperarPreguntas(int idSetPregunta) {
         
         PersistenciaPregunta recuperadorPreguntas = new PersistenciaPregunta();
-        List<Pregunta> preguntasDelSet = recuperadorPreguntas.recuperarPreguntaConRespuestas(idSetPregunta);
-        System.out.println("preguntasDelSet..." + preguntasDelSet.size());
+        List<Pregunta> preguntasDelSet = 
+                recuperadorPreguntas.recuperarPreguntaConRespuestas(
+                        idSetPregunta);
         for(int i = 0; i < preguntasDelSet.size(); i++) {
             
             if(preguntasDelSet.get(i).getTipoPregunta() == 2) {
@@ -150,31 +139,34 @@ public class EnvioDePreguntasController implements Initializable {
     
     /**
      * Este metodo sirve para enviar una pregunta a los jugadores.
+     *
      * @param pregunta pregunta a enviar.
      */
     public void enviarPreguntaCompleta(Pregunta pregunta) {
-            
-            Gson preguntaGSON = new Gson();
-            PreguntaEnvio preguntaAEnviar = convertirPregunta(pregunta);
-            List<RespuestaEnvio> respuestasDePregunta = convertirRespuesta(pregunta.getRespuestas());
-            preguntaAEnviar.setRespuestas(respuestasDePregunta);
-            String out = preguntaGSON.toJson(preguntaAEnviar);
-            socket.emit("envioPregunta", out);
+
+        Gson preguntaGSON = new Gson();
+        PreguntaEnvio preguntaAEnviar = convertirPregunta(pregunta);
+        List<RespuestaEnvio> respuestasDePregunta
+                = convertirRespuesta(pregunta.getRespuestas());
+        preguntaAEnviar.setRespuestas(respuestasDePregunta);
+        String out = preguntaGSON.toJson(preguntaAEnviar);
+        socket.emit("envioPregunta", out);
     }
     
     /**
-     * Este metodo convierte la pregunta que va a ser enviada a un objeto de 
+     * Este metodo convierte la pregunta que va a ser enviada a un objeto de
      * tipo JSONObject.
+     *
      * @param pregunta Pregunta a ser enviada.
      * @return Pregunta convertida en tipo JSONObject.
      */
     private PreguntaEnvio convertirPregunta(Pregunta pregunta) {
-        
+
         PreguntaEnvio pregEnvio = new PreguntaEnvio();
         pregEnvio.setPregunta(pregunta.getPregunta());
         pregEnvio.setTipoPregunta(pregunta.getTipoPregunta());
-        if(pregunta.getTipoPregunta() == 2) {
-            
+        if (pregunta.getTipoPregunta() == 2) {
+
             byte[] imagen = crearArregloImagen(pregunta.getPregunta());
             String imagenCodificada = DatatypeConverter.printBase64Binary(imagen);
             pregEnvio.setImagen(imagenCodificada);
@@ -184,42 +176,30 @@ public class EnvioDePreguntasController implements Initializable {
         return pregEnvio;
     }
     
-    /*private JSONObject convertirPreguntaAJSONObject(Pregunta pregunta) {
-        
-        JSONObject preguntaJSON = new JSONObject();
-        try {
-            
-            preguntaJSON.put("pregunta", pregunta.getPregunta());
-            preguntaJSON.put("tipoPregunta", pregunta.getTipoPregunta());
-            
-            preguntaJSON.put("imagen", )
-        } catch (JSONException ex) {
-            Logger.getLogger(EnvioDePreguntasController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return preguntaJSON;
-    }*/
-    
     /**
      * Este metodo convierte una lista de Respuestas a un arreglo de tipo 
      * JSONArray.
      * @param respuestas lista de respuestas a enviar.
      * @return Arreglo de respuestas de tipoJSON.
      */
-    private ArrayList<RespuestaEnvio> convertirRespuesta(List<Respuesta> respuestas) {
+    private ArrayList<RespuestaEnvio> convertirRespuesta(List<Respuesta> 
+            respuestas) {
         
         ArrayList<RespuestaEnvio> respuestasAEnviar = new ArrayList<>();
-        System.out.println("La pregunta tiene " + respuestas.size() + " respuestas");
         for(int i = 0; i < respuestas.size(); i++) {
             
             RespuestaEnvio nuevaRespuestaEnvio1 = new RespuestaEnvio();
             
             nuevaRespuestaEnvio1.setRespuesta(respuestas.get(i).getRespuesta());
             nuevaRespuestaEnvio1.setPuntaje(respuestas.get(i).getPuntaje());
-            nuevaRespuestaEnvio1.setTipoRespuesta(respuestas.get(i).getTipoRespuesta());
+            nuevaRespuestaEnvio1.setTipoRespuesta(respuestas.get(i)
+                    .getTipoRespuesta());
             if (respuestas.get(i).getTipoRespuesta() == 2) {
                 
-                byte[] imagen = crearArregloImagen(respuestas.get(i).getRespuesta());
-                String imagenCodificada = DatatypeConverter.printBase64Binary(imagen);
+                byte[] imagen = 
+                        crearArregloImagen(respuestas.get(i).getRespuesta());
+                String imagenCodificada = 
+                        DatatypeConverter.printBase64Binary(imagen);
                 nuevaRespuestaEnvio1.setImagen(imagenCodificada);
             }
             respuestasAEnviar.add(nuevaRespuestaEnvio1);
@@ -254,6 +234,7 @@ public class EnvioDePreguntasController implements Initializable {
     private void abrirVentanaResponderPregunta() {
         
         try {
+            
             Locale.setDefault(new Locale(idioma));
             ResourceBundle resourceBundle
                     = ResourceBundle.getBundle("juegopreguntantas.lang/lang");
@@ -265,7 +246,7 @@ public class EnvioDePreguntasController implements Initializable {
 
             Parent responder = loader.load();
             ResponderPreguntaController controller = loader.getController();
-            controller.recibirParametros(usuario, idioma);
+            controller.recibirParametros(usuario, idioma, true);
 
             Scene scene = new Scene(responder);
             Stage stage = new Stage();

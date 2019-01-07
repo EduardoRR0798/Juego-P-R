@@ -2,9 +2,7 @@ package persistencia;
 
 import entity.Cuentausuario;
 import javax.persistence.NoResultException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.persistence.EntityManager;
@@ -17,23 +15,9 @@ import javax.persistence.Query;
 /* @since 07/11/2018                                              */
 /* Nombre de la clase EnviarInvitacionController                  */
 /******************************************************************/
-public class PersistenciaCuentaUsuario {
+public class PersistenciaCuentaUsuario extends Persistencia {
     
-    /**
-     * Este metodo es para trabajar con las entidades de la base de datos 
-     * @return El EntityManager 
-     */
-    public EntityManager administrarEntidades() {
-        
-        Map<String, String> properties = new HashMap<>();
-        properties.put("javax.persistence.jdbc.user", "pregunton");
-        properties.put("javax.persistence.jdbc.password", "PR3GUNT0N");
-        EntityManagerFactory emf = javax.persistence.Persistence
-                .createEntityManagerFactory("JuegoPreguntantasPU", properties);
-        EntityManager em = emf.createEntityManager();
-        em.getTransaction().begin();
-        return em;
-    }
+    private static final String PERSISTENCIA = "JuegoPreguntantasPU";
     
     /**
      * Este metodo es para comprobar que el nombre de invitado no es el mismo 
@@ -44,20 +28,22 @@ public class PersistenciaCuentaUsuario {
     public boolean comprobarNombreDiferente(String nombreInvitado) {
         
         EntityManager em = administrarEntidades();
-        Query query = em.createQuery("SELECT c.nombreusuario "
-                + "FROM Cuentausuario c WHERE c.nombreusuario = \"" 
-                + nombreInvitado + "\"");
+        Query query = em.createNamedQuery("Cuentainvitado.findAllByNombre")
+                .setParameter("nombre", nombreInvitado);
         List<String> nombreInvitadoRepetido = query.getResultList();
-        boolean datoRepetido = nombreInvitadoRepetido.isEmpty();
-        return datoRepetido;
+        return nombreInvitadoRepetido.isEmpty();
     }
     
+    /**
+     * Este metodo recupera una cuentausuario por su id.
+     * @param id id de la cuenta a recuperar.
+     * @return cuentausuario correspondiente al id.
+     */
     public Cuentausuario recuperarUsuario(int id){
         
         EntityManager em = administrarEntidades();
-        Query query = em.createQuery("SELECT c "
-                + "FROM Cuentausuario c WHERE c.idcuentausuario = \"" 
-                + id + "\"");
+        Query query = em.createNamedQuery("Cuentausuario.findByIdcuentausuario", 
+                Cuentausuario.class).setParameter("idcuentausuario", id);
         List<Cuentausuario> usuario = query.getResultList();
         return usuario.get(0);
     }
@@ -119,10 +105,12 @@ public class PersistenciaCuentaUsuario {
     /**
      * Este metodo es para eliminar una cuenta de invitado en la base de datos 
      * @param usuario Cuenta de usuario a eliminar
+     * @return true si se elimino correctamente
      */
-    public void eliminarUsuario(Cuentausuario usuario) {
+    public boolean eliminarUsuario(Cuentausuario usuario) {
         
         EntityManager em = administrarEntidades();
+        boolean exito = false;
         try {
 
             if (!em.contains(usuario)) {
@@ -132,15 +120,14 @@ public class PersistenciaCuentaUsuario {
 
             em.remove(usuario);
             em.getTransaction().commit();
+            exito = true;
         } catch (Exception e) {
             
             Logger.getLogger(PersistenciaCuentaUsuario.class.getName())
                     .log(Level.SEVERE, null, e);
             em.getTransaction().rollback();
-        } finally {
-            
-            em.close();
-        }
+        } 
+        return exito;
     }
     
     /**
@@ -150,24 +137,22 @@ public class PersistenciaCuentaUsuario {
      * @return true si existe en la base de datos, false si no existe.
      */
     public Cuentausuario getCuentaUsuarioNombre(String nombreusuario) {
+        
         EntityManagerFactory emf = javax.persistence.Persistence.
-                createEntityManagerFactory("JuegoPreguntantasPU");
+                createEntityManagerFactory(PERSISTENCIA);
         EntityManager em = emf.createEntityManager();
-        Cuentausuario cuenta = new Cuentausuario();
+        Cuentausuario cuenta;
 
         try {
-            
-            cuenta = (Cuentausuario) em.createQuery(
-                    "SELECT c FROM Cuentausuario c "
-                            + "WHERE UPPER(c.nombreusuario) = \""+
-                            nombreusuario +"\"").getSingleResult();
+            cuenta = (Cuentausuario) em.createNamedQuery(
+                    "Cuentausuario.findByNombreusuario", 
+                    Cuentausuario.class)
+                    .setParameter("nombreusuario", nombreusuario)
+                    .getSingleResult();
         } catch (NoResultException noResult) {
             
             cuenta = null;
-        } finally {
-            
-            em.close();
-        }
+        } 
         
         return cuenta;
     }
@@ -180,21 +165,19 @@ public class PersistenciaCuentaUsuario {
     public Cuentausuario getCuentaUsuarioEmail(String email) {
         
         EntityManagerFactory emf = javax.persistence.Persistence.
-                createEntityManagerFactory("JuegoPreguntantasPU");
+                createEntityManagerFactory(PERSISTENCIA);
         EntityManager em = emf.createEntityManager();
-        Cuentausuario cuenta = new Cuentausuario();
+        Cuentausuario cuenta;
         try {
             
-            cuenta = (Cuentausuario) em.createQuery(
-                    "SELECT c FROM Cuentausuario c WHERE UPPER("
-                            + "c.correoelectronico) = \""
-                            +email +"\"").getSingleResult();
+            cuenta = (Cuentausuario) em.createNamedQuery(
+                    "Cuentausuario.findByCorreoelectronico", 
+                    Cuentausuario.class)
+                    .setParameter("correoelectronico", email)
+                    .getSingleResult();
         } catch (NoResultException noResult) {
             
             cuenta = null;
-        } finally {
-            
-            em.close();
         }
         
         return cuenta;

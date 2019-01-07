@@ -5,7 +5,6 @@ import entity.Pregunta;
 import entity.Respuesta;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -14,7 +13,6 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
@@ -34,8 +32,8 @@ import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javax.imageio.ImageIO;
-import persistencia.PersistenciaPregunta;
 import persistencia.PersistenciaSetpregunta;
+import utilidades.UtilidadCadenas;
 
 /******************************************************************/ 
 /* @version 1.0                                                   */ 
@@ -96,17 +94,18 @@ public class RegistrarPreguntaController implements Initializable {
     
     private Cuentausuario cuenta;
     private String idioma;
-    List<Pregunta> preguntas = new ArrayList<Pregunta>();
+    List<Pregunta> preguntas = new ArrayList<>();
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         
-        excluirEspacios();
-        limitarCampos(txtPregunta, 80);
-        limitarCampos(txtRespuesta1, 30);
-        limitarCampos(txtRespuesta2, 30);
-        limitarCampos(txtRespuesta3, 30);
-        limitarCampos(txtRespuesta4, 30);
+        UtilidadCadenas cadena = new UtilidadCadenas();
+        cadena.excluirSimbPregunta(txtPregunta);
+        cadena.limitarCampos(txtPregunta, 80);
+        cadena.limitarCampos(txtRespuesta1, 30);
+        cadena.limitarCampos(txtRespuesta2, 30);
+        cadena.limitarCampos(txtRespuesta3, 30);
+        cadena.limitarCampos(txtRespuesta4, 30);
     }    
     
     /**
@@ -136,7 +135,7 @@ public class RegistrarPreguntaController implements Initializable {
             ((Node) (event.getSource())).getScene().getWindow().hide();
         } catch (IOException e) {
 
-            Logger.getLogger(EnviarInvitacionController.class.getName())
+            Logger.getLogger(RegistrarPreguntaController.class.getName())
                     .log(Level.SEVERE, null, e);
         }
     }
@@ -150,9 +149,7 @@ public class RegistrarPreguntaController implements Initializable {
         
         if ((Integer.parseInt(lblNoPregunta.getText()) > 0) && 
                 !cbCategoriaSet.getSelectionModel().isEmpty()) {
-
             PersistenciaSetpregunta setPreguntaBD = new PersistenciaSetpregunta();
-            PersistenciaPregunta preguntaBD = new PersistenciaPregunta();
             if (setPreguntaBD.crearSetPregunta(cbCategoriaSet.
                     getSelectionModel().getSelectedItem(), cuenta, preguntas)) {
 
@@ -162,9 +159,15 @@ public class RegistrarPreguntaController implements Initializable {
                 lblNoPregunta.setText("00");
                 mostrarCreacionExito();
             } else {
-                                
+                
                 mostrarCreacionFracaso();
             }
+        } else if(Integer.parseInt(lblNoPregunta.getText()) == 0){
+            
+            mostrarCampoVacio("agregar almenos una pregunta");
+        } else {
+            
+            mostrarCampoVacio("elegir la categoria del set");
         }
 
     }
@@ -179,11 +182,10 @@ public class RegistrarPreguntaController implements Initializable {
         
         List<String> paths = listaPaths();
         List<Respuesta> respuestas = listaRespuesta(paths);
-        PersistenciaPregunta preguntaBD = new PersistenciaPregunta();
         Pregunta nuevaPregunta = new Pregunta();
         boolean exito = false;
         if (!respuestas.isEmpty()) {
-                        
+                       
             if (txtPregunta.getText().isEmpty() && 
                     !btnPregunta.getText().equals("+")) {
                 
@@ -202,9 +204,9 @@ public class RegistrarPreguntaController implements Initializable {
                 preguntas.add(nuevaPregunta);
                 txtPregunta.clear();
                 exito = true;
-            } 
+            }
             
-            if (exito == true){
+            if (exito){
                 
                 if(respuestas.get(0).getTipoRespuesta() == 1) {
                                         
@@ -218,10 +220,6 @@ public class RegistrarPreguntaController implements Initializable {
                     guardarImagen(paths.get(2), btnRespuesta2);
                     guardarImagen(paths.get(3), btnRespuesta3);
                     guardarImagen(paths.get(4), btnRespuesta4);
-                    System.out.println(paths.get(1));
-                    System.out.println(paths.get(2));
-                    System.out.println(paths.get(3));
-                    System.out.println(paths.get(4));
                 }
                 
                 limpiarBotones();
@@ -230,6 +228,11 @@ public class RegistrarPreguntaController implements Initializable {
                 lblNoPregunta.setText(Integer.toString(noUltimaPregunta));
             }
             
+        }
+        
+        if (!exito){
+            
+            mostrarCampoVacio("llenar uno o más campos de la pregunta");
         }
            
     }
@@ -397,7 +400,7 @@ public class RegistrarPreguntaController implements Initializable {
      */
     private List<String> listaPaths(){
         
-        List<String> paths = new ArrayList<String>();
+        List<String> paths = new ArrayList<>();
         PersistenciaSetpregunta setPreguntaBD = new PersistenciaSetpregunta();
         int noSet = setPreguntaBD.recuperarUltimaId() + 1;
         paths.add(".\\imagenes\\" + noSet + "\\" + lblNoPregunta.getText() + 
@@ -417,7 +420,7 @@ public class RegistrarPreguntaController implements Initializable {
      */
     private List<Respuesta> listaRespuesta(List<String> path){
         
-        List<Respuesta> respuestas = new ArrayList<Respuesta>();
+        List<Respuesta> respuestas = new ArrayList<>();
         boolean respuestasLleno = false;
         if (!cbRespuestaCorrecta.getSelectionModel().isEmpty()) {
             
@@ -425,6 +428,10 @@ public class RegistrarPreguntaController implements Initializable {
             Respuesta respuesta2 = new Respuesta();
             Respuesta respuesta3 = new Respuesta();
             Respuesta respuesta4 = new Respuesta();
+            respuesta1.setPuntaje(0);
+            respuesta2.setPuntaje(0);
+            respuesta3.setPuntaje(0);
+            respuesta4.setPuntaje(0);
             switch (cbRespuestaCorrecta.getSelectionModel().getSelectedItem()) {
 
                 case "1a":
@@ -438,6 +445,8 @@ public class RegistrarPreguntaController implements Initializable {
                     break;
                 case "4a":
                     respuesta4.setPuntaje(1);
+                    break;
+                default: 
                     break;
             }
             if (comprobarTextoLleno()) {
@@ -464,7 +473,7 @@ public class RegistrarPreguntaController implements Initializable {
                 respuesta4.setTipoRespuesta(2);
             } 
             
-            if (respuestasLleno == true) {
+            if (respuestasLleno) {
 
                 respuestas.add(respuesta1);
                 respuestas.add(respuesta2);
@@ -511,33 +520,29 @@ public class RegistrarPreguntaController implements Initializable {
      * @param path Ruta de la imagen
      * @param botonImagen El boton que contiene la imagen
      */
-    public void guardarImagen(String path, Button botonImagen) {
+    public void guardarImagen(String path, Button botonImagen){
         
-        FileWriter writer;
+        File outputFile = new File(path);
         ImageView imageViewAdjusted = (ImageView) botonImagen.getGraphic();
+        imageViewAdjusted.setFitWidth(150);
+        imageViewAdjusted.setFitHeight(150);
+        outputFile.getParentFile().mkdirs();
+        BufferedImage bImage = SwingFXUtils.
+                fromFXImage(imageViewAdjusted.snapshot(null, null), null);
         try {
 
-            imageViewAdjusted.setFitWidth(150);
-            imageViewAdjusted.setFitHeight(150);
-            File outputFile = new File(path);
-            outputFile.getParentFile().mkdirs();
-            writer = new FileWriter(outputFile);
-            BufferedImage bImage = SwingFXUtils.
-                    fromFXImage(imageViewAdjusted.snapshot(null, null), null);
             ImageIO.write(bImage, "png", outputFile);
             imageViewAdjusted.setFitWidth(85);
             imageViewAdjusted.setFitHeight(85);
-            writer.close();
-        } catch (IOException ex) {
+        } catch (IOException | NullPointerException ex) {
 
             Logger.getLogger(RegistrarPreguntaController.class.
                     getName()).log(Level.SEVERE, null, ex);
         } finally {
-            
+
             imageViewAdjusted.setFitWidth(85);
             imageViewAdjusted.setFitHeight(85);
         }
-        
     }
     
     /**
@@ -551,45 +556,31 @@ public class RegistrarPreguntaController implements Initializable {
         this.idioma = idioma;
         this.cuenta = (Cuentausuario)usuario;
     }
-    
-    /**
-     * Este metodo sirve para que los textFiel nieguen la entrada a espacios.
-     */
-    private void excluirEspacios() {
-
-        txtPregunta.textProperty().addListener(
-                (observable, old_value, new_value) -> {
-
-                    if (new_value.contains("¿") || new_value.contains("?")) {
-
-                        txtPregunta.setText(old_value);
-                    }
-                });
-    }
 
     /**
      * Este metodo impide que el campo de texto sea mayor a un numero de
      * caracteres fijo.
-     *
      * @param txtField textField a limitar
      * @param maximo numero maximo de caracteres permitidos.
      */
     public void limitarCampos(javafx.scene.control.TextField txtField, 
             int maximo) {
-        txtField.textProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(final ObservableValue<? extends String> ov, 
-                    final String oldValue, final String newValue) {
-                if (txtField.getText().length() > maximo) {
-                    String s = txtField.getText().substring(0, maximo);
-                    txtField.setText(s);
-                }
+        
+        txtField.textProperty().addListener((final ObservableValue<? 
+                extends String> ov, final String oldValue, 
+                final String newValue) -> {
+            
+            if (txtField.getText().length() > maximo) {
+                
+                String s = txtField.getText().substring(0, maximo);
+                txtField.setText(s);
             }
         });
     }
     
     /**
-     * Este metodo es para mostrar una ventana en caso de fracaso
+     * Este metodo es para mostrar una ventana en caso de fracaso de creacion de
+     * un set
      */ 
     private void mostrarCreacionFracaso() {
         
@@ -600,7 +591,24 @@ public class RegistrarPreguntaController implements Initializable {
                 + ", prueba de nuevo");
         alert.showAndWait();
     }
-
+    
+    /**
+     * Este metodo es para mostrar una ventana en caso de algun campo vacio
+     * @param campo El campo que está vacío
+     */ 
+    private void mostrarCampoVacio(String campo) {
+        
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Revisa");
+        alert.setHeaderText(null);
+        alert.setContentText("Falta " + campo);
+        alert.showAndWait();
+    }
+    
+    /**
+     * Este metodo es para mostrar una ventana en caso de exito de creacion de 
+     * un set
+     */ 
     private void mostrarCreacionExito() {
 
         Alert alert = new Alert(Alert.AlertType.INFORMATION);

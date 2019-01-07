@@ -8,12 +8,12 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-/******************************************************************/ 
-/* @version 1.0                                                   */ 
-/* @author Eduardo Rosas Rivera                                   */ 
-/* @since 28/11/2018                                              */
-/* Nombre de la clase JuegoPreguntantas                           */
-/******************************************************************/
+/****************************************************************** 
+ * @version 1.0                                                   * 
+ * @author Puxka Acosta Domínguez y Eduardo Rosas Rivera          * 
+ * @since 12/09/2018                                              *
+ * Nombre de la clase JuegoPreguntantas                           *
+ *****************************************************************/
 public class JuegoPreguntantas extends Application {
     
     @Override

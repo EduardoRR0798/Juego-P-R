@@ -1,17 +1,22 @@
 package clasesutilidad;
 
-/******************************************************************/ 
-/* @version 1.0                                                   */ 
-/* @author Puxka Acosta Domínguez y Eduardo Rosas Rivera          */ 
-/* @since 06/11/2018                                              */
-/* Nombre de la clase EsperarJugadoresController                  */
-/******************************************************************/ 
+/****************************************************************** 
+ * @version 1.0                                                   * 
+ * @author Puxka Acosta Domínguez y Eduardo Rosas Rivera          * 
+ * @since 06/11/2018                                              *
+ * Nombre de la clase JugadorConectadoEnvio                       *
+ *****************************************************************/ 
 public class JugadorConectadoEnvio {
+    
     private String nombre;
     private String socketid;
+    private int puntaje;
     
-    public JugadorConectadoEnvio(){
-        
+    /**
+     * Constructor de la clase.
+     */
+    public JugadorConectadoEnvio() {
+        //Vacio para invocacion.
     }
     
     /**
@@ -43,8 +48,26 @@ public class JugadorConectadoEnvio {
     }
     
     /**
+     * @return the puntaje
+     */
+    public int getPuntaje() {
+        return puntaje;
+    }
+
+    /**
+     * @param puntaje the puntaje to set
+     */
+    public void setPuntaje(int puntaje) {
+        this.puntaje = puntaje;
+    }
+    
+    public void sumarPuntos(int puntaje) {
+        
+        this.puntaje = this.puntaje + puntaje;
+    }
+    /**
      * Este metodo sirve para que al hacerlo string retorne solo el nombre.
-     * @return 
+     * @return el nombre.
      */
     @Override
     public String toString() {
